@@ -18,7 +18,7 @@ double hav(double x) {
 }
 
 double FlightInfo::calculateDistance(const AirportInfo &src, const AirportInfo &dest) {
-    static const double EARTH_DIAMETER = 2 * 6356.7523;
+    static const double EARTH_DIAMETER = 12742.0;
     static const double DEG_TO_RAD_FACTOR = M_PI / 180.0;
     double lat1 = src.getLatitude() * DEG_TO_RAD_FACTOR, lat2 = dest.getLatitude() * DEG_TO_RAD_FACTOR,
         lon1 = src.getLongitude() * DEG_TO_RAD_FACTOR, lon2 = dest.getLongitude() * DEG_TO_RAD_FACTOR;
