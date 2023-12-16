@@ -1,3 +1,8 @@
+/**
+ * @file
+ * Main file of project.
+ */
+
 #include <iostream>
 #include "Program.h"
 
