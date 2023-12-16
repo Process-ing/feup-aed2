@@ -1,7 +1,8 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.14)
 project(feup_aed2)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 file(COPY dataset/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/dataset/)
 
@@ -26,3 +27,4 @@ add_executable(feup_aed2 main.cpp
 )
 
 add_subdirectory(docs)
+add_subdirectory(test)
