@@ -11,17 +11,18 @@
 
 
 class Airline;
+typedef std::weak_ptr<Airline> AirlineRef;
 class AirportInfo;
 
 class FlightInfo {
 public:
-    explicit FlightInfo(Airline *airline, const AirportInfo& src, const AirportInfo& dest);
+    explicit FlightInfo(AirlineRef airline, const AirportInfo& src, const AirportInfo& dest);
 
-    Airline *getAirline() const;
+    const AirlineRef &getAirline() const;
     double getDistance() const;
 
 private:
-    Airline* airline_;
+    AirlineRef airline_;
     double distance_;
 
     static double calculateDistance(const AirportInfo& src, const AirportInfo& dest);

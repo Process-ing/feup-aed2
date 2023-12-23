@@ -14,33 +14,36 @@
 
 
 class City;
+typedef std::weak_ptr<City> CityRef;
 class FlightInfo;
 
 class AirportInfo {
   public:
-    AirportInfo(std::string code, std::string name, City *city, double latitude, double longitude);
+    AirportInfo(std::string code, std::string name, CityRef city, double latitude, double longitude);
 
     const std::string &getCode() const;
     const std::string &getName() const;
-    City *getCity() const;
+    const CityRef &getCity() const;
     double getLatitude() const;
     double getLongitude() const;
 
   private:
     std::string code_;
     std::string name_;
-    City* city_;
+    CityRef city_;
     double latitude_;
     double longitude_;
 };
 
 
-struct AirportHash {
+struct AirportInfoHash {
     int operator() (const AirportInfo& airport) const;
     bool operator() (const AirportInfo& airport1, const AirportInfo& airport2) const;
 };
 
 
 typedef Vertex<AirportInfo, FlightInfo> Airport;
+typedef VertexRef<AirportInfo, FlightInfo> AirportRef;
+
 
 #endif //FEUP_AED2_AIRPORT_H

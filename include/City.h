@@ -14,30 +14,40 @@
 
 
 class Country;
-template<class T, class U> class Vertex;
+typedef std::weak_ptr<Country> CountryRef;
+
+class Airline;
+typedef std::weak_ptr<Airline> AirlineRef;
+
+template<class VertexInfo, class EdgeInfo> class Vertex;
+template <class VertexInfo, class EdgeInfo>
+using VertexRef = std::weak_ptr<Vertex<VertexInfo, EdgeInfo>>;
 class AirportInfo;
 class FlightInfo;
 typedef Vertex<AirportInfo, FlightInfo> Airport;
+typedef VertexRef<AirportInfo, FlightInfo> AirportRef;
 
 class City {
   public:
-    City(std::string name, Country *country);
+    City(std::string name, CountryRef country);
 
     const std::string &getName() const;
-    Country *getCountry() const;
-    const std::vector<Airport *> &getAirports() const;
-    void addAirport(Airport* airport);
+    const CountryRef &getCountry() const;
+    const std::vector<AirportRef> &getAirports() const;
+    void addAirport(const AirportRef &airport);
 
   private:
     std::string name_;
-    Country* country_;
-    std::vector<Airport*> airports_;
+    CountryRef country_;
+    std::vector<AirportRef> airports_;
 };
+
+typedef std::weak_ptr<City> CityRef;
 
 
 struct CityHash {
-    int operator() (const City* city) const;
-    bool operator() (const City* city1, const City* city2) const;
+    int operator() (const CityRef &city) const;
+    bool operator() (const CityRef &city1, const CityRef &city2) const;
 };
 
 

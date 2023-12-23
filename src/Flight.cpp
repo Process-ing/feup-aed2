@@ -1,10 +1,11 @@
 #include <cmath>
+#include <utility>
 #include "Flight.h"
 
-FlightInfo::FlightInfo(Airline *airline, const AirportInfo& src, const AirportInfo& dest)
-    : airline_(airline), distance_(calculateDistance(src, dest)) {}
+FlightInfo::FlightInfo(AirlineRef airline, const AirportInfo& src, const AirportInfo& dest)
+    : airline_(std::move(airline)), distance_(calculateDistance(src, dest)) {}
 
-Airline *FlightInfo::getAirline() const {
+const AirlineRef &FlightInfo::getAirline() const {
     return airline_;
 }
 
