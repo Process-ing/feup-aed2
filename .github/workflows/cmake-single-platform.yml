@@ -17,5 +17,5 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      run: ${{github.workspace}}/build/test/tests
+      run: ${{github.workspace}}/build/tests
 
