@@ -15,23 +15,35 @@
 
 
 class City;
+typedef std::weak_ptr<City> CityRef;
 class Airline;
-
+typedef std::weak_ptr<Airline> AirlineRef;
 
 class Country {
   public:
     explicit Country(std::string name);
 
     const std::string &getName() const;
-    const std::vector<City> &getCities() const;
-    void addCity(const City& city);
-    const std::vector<Airline> &getAirlines() const;
-    void addAirline(const Airline& airline);
+    const std::vector<std::shared_ptr<City>> &getCities() const;
+    CityRef addCity(const City& city);
+    const std::vector<std::shared_ptr<Airline>> &getAirlines() const;
+    AirlineRef addAirline(const Airline& airline);
+
+    bool operator==(const Country& other) const;
 
   private:
     std::string name_;
-    std::vector<City> cities_;
-    std::vector<Airline> airlines_;
+    std::vector<std::shared_ptr<City>> cities_;
+    std::vector<std::shared_ptr<Airline>> airlines_;
 };
+
+typedef std::weak_ptr<Country> CountryRef;
+
+
+struct CountryHash {
+    int operator()(const CountryRef &country) const;
+    bool operator()(const CountryRef &country1, const CountryRef &country2) const;
+};
+
 
 #endif //FEUP_AED2_COUNTRY_H

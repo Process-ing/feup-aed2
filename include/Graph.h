@@ -8,22 +8,33 @@
 
 #include <vector>
 #include <unordered_set>
+#include <algorithm>
+#include <unordered_map>
+#include <iostream>
+#include <sstream>
+#include <memory>
 
-template <class T, class U> class Edge;
-template <class T, class THash, class U> class Graph;
-template <class T, class U> class Vertex;
+template <class VertexInfo, class EdgeInfo> class Edge;
+template <class VertexInfo, class EdgeInfo, class VertexInfoHash> class Graph;
+template <class VertexInfo, class EdgeInfo> class Vertex;
+template <class VertexInfo, class EdgeInfo, class VertexInfoHash> struct VertexHash;
 
-template <class T, class THash, class U> struct VTHash;
-template <class T, class THash, class U>
-using VertexSet = std::unordered_set<Vertex<T, U>*, VTHash<T, THash, U>, VTHash<T, THash, U>>;
+template <class VertexInfo, class EdgeInfo>
+using VertexRef = std::weak_ptr<Vertex<VertexInfo, EdgeInfo>>;
+template <class VertexInfo, class EdgeInfo, class VertexInfoHash>
+using VertexSet = std::unordered_set<
+    std::shared_ptr<Vertex<VertexInfo, EdgeInfo>>,
+    VertexHash<VertexInfo, EdgeInfo, VertexInfoHash>,
+    VertexHash<VertexInfo, EdgeInfo, VertexInfoHash>
+>;
 
-template <class T, class U>
+template <class VertexInfo, class EdgeInfo>
 class Vertex {
   public:
-    explicit Vertex(const T &info);
+    explicit Vertex(const VertexInfo &info);
 
-    const T &getInfo() const;
-    void setInfo(const T &info);
+    const VertexInfo &getInfo() const;
+    void setInfo(const VertexInfo &info);
     bool isVisited() const;
     void setVisited(bool visited);
     bool isProcessing() const;
@@ -34,225 +45,207 @@ class Vertex {
     void setNum(int num);
     int getLow() const;
     void setLow(int low);
-    const std::vector<T, U> &getAdj() const;
-
-    friend class Graph<T, class THash, U>;
+    const std::vector<Edge<VertexInfo, EdgeInfo>> &getAdj() const;
+    void addEdge(VertexRef<VertexInfo, EdgeInfo> dest, const EdgeInfo &info);
 
   private:
-    T info_;
-    std::vector<Vertex<T, U>*> adj_;
+    VertexInfo info_;
+    std::vector<Edge<VertexInfo, EdgeInfo>> adj_;
     bool visited_;
     bool processing_;
     int indegree_;
     int num_;
     int low_;
-
-    void addEdge(Vertex<T, U> *dest, const U &info);
-    bool removeEdgeTo(const T &dest);
 };
 
 
-template<class T, class THash, class U>
-struct VTHash {
-  int operator()(const Vertex<T, U>& v);
-  bool operator()(const Vertex<T, U>& v1, const Vertex<T, U>& v2);
+template<class VertexInfo, class EdgeInfo, class VertexInfoHash>
+struct VertexHash {
+  int operator()(const std::shared_ptr<Vertex<VertexInfo, EdgeInfo>> &v) const;
+  bool operator()(
+      const std::shared_ptr<Vertex<VertexInfo, EdgeInfo>> &v1,
+      const std::shared_ptr<Vertex<VertexInfo, EdgeInfo>> &v2
+  ) const;
 };
 
 
-template <class T, class U>
+template <class VertexInfo, class EdgeInfo>
 class Edge {
   public:
-    Edge(Vertex<T, U> *dest, const U &info);
-    Vertex<T, U> *getDest() const;
-    void setDest(Vertex<T, U> *dest);
-    const U& getInfo() const;
-    void setInfo(const U &info);
+    Edge(VertexRef<VertexInfo, EdgeInfo> dest, const EdgeInfo &info);
+    VertexRef<VertexInfo, EdgeInfo> getDest() const;
+    void setDest(VertexRef<VertexInfo, EdgeInfo> dest);
+    const EdgeInfo& getInfo() const;
+    void setInfo(const EdgeInfo &info);
 
   private:
-    Vertex<T, U> *dest_;
-    U info_;
+    VertexRef<VertexInfo, EdgeInfo> dest_;
+    EdgeInfo info_;
 };
 
 
-template <class T, class THash, class U>
+template <class VertexInfo, class EdgeInfo, class VertexInfoHash>
 class Graph {
   public:
     Graph();
 
-    const VertexSet<T, THash, U> &getVertexSet() const;
-    Vertex<T, U> *findVertex(const T &info) const;
-    bool addVertex(const T &info);
-    bool removeVertex(const T &info);
-    bool addEdge(const T &src, const T &dest, const U &info);
-    bool removeEdge(const T &src, const T &dest);
+    const VertexSet<VertexInfo, EdgeInfo, VertexInfoHash> &getVertexSet() const;
+    VertexRef<VertexInfo, EdgeInfo> findVertex(const VertexInfo &info) const;
+    bool addVertex(const VertexInfo &info);
+    bool addEdge(const VertexInfo &src, const VertexInfo &dest, const EdgeInfo &info);
 
-private:
-    VertexSet<T, THash, U> vertexSet_;
+  private:
+    VertexSet<VertexInfo, EdgeInfo, VertexInfoHash> vertexSet_;
 };
 
 
-template<class T, class U>
-Vertex<T, U>::Vertex(const T &info): info_(info), adj_(),
+template<class VertexInfo, class EdgeInfo>
+Vertex<VertexInfo, EdgeInfo>::Vertex(const VertexInfo &info): info_(info), adj_(),
     visited_(false), processing_(false), indegree_(0), num_(0), low_(0) {}
 
-template<class T, class U>
-const T &Vertex<T, U>::getInfo() const {
+template<class VertexInfo, class EdgeInfo>
+const VertexInfo &Vertex<VertexInfo, EdgeInfo>::getInfo() const {
     return info_;
 }
 
-template<class T, class U>
-void Vertex<T, U>::setInfo(const T &info) {
+template<class VertexInfo, class EdgeInfo>
+void Vertex<VertexInfo, EdgeInfo>::setInfo(const VertexInfo &info) {
     info_ = info;
 }
 
-template<class T, class U>
-void Vertex<T, U>::addEdge(Vertex<T, U> *dest, const U &info) {
+template<class VertexInfo, class EdgeInfo>
+void Vertex<VertexInfo, EdgeInfo>::addEdge(VertexRef<VertexInfo, EdgeInfo> dest, const EdgeInfo &info) {
     adj_.emplace_back(dest, info);
 }
 
-template<class T, class U>
-bool Vertex<T, U>::removeEdgeTo(const T &dest) {
-    for (auto it = adj_.begin(); it != adj_.end(); it++) {
-        if (it->getDest().getInfo() == dest) {
-            adj_.erase(it);
-            return true;
-        }
-    }
-    return false;
-}
 
-
-template<class T, class U>
-bool Vertex<T, U>::isVisited() const {
+template<class VertexInfo, class EdgeInfo>
+bool Vertex<VertexInfo, EdgeInfo>::isVisited() const {
     return visited_;
 }
 
-template<class T, class U>
-void Vertex<T, U>::setVisited(bool visited) {
+template<class VertexInfo, class EdgeInfo>
+void Vertex<VertexInfo, EdgeInfo>::setVisited(bool visited) {
     visited_ = visited;
 }
 
-template<class T, class U>
-bool Vertex<T, U>::isProcessing() const {
+template<class VertexInfo, class EdgeInfo>
+bool Vertex<VertexInfo, EdgeInfo>::isProcessing() const {
     return processing_;
 }
 
-template<class T, class U>
-void Vertex<T, U>::setProcessing(bool processing) {
+template<class VertexInfo, class EdgeInfo>
+void Vertex<VertexInfo, EdgeInfo>::setProcessing(bool processing) {
     processing_ = processing;
 }
 
-template<class T, class U>
-int Vertex<T, U>::getIndegree() const {
+template<class VertexInfo, class EdgeInfo>
+int Vertex<VertexInfo, EdgeInfo>::getIndegree() const {
     return indegree_;
 }
 
-template<class T, class U>
-void Vertex<T, U>::setIndegree(int indegree) {
+template<class VertexInfo, class EdgeInfo>
+void Vertex<VertexInfo, EdgeInfo>::setIndegree(int indegree) {
     indegree_ = indegree;
 }
 
-template<class T, class U>
-int Vertex<T, U>::getNum() const {
+template<class VertexInfo, class EdgeInfo>
+int Vertex<VertexInfo, EdgeInfo>::getNum() const {
     return num_;
 }
 
-template<class T, class U>
-void Vertex<T, U>::setNum(int num) {
+template<class VertexInfo, class EdgeInfo>
+void Vertex<VertexInfo, EdgeInfo>::setNum(int num) {
     num_ = num;
 }
 
-template<class T, class U>
-int Vertex<T, U>::getLow() const {
+template<class VertexInfo, class EdgeInfo>
+int Vertex<VertexInfo, EdgeInfo>::getLow() const {
     return low_;
 }
 
-template<class T, class U>
-void Vertex<T, U>::setLow(int low) {
+template<class VertexInfo, class EdgeInfo>
+void Vertex<VertexInfo, EdgeInfo>::setLow(int low) {
     low_ = low;
 }
 
-template<class T, class U>
-const std::vector<T, U> &Vertex<T, U>::getAdj() const {
+template<class VertexInfo, class EdgeInfo>
+const std::vector<Edge<VertexInfo, EdgeInfo>> &Vertex<VertexInfo, EdgeInfo>::getAdj() const {
     return adj_;
 }
 
 
-template<class T, class U>
-Edge<T, U>::Edge(Vertex<T, U> *dest, const U &info): dest_(dest), info_(info) {}
+template<class VertexInfo, class EdgeInfo>
+Edge<VertexInfo, EdgeInfo>::Edge(VertexRef<VertexInfo, EdgeInfo> dest, const EdgeInfo &info)
+    : dest_(dest), info_(info) {}
 
-template<class T, class U>
-Vertex<T, U> *Edge<T, U>::getDest() const {
+template<class VertexInfo, class EdgeInfo>
+VertexRef<VertexInfo, EdgeInfo> Edge<VertexInfo, EdgeInfo>::getDest() const {
     return dest_;
 }
 
-template<class T, class U>
-void Edge<T, U>::setDest(Vertex<T, U> *dest) {
+template<class VertexInfo, class EdgeInfo>
+void Edge<VertexInfo, EdgeInfo>::setDest(VertexRef<VertexInfo, EdgeInfo> dest) {
     dest_ = dest;
 }
 
-template<class T, class U>
-const U &Edge<T, U>::getInfo() const {
+template<class VertexInfo, class EdgeInfo>
+const EdgeInfo &Edge<VertexInfo, EdgeInfo>::getInfo() const {
     return info_;
 }
 
-template<class T, class U>
-void Edge<T, U>::setInfo(const U &info) {
+template<class VertexInfo, class EdgeInfo>
+void Edge<VertexInfo, EdgeInfo>::setInfo(const EdgeInfo &info) {
     info_ = info;
 }
 
 
-template<class T, class THash, class U>
-Graph<T, THash, U>::Graph() = default;
+template<class VertexInfo, class EdgeInfo, class VertexInfoHash>
+Graph<VertexInfo, EdgeInfo, VertexInfoHash>::Graph() = default;
 
-template<class T, class THash, class U>
-const VertexSet<T, THash, U> &Graph<T, THash, U>::getVertexSet() const {
+template<class VertexInfo, class EdgeInfo, class VertexInfoHash>
+const VertexSet<VertexInfo, EdgeInfo, VertexInfoHash> &Graph<VertexInfo, EdgeInfo, VertexInfoHash>::getVertexSet() const {
     return vertexSet_;
 }
 
-template<class T, class THash, class U>
-Vertex<T, U> *Graph<T, THash, U>::findVertex(const T &info) const {
-    auto found = vertexSet_.find(Vertex<T, U>(info));
-    return found != vertexSet_.begin() ? *found : nullptr;
+template<class VertexInfo, class EdgeInfo, class VertexInfoHash>
+VertexRef<VertexInfo, EdgeInfo> Graph<VertexInfo, EdgeInfo, VertexInfoHash>::findVertex(const VertexInfo &info) const {
+    auto found = vertexSet_.find(std::make_shared<Vertex<VertexInfo, EdgeInfo>>(Vertex<VertexInfo, EdgeInfo>(info)));
+    return found != vertexSet_.end() ? *found : VertexRef<VertexInfo, EdgeInfo>();
 }
 
-template<class T, class THash, class U>
-bool Graph<T, THash, U>::addVertex(const T &info) {
-    return vertexSet_.insert(Vertex<T, U>(info)).second;
+template<class VertexInfo, class EdgeInfo, class VertexInfoHash>
+bool Graph<VertexInfo, EdgeInfo, VertexInfoHash>::addVertex(const VertexInfo &info) {
+    return vertexSet_.insert(std::make_shared<Vertex<VertexInfo, EdgeInfo>>(Vertex<VertexInfo, EdgeInfo>(info)))
+        .second;
 }
 
-template<class T, class THash, class U>
-bool Graph<T, THash, U>::removeVertex(const T &info) {
-    return vertexSet_.erase(Vertex<T, U>(info)) == 1;
-}
-
-template<class T, class THash, class U>
-bool Graph<T, THash, U>::addEdge(const T &src, const T &dest, const U &info) {
+template<class VertexInfo, class EdgeInfo, class VertexInfoHash>
+bool Graph<VertexInfo, EdgeInfo, VertexInfoHash>::addEdge(
+    const VertexInfo &src, const VertexInfo &dest, const EdgeInfo &info) {
     auto v1 = findVertex(src);
     auto v2 = findVertex(dest);
-    if (!v1 || !v2)
+    if (!v1.lock() || !v2.lock())
         return false;
-    v1->addEdge(v2, info);
+
+    v1.lock()->addEdge(v2.lock(), info);
+    v2.lock()->setIndegree(v2.lock()->getIndegree() + 1);
     return true;
 }
 
-template<class T, class THash, class U>
-bool Graph<T, THash, U>::removeEdge(const T &src, const T &dest) {
-    auto v1 = findVertex(src);
-    if (!v1)
-        return false;
-    return v1->removeEdgeTo(dest);
+
+template<class VertexInfo, class EdgeInfo, class VertexInfoHash>
+int VertexHash<VertexInfo, EdgeInfo, VertexInfoHash>
+    ::operator()(const std::shared_ptr<Vertex<VertexInfo, EdgeInfo>> &v) const {
+    return VertexInfoHash()(v->getInfo());
 }
 
-
-template<class T, class THash, class U>
-int VTHash<T, THash, U>::operator()(const Vertex<T, U> &v) {
-    return THash()(v.getInfo());
-}
-
-template<class T, class THash, class U>
-bool VTHash<T, THash, U>::operator()(const Vertex<T, U> &v1, const Vertex<T, U> &v2) {
-    return THash()(v1.getInfo(), v2.getInfo());
+template<class VertexInfo, class EdgeInfo, class VertexInfoHash>
+bool VertexHash<VertexInfo, EdgeInfo, VertexInfoHash>::operator()(
+    const std::shared_ptr<Vertex<VertexInfo, EdgeInfo>> &v1,
+    const std::shared_ptr<Vertex<VertexInfo, EdgeInfo>> &v2
+) const {
+    return VertexInfoHash()(v1->getInfo(), v2->getInfo());
 }
 
 #endif //FEUP_AED2_GRAPH_H

@@ -11,18 +11,30 @@ const string &Country::getName() const {
     return name_;
 }
 
-const vector<City> &Country::getCities() const {
+const vector<shared_ptr<City>> &Country::getCities() const {
     return cities_;
 }
 
-void Country::addCity(const City &city) {
-    cities_.push_back(city);
+CityRef Country::addCity(const City &city) {
+    return *cities_.insert(cities_.end(), make_shared<City>(city));
 }
 
-const vector<Airline> &Country::getAirlines() const {
+const vector<shared_ptr<Airline>> &Country::getAirlines() const {
     return airlines_;
 }
 
-void Country::addAirline(const Airline &airline) {
-    airlines_.push_back(airline);
+AirlineRef Country::addAirline(const Airline &airline) {
+    return *airlines_.insert(airlines_.end(), make_shared<Airline>(airline));
+}
+
+bool Country::operator==(const Country& other) const {
+    return name_ == other.name_;
+}
+
+int CountryHash::operator()(const CountryRef &country) const {
+    return (int)hash<string>()(country.lock()->getName());
+}
+
+bool CountryHash::operator()(const CountryRef &country1, const CountryRef &country2) const {
+    return country1.lock()->getName() == country2.lock()->getName();
 }

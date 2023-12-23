@@ -28,3 +28,30 @@ add_executable(feup_aed2 main.cpp
 
 add_subdirectory(docs)
 add_subdirectory(test)
+
+enable_testing()
+
+add_executable(tests test/tests.cpp
+        src/Airport.cpp
+        include/Airport.h
+        src/City.cpp
+        include/City.h
+        src/Country.cpp
+        include/Country.h
+        src/Airline.cpp
+        include/Airline.h
+        src/Dataset.cpp
+        include/Dataset.h
+        include/Graph.h
+        src/Flight.cpp
+        include/Flight.h
+        src/Program.cpp
+        include/Program.h
+)
+target_link_libraries(
+        tests
+        gtest_main
+)
+
+include(GoogleTest)
+gtest_discover_tests(tests)

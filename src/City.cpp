@@ -4,29 +4,28 @@
 
 using namespace std;
 
-City::City(string name, Country *country) : name_(std::move(name)), country_(country) {}
+City::City(string name, CountryRef country) : name_(std::move(name)), country_(std::move(country)) {}
 
 const string &City::getName() const {
     return name_;
 }
 
-Country *City::getCountry() const {
+const CountryRef &City::getCountry() const {
     return country_;
 }
 
-const vector<Airport *> &City::getAirports() const {
+const vector<AirportRef> &City::getAirports() const {
     return airports_;
 }
 
-void City::addAirport(Airport *airport) {
+void City::addAirport(const AirportRef &airport) {
     airports_.push_back(airport);
 }
 
-int CityHash::operator()(const City *city) const {
-    hash<string> stringHash;
-    return (int)stringHash(city->getName()) * 37 + (int)stringHash(city->getCountry()->getName());
+int CityHash::operator()(const CityRef &city) const {
+    return (int)hash<string>()(city.lock()->getName()) * 37 + CountryHash()(city.lock()->getCountry());
 }
 
-bool CityHash::operator()(const City *city1, const City *city2) const {
-    return city1->getName() == city2->getName() && city1->getCountry()->getName() == city2->getCountry()->getName();
+bool CityHash::operator()(const CityRef &city1, const CityRef &city2) const {
+    return city1.lock()->getName() == city2.lock()->getName() && CountryHash()(city1.lock()->getCountry(), city2.lock()->getCountry());
 }
