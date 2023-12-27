@@ -193,6 +193,26 @@ void AirportDFS(AirportRef start, vector<AirportRef>& reachable, int depth, int 
     }
 }
 
+vector<CityRef> Dataset::getReachableCitiesfromAirport(AirportRef airport, int x) {
+    CitySet cities;
+    auto airports = getReachableAirportsfromAirport(airport, x);
+    for (auto airport : airports) {
+        cities.insert(airport.lock()->getInfo().getCity());
+    }
+    vector<CityRef> cities1(cities.begin(), cities.end());
+    return cities1;
+}
+
+vector<CountryRef> Dataset::getReachableCountriesfromAirport(AirportRef airport, int x) {
+    CountryRefSet countries;
+    auto cities = getReachableCitiesfromAirport(airport, x);
+    for (auto city : cities) {
+        countries.insert(city.lock()->getCountry());
+    }
+    vector<CountryRef> countries1(countries.begin(), countries.end());
+    return countries1;
+}
+
 const AirlineSet& Dataset::getAirlines() const {
     return airlineSet_;
 }
