@@ -65,3 +65,47 @@ TEST(FileParseTestSuite, ReadFilesTest) {
     EXPECT_EQ("LAS", SCKAirport.lock()->getAdj()[0].getDest().lock()->getInfo().getCode());
     EXPECT_EQ(1, SCKAirport.lock()->getIndegree());
 }
+
+TEST(Issue16Test, DisplayAirlinesFromCountry) {
+    Dataset dataset;
+
+    dataset.readFiles();
+
+    CountryRef portugal = dataset.getCountry("Portugal");
+    auto airlines = dataset.displayAirlinesFromCountry(*portugal.lock());
+    ASSERT_EQ(5, airlines.size());
+    ASSERT_TRUE(std::find(airlines.begin(), airlines.end(), "Name : TAP Air Portugal, Code : TAP, Callsign : AIR PORTUGAL") != airlines.end());
+}
+
+TEST(Issue16Test, DisplayCitiesFromCountry) {
+    Dataset dataset;
+
+    dataset.readFiles();
+
+    CountryRef portugal = dataset.getCountry("Portugal");
+    auto cities = dataset.displayCitiesFromCountry(*portugal.lock());
+    ASSERT_EQ(14, cities.size());
+    ASSERT_TRUE(std::find(cities.begin(), cities.end(), "Name : Faro") != cities.end());
+}
+
+TEST(Issue16Test, DisplayAirportsFromCity) {
+    Dataset dataset;
+
+    dataset.readFiles();
+
+    CityRef faro = dataset.getCity("Faro", "Portugal");
+    auto airports = dataset.displayAirportsFromCity(*faro.lock());
+    ASSERT_EQ(1, airports.size());
+    ASSERT_TRUE(std::find(airports.begin(), airports.end(), "Name : Faro, Code : FAO") != airports.end());
+}
+
+TEST(Issue17Test, DisplayCountriesCityFliesTo) {
+    Dataset dataset;
+
+    dataset.readFiles();
+
+    CityRef faro = dataset.getCity("Faro", "Portugal");
+    auto countries = dataset.displayCountriesCityFliesTo(*faro.lock());
+    ASSERT_EQ(14, countries.size());
+    ASSERT_TRUE(std::find(countries.begin(), countries.end(), "France") != countries.end());
+}
