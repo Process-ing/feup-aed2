@@ -89,15 +89,17 @@ vector<AirportInfo> Program::searchFlightsFromAirport(string airPortCode) {
     return flightStrings;
 }
 
-int Program::numberOfFlightsByCityAndAirline(const string& countryName, const string& cityName) {
+float Program::numberOfFlightsByCityAndAirline() {
     int flights=0;
-    CityRef city = dataset_.getCity(cityName, countryName);
-    for(const auto& airport : city.lock()->getAirports()){
-        for(const auto& flight : airport.lock()->getAdj()){
-            flights++;
+    int cities=0;
+    for(const auto& city : dataset_.getCities()){
+        cities++;
+        for(const auto& airport : city.lock()->getAirports()){
+            flights+=airport.lock()->getAdj().size();
         }
     }
-    return flights;
+    float average = flights/cities;
+    return average;
 }
 
 vector<AirportInfo> Program::searchDestinationsFromAirport(string airPortCode) {
