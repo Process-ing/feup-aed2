@@ -741,7 +741,81 @@ void Program::displayCountriesFlyingToAirport() {
     }
 }
 void Program::displayCountriesFlyingToCity() {
+static const int RESULTS_PER_PAGE = 10;
+    CityRef city = receiveCity();
+    if(city.expired())
+        return;
+    vector<CountryRef> countries = dataset_.getCountriesCityFliesTo(*city.lock());
+    enum Option {
+        NEXT_PAGE = 1,
+        PREVIOUS_PAGE = 2,
+        GO_BACK = 3,
+    };
+    int page = 1;
+    int total_pages = ceil((double) countries.size() / RESULTS_PER_PAGE);
+    while (true) {
+        clearScreen();
+        cout << "\n"
+                " ┌─ Search results ──────────────────────────────────────────────────────────────────────┐\n"
+                " │                                                                                       │\n";
 
+        int count = 0;
+        for (auto it = countries.begin(); it != countries.end(); ++it) {
+            if (count >= (page - 1) * RESULTS_PER_PAGE && count < page * RESULTS_PER_PAGE) {
+                cout << " │  " << left << setw(85) << (*it).lock()->getName() << "│\n";
+            }
+            ++count;
+        }
+        cout << " │                                                                                       │\n"
+                " │  Page " << setw(80) << to_string(page) + " of " + to_string(total_pages) << "│\n";
+        if (page < total_pages)
+            cout << " │     [1] Next page                                                                     │\n";
+
+        if (page > 1)
+            cout << " │     [2] Previous page                                                                 │\n";
+
+        cout << " │     [3] Go back                                                                       │\n"
+                " │                                                                                       │\n"
+                " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
+
+
+        int option;
+        cout << "Please choose an option: ";
+        bool valid_option = false;
+        while (true) {
+            if (!(cin >> option)) {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cout << "Invalid option. Please choose another option: ";
+                continue;
+            }
+
+            switch (option) {
+                case Option::NEXT_PAGE:
+                    if (page < total_pages) {
+                        page++;
+                        valid_option = true;
+                    } else {
+                        valid_option = false;
+                    }
+                    break;
+                case Option::PREVIOUS_PAGE:
+                    if (page > 1) {
+                        page--;
+                        valid_option = true;
+                    } else {
+                        valid_option = false;
+                    }
+                    break;
+                case Option::GO_BACK:
+                    displayMainMenu();
+                    return;
+            }
+            if (valid_option)
+                break;
+            cout << "Invalid option. Please choose another option: ";
+        }
+    }
 }
 
 CountryRef Program::receiveCountry() const {
