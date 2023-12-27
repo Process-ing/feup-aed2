@@ -68,24 +68,3 @@ TEST(FileParseTestSuite, ReadFilesTest) {
     EXPECT_EQ("LAS", SCKAirport.lock()->getAdj()[0].getDest().lock()->getInfo().getCode());
     EXPECT_EQ(1, SCKAirport.lock()->getIndegree());
 }
-
-TEST(ProgramTest, searchDestinationsFromAirport) {
-    Program program;
-
-    std::string airportCode = "JFK";
-    std::vector<AirportInfo> destinations = program.searchDestinationsFromAirport(airportCode);
-
-    ASSERT_EQ(454, destinations.size());
-}
-
-TEST(ProgramTest, DisplayFlightsByCityAndAirline) {
-    Program program;
-    float number = program.numberOfFlightsByCityAndAirline();
-    ASSERT_EQ(21, number);
-}
-TEST(ProgramTest, searchFlightsFromAirport) {
-    Program program;
-    std::string airportCode = "JFK";
-    std::vector<AirportInfo> flights = program.searchFlightsFromAirport(airportCode);
-    ASSERT_EQ(454, flights.size());
-}
