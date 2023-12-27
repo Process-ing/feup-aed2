@@ -17,13 +17,14 @@ class Program {
     std::vector<AirportInfo> searchFlightsFromAirport(std::string airPortCode);
     float numberOfFlightsByCityAndAirline();
     std::vector<AirportInfo> searchDestinationsFromAirport(std::string airPortCode);
-    std::vector<std::pair<AirportRef,int>> searchTopNAirPortsWithGreatestTraffic(int n);
-
+    std::vector<AirportRef> searchTopNAirPortsWithGreatestTraffic(int n);
+    void displayAllCountries();
   private:
     Dataset dataset_;
 
     void displayMainMenu();
-
+    void searchMenu();
+    void statisticsMenu();
     int receiveOption(int max);
     static void waitForEnter();
     static void clearScreen();
