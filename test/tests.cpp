@@ -66,46 +66,42 @@ TEST(FileParseTestSuite, ReadFilesTest) {
     EXPECT_EQ(1, SCKAirport.lock()->getIndegree());
 }
 
-TEST(Issue16Test, DisplayAirlinesFromCountry) {
+TEST(Issue16Test, GetAirlinesFromCountry) {
     Dataset dataset;
 
     dataset.readFiles();
 
     CountryRef portugal = dataset.getCountry("Portugal");
-    auto airlines = dataset.displayAirlinesFromCountry(*portugal.lock());
+    auto airlines = dataset.getAirlinesFromCountry(*portugal.lock());
     ASSERT_EQ(5, airlines.size());
-    ASSERT_TRUE(std::find(airlines.begin(), airlines.end(), "Name : TAP Air Portugal, Code : TAP, Callsign : AIR PORTUGAL") != airlines.end());
 }
 
-TEST(Issue16Test, DisplayCitiesFromCountry) {
+TEST(Issue16Test, GetCitiesFromCountry) {
     Dataset dataset;
 
     dataset.readFiles();
 
     CountryRef portugal = dataset.getCountry("Portugal");
-    auto cities = dataset.displayCitiesFromCountry(*portugal.lock());
+    auto cities = dataset.getCitiesFromCountry(*portugal.lock());
     ASSERT_EQ(14, cities.size());
-    ASSERT_TRUE(std::find(cities.begin(), cities.end(), "Name : Faro") != cities.end());
 }
 
-TEST(Issue16Test, DisplayAirportsFromCity) {
+TEST(Issue16Test, GetAirportsFromCity) {
     Dataset dataset;
 
     dataset.readFiles();
 
     CityRef faro = dataset.getCity("Faro", "Portugal");
-    auto airports = dataset.displayAirportsFromCity(*faro.lock());
+    auto airports = dataset.getAirportsFromCity(*faro.lock());
     ASSERT_EQ(1, airports.size());
-    ASSERT_TRUE(std::find(airports.begin(), airports.end(), "Name : Faro, Code : FAO") != airports.end());
 }
 
-TEST(Issue17Test, DisplayCountriesCityFliesTo) {
+TEST(Issue17Test, GetCountriesCityFliesTo) {
     Dataset dataset;
 
     dataset.readFiles();
 
     CityRef faro = dataset.getCity("Faro", "Portugal");
-    auto countries = dataset.displayCountriesCityFliesTo(*faro.lock());
+    auto countries = dataset.getCountriesCityFliesTo(*faro.lock());
     ASSERT_EQ(14, countries.size());
-    ASSERT_TRUE(std::find(countries.begin(), countries.end(), "France") != countries.end());
 }

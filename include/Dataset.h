@@ -11,6 +11,7 @@
 
 typedef Graph<AirportInfo, FlightInfo, AirportInfoHash> Network;
 typedef std::unordered_set<std::shared_ptr<Country>, CountryHash, CountryHash> CountrySet;
+typedef std::unordered_set<CountryRef, CountryHash, CountryHash> CountryRefSet;
 typedef std::unordered_set<CityRef, CityHash, CityHash> CitySet;
 typedef std::unordered_set<AirlineRef, AirlineHash, AirlineHash> AirlineSet;
 
@@ -32,11 +33,11 @@ class Dataset {
     CityRef getCity(const std::string& name, const std::string& countryName) const;
     AirportRef getAirport(const std::string& code) const;
     AirlineRef getAirline(const std::string& code) const;
-    std::vector<std::string> displayAirlinesFromCountry(const Country& country);
-    std::vector<std::string> displayCitiesFromCountry(const Country& country);
-    std::vector<std::string> displayAirportsFromCity(const City& city);
-    std::vector<std::string> displayCountriesAirportFliesTo(const Airport& airport);
-    std::vector<std::string> displayCountriesCityFliesTo(const City& city);
+    std::vector<AirlineRef> getAirlinesFromCountry(const Country& country);
+    std::vector<CityRef> getCitiesFromCountry(const Country& country);
+    std::vector<AirportRef> getAirportsFromCity(const City& city);
+    std::vector<CountryRef> getCountriesAirportFliesTo(const Airport& airport);
+    std::vector<CountryRef> getCountriesCityFliesTo(const City& city);
 
   private:
     CountrySet countrySet_;

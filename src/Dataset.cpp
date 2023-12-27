@@ -1,7 +1,6 @@
 #include <fstream>
 #include <limits>
 #include <sstream>
-#include <set>
 #include "Dataset.h"
 
 using namespace std;
@@ -124,47 +123,47 @@ AirlineRef Dataset::getAirline(const string& code) const {
     return airline != airlineSet_.end() ? *airline : AirlineRef();
 }
 
-vector<string> Dataset::displayAirlinesFromCountry(const Country& country) {
-    vector<string> airlines;
+vector<AirlineRef> Dataset::getAirlinesFromCountry(const Country& country) {
+    vector<AirlineRef> airlines;
     for (const auto& airline : country.getAirlines()) {
-        airlines.push_back("Name : " + airline->getName() + ", Code : " + airline->getCode() + ", Callsign : " + airline->getCallsign());
+        airlines.push_back(airline);
     }
     return airlines;
 }
 
-vector<string> Dataset::displayCitiesFromCountry(const Country& country) {
-    vector<string> cities;
+vector<CityRef> Dataset::getCitiesFromCountry(const Country& country) {
+    vector<CityRef> cities;
     for (const auto& city : country.getCities()) {
-        cities.push_back("Name : " + city->getName());
+        cities.push_back(city);
     }
     return cities;
 }
 
-vector<string> Dataset::displayAirportsFromCity(const City& city) {
-    vector<string> airports;
+vector<AirportRef> Dataset::getAirportsFromCity(const City& city) {
+    vector<AirportRef> airports;
     for (const auto& airport : city.getAirports()) {
-        airports.push_back("Name : " + airport.lock()->getInfo().getName() + ", Code : " + airport.lock()->getInfo().getCode());
+        airports.push_back(airport);
     }
     return airports;
 }
 
-vector<string> Dataset::displayCountriesAirportFliesTo(const Airport& airport) {
-    set<string> countries;
+vector<CountryRef> Dataset::getCountriesAirportFliesTo(const Airport& airport) {
+    CountryRefSet countries;
     for (const auto& flight : airport.getAdj()) {
         auto destination = flight.getDest();
-        countries.insert(destination.lock()->getInfo().getCity().lock()->getCountry().lock()->getName());
+        countries.insert(countries.end(), destination.lock()->getInfo().getCity().lock()->getCountry());
     }
-    vector<string> countries1(countries.begin(), countries.end());
+    vector<CountryRef> countries1(countries.begin(), countries.end());
     return countries1;
 }
 
-vector<string> Dataset::displayCountriesCityFliesTo(const City& city) {
-    set<string> countries;
+vector<CountryRef> Dataset::getCountriesCityFliesTo(const City& city) {
+    CountryRefSet countries;
     for (const auto& airport : city.getAirports()) {
-        vector<string> moreCountries = displayCountriesAirportFliesTo(*airport.lock());
+        vector<CountryRef> moreCountries = getCountriesAirportFliesTo(*airport.lock());
         countries.insert(moreCountries.begin(), moreCountries.end());
     }
-    vector<string> countries1(countries.begin(), countries.end());
+    vector<CountryRef> countries1(countries.begin(), countries.end());
     return countries1;
 }
 
