@@ -105,3 +105,12 @@ TEST(Issue17Test, GetCountriesCityFliesTo) {
     auto countries = dataset.getCountriesCityFliesTo(*faro.lock());
     ASSERT_EQ(14, countries.size());
 }
+
+TEST(Issue29Test, GetEssencialAirports) {
+    Dataset dataset;
+
+    dataset.readFiles();
+
+    auto airports = dataset.getEssencialAirports();
+    ASSERT_EQ(312, airports.size());
+}

@@ -1,6 +1,7 @@
 #include <fstream>
 #include <limits>
 #include <sstream>
+#include <stack>
 #include "Dataset.h"
 
 using namespace std;
@@ -165,6 +166,51 @@ vector<CountryRef> Dataset::getCountriesCityFliesTo(const City& city) {
     }
     vector<CountryRef> countries1(countries.begin(), countries.end());
     return countries1;
+}
+
+void dfs_art(AirportRef v, stack<AirportRef> &s, AirportSet &res, int &i);
+vector<AirportRef> Dataset::getEssencialAirports() {
+    AirportSet airports;
+    stack<AirportRef> s;
+    int index = 1;
+
+    for (auto v : network_.getVertexSet())
+        v->setVisited(false);
+
+    for (auto v : network_.getVertexSet()) {
+        if (!v->isVisited())
+            dfs_art(v, s, airports, index);
+    }
+    vector<AirportRef> airports1(airports.begin(), airports.end());
+    return airports1;
+}
+
+void dfs_art(AirportRef v, stack<AirportRef> &s, AirportSet &res, int &i) {
+    int count = 0;
+    v.lock()->setVisited(true);
+    v.lock()->setLow(i);
+    v.lock()->setNum(i);
+    v.lock()->setProcessing(true);
+    bool isRoot = s.empty();
+    s.push(v);
+    i++;
+
+    for (auto &e: v.lock()->getAdj()) {
+        auto w = e.getDest();
+        if (!w.lock()->isVisited()) {
+            count++;
+            dfs_art(w, s, res, i);
+            v.lock()->setLow(min(v.lock()->getLow(), w.lock()->getLow()));
+            if (!isRoot && w.lock()->getLow() >= v.lock()->getNum()) {
+                res.insert(v.lock());
+            }
+        } else if (w.lock()->isProcessing())
+            v.lock()->setLow(min(v.lock()->getLow(), w.lock()->getNum()));
+    }
+    v.lock()->setProcessing(false);
+    if (count > 1 && isRoot)
+        res.insert(v.lock());
+    s.pop();
 }
 
 const AirlineSet& Dataset::getAirlines() const {
