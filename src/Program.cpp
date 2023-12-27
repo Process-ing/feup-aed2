@@ -76,7 +76,7 @@ void Program::leave() {
     waitForEnter();
 }
 
-vector<AirportInfo> Program::displayFlightsFromAirport(string airPortCode) {
+vector<AirportInfo> Program::searchFlightsFromAirport(string airPortCode) {
     AirportRef airport = dataset_.getAirport(airPortCode);
     vector<AirportInfo> flightStrings;
     if (airport.lock()) {
@@ -100,7 +100,7 @@ int Program::numberOfFlightsByCityAndAirline(const string& countryName, const st
     return flights;
 }
 
-vector<AirportInfo> Program::displayDestinationsFromAirport(string airPortCode) {
+vector<AirportInfo> Program::searchDestinationsFromAirport(string airPortCode) {
     AirportRef airport = dataset_.getAirport(airPortCode);
     vector<AirportInfo> flights;
     if (airport.lock()) {
@@ -112,7 +112,7 @@ vector<AirportInfo> Program::displayDestinationsFromAirport(string airPortCode) 
     return flights;
 }
 
-vector<pair<AirportRef,int>> Program::displayTopNAirPortsWithGreatestTraffic(int n) {
+vector<pair<AirportRef,int>> Program::searchTopNAirPortsWithGreatestTraffic(int n) {
     vector<pair<AirportRef, int>> airportTrafficList;
 
     for (const auto& airport : dataset_.getNetwork().getVertexSet()) {
