@@ -10,6 +10,7 @@
 #include "City.h"
 
 typedef Graph<AirportInfo, FlightInfo, AirportInfoHash> Network;
+typedef VertexSet<AirportInfo, FlightInfo, AirportInfoHash> AirportSet;
 typedef std::unordered_set<std::shared_ptr<Country>, CountryHash, CountryHash> CountrySet;
 typedef std::unordered_set<CityRef, CityHash, CityHash> CitySet;
 typedef std::unordered_set<AirlineRef, AirlineHash, AirlineHash> AirlineSet;
@@ -28,6 +29,8 @@ class Dataset {
     const CountrySet &getCountries() const;
     const CitySet &getCities() const;
     const AirlineSet& getAirlines() const;
+    const AirportSet& getAirports() const;
+
     CountryRef getCountry(const std::string& name) const;
     CityRef getCity(const std::string& name, const std::string& countryName) const;
     AirportRef getAirport(const std::string& code) const;
