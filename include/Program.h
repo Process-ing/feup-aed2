@@ -20,10 +20,16 @@ class Program {
 
     void displayMainMenu();
 
-    int receiveOption(int max);
+    static int receiveOption(int max);
+    CountryRef receiveCountry() const;
+    CityRef receiveCity() const;
+    AirlineRef receiveAirlineByCode() const;
+    AirlineRef receiveAirlineByName() const;
+    AirportRef receiveAirportByCode() const;
+    AirportRef receiveAirportByName() const;
     static void waitForEnter();
     static void clearScreen();
-    void leave();
+    static void leave();
 };
 
 
