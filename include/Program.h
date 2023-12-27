@@ -24,6 +24,13 @@ class Program {
 
   private:
     Dataset dataset_;
+
+    void displayMainMenu();
+
+    int receiveOption(int max);
+    static void waitForEnter();
+    static void clearScreen();
+    void leave();
 };
 
 
