@@ -135,3 +135,13 @@ TEST(Issue25Test, GetReachableCountriesFromAirport) {
     auto countries = dataset.getReachableCountriesfromAirport(fao, 0);
     EXPECT_EQ(14, countries.size());
 }
+
+TEST(Issue31Test, GetMaxTrips) {
+    Dataset dataset;
+
+    dataset.readFiles();
+
+    int diameter = 0;
+    auto pairs = dataset.getMaxTrips(diameter);
+    EXPECT_EQ(12, diameter);
+}
