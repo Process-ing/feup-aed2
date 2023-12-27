@@ -16,19 +16,25 @@ class Program {
     void launch();
     std::vector<AirportInfo> searchFlightsFromAirport(std::string airPortCode);
     float numberOfFlightsByCity();
+    float numberOfFlightsByAirline();
     std::vector<AirportInfo> searchDestinationsFromAirport(std::string airPortCode);
     std::vector<AirportRef> searchTopNAirPortsWithGreatestTraffic(int n);
     void displayAllCountries();
   private:
     Dataset dataset_;
-
     void displayMainMenu();
     void searchMenu();
     void statisticsMenu();
-    int receiveOption(int max);
+    static int receiveOption(int max);
+    CountryRef receiveCountry() const;
+    CityRef receiveCity() const;
+    AirlineRef receiveAirlineByCode() const;
+    AirlineRef receiveAirlineByName() const;
+    AirportRef receiveAirportByCode() const;
+    AirportRef receiveAirportByName() const;
     static void waitForEnter();
     static void clearScreen();
-    void leave();
+    static void leave();
 };
 
 

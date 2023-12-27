@@ -177,10 +177,23 @@ vector<AirportInfo> Program::searchFlightsFromAirport(string airPortCode) {
 
 float Program::numberOfFlightsByCity() {
     int cities = dataset_.getCities().size();
-    int flights =
-    return average;
+    int flights = 0;
+    for(const auto& city : dataset_.getCities()){
+        for(const auto& airport : city.lock()->getAirports()){
+            flights += airport.lock()->getAdj().size();
+        }
+    }
+    return flights/cities;
 }
 
+float Program::numberOfFlightsByAirline() {
+    int airlines = dataset_.getAirlines().size();
+    int flights = 0;
+    for(const auto& airport : dataset_.getAirports()){
+        flights += airport->getAdj().size();
+    }
+    return flights/airlines;
+}
 
 vector<AirportInfo> Program::searchDestinationsFromAirport(string airPortCode) {
     AirportRef airport = dataset_.getAirport(airPortCode);
@@ -206,73 +219,149 @@ vector<AirportRef> Program::searchTopNAirPortsWithGreatestTraffic(int n) {
     return airportsList;
 }
 void Program::displayAllCountries() {
-    static const int RESULTS_PER_PAGE = 10;
-    enum Option {
-        NEXT_PAGE = 1,
-        PREVIOUS_PAGE = 2,
-        GO_BACK = 3,
-    };
-    int page = 1;
-    int total_pages = ceil((double)dataset_.getCountries().size() / RESULTS_PER_PAGE);
-    auto countries = dataset_.getCountries();
-    while (true) {
-        clearScreen();
-        cout << "\n"
-                " ┌─ Search results ──────────────────────────────────────────────────────────────────────┐\n"
-                " │                                                                                       │\n";
-
-        for (int i = (page - 1) * RESULTS_PER_PAGE; i < min(page * RESULTS_PER_PAGE, (int)dataset_.getCountries().size()); i++) {
-            cout << " │  "<< left << setw(85) << ->getName() << "│\n";
-        }
-
-        cout << " │                                                                                       │\n"
-                " │  Page " << setw(80) << to_string(page) + " of " + to_string(total_pages) << "│\n";
-        if (page < total_pages)
-            cout << " │     [1] Next page                                                                     │\n";
-
-        if (page > 1)
-            cout << " │     [2] Previous page                                                                 │\n";
-
-        cout << " │     [3] Go back                                                                       │\n"
-                " │                                                                                       │\n"
-                " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
-
-
-        int option;
-        cout << "Please choose an option: ";
-        bool valid_option = false;
-        while (true) {
-            if (!(cin >> option)) {
-                cin.clear();
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                cout << "Invalid option. Please choose another option: ";
-                continue;
-            }
-
-            switch (option) {
-                case Option::NEXT_PAGE:
-                    if (page < total_pages) {
-                        page++;
-                        valid_option = true;
-                    } else {
-                        valid_option = false;
-                    }
-                    break;
-                case Option::PREVIOUS_PAGE:
-                    if (page > 1) {
-                        page--;
-                        valid_option = true;
-                    } else {
-                        valid_option = false;
-                    }
-                    break;
-                case Option::GO_BACK:
-                    displayMainMenu();
-                    return;
-            }
-            if (valid_option)
-                break;
-            cout << "Invalid option. Please choose another option: ";
-        }
+//    static const int RESULTS_PER_PAGE = 10;
+//    enum Option {
+//        NEXT_PAGE = 1,
+//        PREVIOUS_PAGE = 2,
+//        GO_BACK = 3,
+//    };
+//    int page = 1;
+//    int total_pages = ceil((double) dataset_.getCountries().size() / RESULTS_PER_PAGE);
+//    while (true) {
+//        clearScreen();
+//        cout << "\n"
+//                " ┌─ Search results ──────────────────────────────────────────────────────────────────────┐\n"
+//                " │                                                                                       │\n";
+//
+//        for (int i = (page - 1) * RESULTS_PER_PAGE; i < min(page * RESULTS_PER_PAGE, (int)dataset_.getCountries().size()); i++) {
+//            cout << " │  " << left << setw(85) <<  dataset_.getCountries() << "│\n";
+//        }
+//
+//
+//        cout << " │                                                                                       │\n"
+//                " │  Page " << setw(80) << to_string(page) + " of " + to_string(total_pages) << "│\n";
+//        if (page < total_pages)
+//            cout << " │     [1] Next page                                                                     │\n";
+//
+//        if (page > 1)
+//            cout << " │     [2] Previous page                                                                 │\n";
+//
+//        cout << " │     [3] Go back                                                                       │\n"
+//                " │                                                                                       │\n"
+//                " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
+//
+//
+//        int option;
+//        cout << "Please choose an option: ";
+//        bool valid_option = false;
+//        while (true) {
+//            if (!(cin >> option)) {
+//                cin.clear();
+//                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+//                cout << "Invalid option. Please choose another option: ";
+//                continue;
+//            }
+//
+//            switch (option) {
+//                case Option::NEXT_PAGE:
+//                    if (page < total_pages) {
+//                        page++;
+//                        valid_option = true;
+//                    } else {
+//                        valid_option = false;
+//                    }
+//                    break;
+//                case Option::PREVIOUS_PAGE:
+//                    if (page > 1) {
+//                        page--;
+//                        valid_option = true;
+//                    } else {
+//                        valid_option = false;
+//                    }
+//                    break;
+//                case Option::GO_BACK:
+//                    displayMainMenu();
+//                    return;
+//            }
+//            if (valid_option)
+//                break;
+//            cout << "Invalid option. Please choose another option: ";
+//        }
+//    }
+}
+CountryRef Program::receiveCountry() const {
+    string name;
+    cout << "Please enter the country's name: ";
+    getline(cin, name);
+    CountryRef country = dataset_.getCountry(name);
+    if (country.expired()) {
+        cout << "The country could not be found. ";
+        waitForEnter();
     }
+    return country;
+}
+
+CityRef Program::receiveCity() const {
+    string name;
+    CountryRef country = receiveCountry();
+    if (country.expired())
+        return {};
+    cout << "Please enter the city's name: ";
+    getline(cin, name);
+    CityRef city = dataset_.getCity(name, country.lock()->getName());
+    if (country.expired()) {
+        cout << "The city could not be found. ";
+        waitForEnter();
+    }
+    return city;
+}
+
+AirlineRef Program::receiveAirlineByCode() const {
+    string code;
+    cout << "Please enter the airline's code: ";
+    cin >> code;
+    AirlineRef airline = dataset_.getAirline(code);
+    if (airline.expired()) {
+        cout << "The airline could not be found. ";
+        waitForEnter();
+    }
+    return airline;
+}
+
+AirlineRef Program::receiveAirlineByName() const {
+    string name;
+    cout << "Please enter the airline's name: ";
+    getline(cin, name);
+    for (const AirlineRef &airline: dataset_.getAirlines()) {
+        if (airline.lock()->getName() == name)
+            return airline;
+    }
+    cout << "The airline could not be found. ";
+    waitForEnter();
+    return {};
+}
+
+AirportRef Program::receiveAirportByCode() const {
+    string code;
+    cout << "Please enter the airport's code: ";
+    cin >> code;
+    AirportRef airport = dataset_.getAirport(code);
+    if (airport.expired()) {
+        cout << "The airport could not be found. ";
+        waitForEnter();
+    }
+    return airport;
+}
+
+AirportRef Program::receiveAirportByName() const {
+    string name;
+    cout << "Please enter the airport's name: ";
+    getline(cin, name);
+    for (AirportRef airport: dataset_.getAirports()) {
+        if (airport.lock()->getInfo().getName() == name)
+            return airport;
+    }
+    cout << "The airline could not be found. ";
+    waitForEnter();
+    return {};
 }

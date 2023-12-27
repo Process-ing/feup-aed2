@@ -138,3 +138,7 @@ const CountrySet &Dataset::getCountries() const {
 const CitySet &Dataset::getCities() const {
     return citySet_;
 }
+
+const AirportSet &Dataset::getAirports() const {
+    return network_.getVertexSet();
+}
