@@ -76,55 +76,22 @@ void Program::leave() {
     waitForEnter();
 }
 
-vector<string> Program::displayCountries(){
-    vector<string> countries;
-    for(const auto& country: dataset_.getCountries()){
-        countries.push_back("Country : " + country->getName());
-    }
-    return countries;
-}
-
-vector<string> Program::displayAirports() {
-    vector<string> airports;
-    for(const auto& airport: dataset_.getNetwork().getVertexSet()){
-        airports.push_back("Name : " + airport->getInfo().getName() + ", Code : " + airport->getInfo().getCode());
-    }
-    return airports;
-}
-
-vector<string> Program::displayAirlines() {
-    vector<string> airlines;
-    for(const auto& airline: dataset_.getAirlines()){
-        airlines.push_back("Name : " + airline.lock()->getName() + ", Code : " + airline.lock()->getCode() + ", Callsign : " + airline.lock()->getCallsign() + ", Country : " + airline.lock()->getCountry().lock()->getName());
-    }
-    return airlines;
-}
-
-vector<string> Program::displayFlightsFromAirport(string airPortCode) {
+vector<AirportInfo> Program::displayFlightsFromAirport(string airPortCode) {
     AirportRef airport = dataset_.getAirport(airPortCode);
-    vector<string> flightStrings;
+    vector<AirportInfo> flightStrings;
     if (airport.lock()) {
         for (const auto& edge : airport.lock()->getAdj()){
             const AirportInfo& targetAirport = edge.getDest().lock()->getInfo();
 
-            flightStrings.push_back("Airline : " + edge.getInfo().getAirline().lock()->getName() + ", Source : " + airport.lock()->getInfo().getName() + ", Destination : " + targetAirport.getName());
+            flightStrings.push_back(targetAirport);
         }
-    } else {
-        ostringstream error_msg;
-        error_msg << "Airport with code " << airPortCode << " not found" << endl;
-        throw ios_base::failure(error_msg.str());
     }
     return flightStrings;
 }
 
-int Program::displayFlightsByCityAndAirline(const string& countryName, const string& cityName) {
+int Program::numberOfFlightsByCityAndAirline(const string& countryName, const string& cityName) {
     int flights=0;
     CityRef city = dataset_.getCity(cityName, countryName);
-    if (!city.lock()) {
-        ostringstream error_msg;
-        error_msg << "City" << cityName << "," << countryName << " not found" << endl;
-        throw ios_base::failure(error_msg.str());
-    }
     for(const auto& airport : city.lock()->getAirports()){
         for(const auto& flight : airport.lock()->getAdj()){
             flights++;
@@ -133,23 +100,19 @@ int Program::displayFlightsByCityAndAirline(const string& countryName, const str
     return flights;
 }
 
-vector<string> Program::displayDestinationsFromAirport(string airPortCode) {
+vector<AirportInfo> Program::displayDestinationsFromAirport(string airPortCode) {
     AirportRef airport = dataset_.getAirport(airPortCode);
-    vector<string> flightStrings;
+    vector<AirportInfo> flights;
     if (airport.lock()) {
         for (const auto& edge : airport.lock()->getAdj()){
             const AirportInfo& targetAirport = edge.getDest().lock()->getInfo();
-            flightStrings.push_back("Destination Airport: " + targetAirport.getName() + ", Destination City: " + targetAirport.getCity().lock()->getName() + ", Destination Country: " + targetAirport.getCity().lock()->getCountry().lock()->getName());
+            flights.push_back(targetAirport);
         }
-    } else {
-        ostringstream error_msg;
-        error_msg << "Airport with code " << airPortCode << " not found" << endl;
-        throw ios_base::failure(error_msg.str());
     }
-    return flightStrings;
+    return flights;
 }
 
-vector<string> Program::displayTopNAirPortsWithGreatestTraffic(int n) {
+vector<pair<AirportRef,int>> Program::displayTopNAirPortsWithGreatestTraffic(int n) {
     vector<pair<AirportRef, int>> airportTrafficList;
 
     for (const auto& airport : dataset_.getNetwork().getVertexSet()) {
@@ -161,15 +124,14 @@ vector<string> Program::displayTopNAirPortsWithGreatestTraffic(int n) {
             airportTrafficList.push_back(make_pair(airport, flights));
         }
     }
-    vector<string> result;
     sort(airportTrafficList.begin(), airportTrafficList.end(), [](const pair<AirportRef, int>& a, const pair<AirportRef, int>& b) {
         return a.second > b.second;
     });
-    for (int i = 0; i < min(n, static_cast<int>(airportTrafficList.size())); ++i) {
-        const AirportRef& airport = airportTrafficList[i].first;
-        int traffic = airportTrafficList[i].second;
-
-        result.push_back("Airport: " + airport.lock()->getInfo().getName() + ", City: " +airport.lock()->getInfo().getCity().lock()->getName() + ", Country: " +airport.lock()->getInfo().getCity().lock()->getCountry().lock()->getName() +", Traffic: " + to_string(traffic));
-    }
-    return result;
+//    for (int i = 0; i < min(n, static_cast<int>(airportTrafficList.size())); ++i) {
+//        const AirportRef& airport = airportTrafficList[i].first;
+//        int traffic = airportTrafficList[i].second;
+//
+//        result.push_back("Airport: " + airport.lock()->getInfo().getName() + ", City: " +airport.lock()->getInfo().getCity().lock()->getName() + ", Country: " +airport.lock()->getInfo().getCity().lock()->getCountry().lock()->getName() +", Traffic: " + to_string(traffic));
+//    }
+    return airportTrafficList;
 }
