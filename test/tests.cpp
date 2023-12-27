@@ -70,8 +70,6 @@ TEST(FileParseTestSuite, ReadFilesTest) {
 }
 TEST(DisplayCountries, DisplayCountriesTest){
     Program program;
-
-    program.launch();
     std::vector<std::string> countries = program.displayCountries();
     ASSERT_EQ(236, countries.size());
     ASSERT_TRUE(std::find(countries.begin(), countries.end(), "Country : France") != countries.end());
@@ -81,7 +79,6 @@ TEST(DisplayCountries, DisplayCountriesTest){
 
 TEST(ProgramTest, DisplayAirports) {
     Program program;
-    program.launch();
     std::vector<std::string> airports = program.displayAirports();
     ASSERT_EQ(3019, airports.size());
     ASSERT_TRUE(std::find(airports.begin(), airports.end(), "Name : Charles De Gaulle, Code : CDG") != airports.end());
@@ -90,8 +87,6 @@ TEST(ProgramTest, DisplayAirports) {
 
 TEST(ProgramTest, DisplayAirlines) {
     Program program;
-
-    program.launch();
     std::vector<std::string> airlines = program.displayAirlines();
     ASSERT_EQ(444, airlines.size());
     ASSERT_TRUE(std::find(airlines.begin(), airlines.end(), "Name : Iberia Airlines, Code : IBE, Callsign : IBERIA, Country : Spain") != airlines.end());
@@ -100,8 +95,6 @@ TEST(ProgramTest, DisplayAirlines) {
 }
 TEST(ProgramTest, DisplayFlightsFromAirport) {
     Program program;
-
-    program.launch();
     std::string airportCode = "JFK";
     std::vector<std::string> flights = program.displayFlightsFromAirport(airportCode);
     ASSERT_EQ(454, flights.size());
@@ -110,7 +103,6 @@ TEST(ProgramTest, DisplayFlightsFromAirport) {
 }
 TEST(ProgramTest, DisplayFlightsByCityAndAirline) {
     Program program;
-    program.launch();
     std::string countryName = "United States";
     std::string cityName = "New York";
     int number = program.displayFlightsByCityAndAirline(countryName, cityName);
@@ -118,8 +110,6 @@ TEST(ProgramTest, DisplayFlightsByCityAndAirline) {
 }
 TEST(ProgramTest, DisplayDestinationsFromAirport) {
     Program program;
-
-    program.launch();
     std::string airportCode = "JFK";
     std::vector<std::string> flights = program.displayDestinationsFromAirport(airportCode);
     ASSERT_EQ(454, flights.size());

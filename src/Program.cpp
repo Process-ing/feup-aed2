@@ -155,9 +155,7 @@ vector<string> Program::displayTopNAirPortsWithGreatestTraffic(int n) {
     for (const auto& airport : dataset_.getNetwork().getVertexSet()) {
         int flights = 0;
 
-        for (const auto& flight : airport->getAdj()) {
-            flights++;
-        }
+        flights = airport->getAdj().size();
 
         if (airportTrafficList.size() < n) {
             airportTrafficList.push_back(make_pair(airport, flights));
