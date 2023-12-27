@@ -1,7 +1,6 @@
 #include <fstream>
 #include <limits>
 #include <sstream>
-#include <stack>
 #include "Dataset.h"
 
 using namespace std;
@@ -163,6 +162,52 @@ vector<CountryRef> Dataset::getCountriesCityFliesTo(const City& city) {
     for (const auto& airport : city.getAirports()) {
         vector<CountryRef> moreCountries = getCountriesAirportFliesTo(*airport.lock());
         countries.insert(moreCountries.begin(), moreCountries.end());
+    }
+    vector<CountryRef> countries1(countries.begin(), countries.end());
+    return countries1;
+}
+
+void AirportDFS(AirportRef start, vector<AirportRef>& reachable, int depth, int max);
+vector<AirportRef> Dataset::getReachableAirportsfromAirport(AirportRef airport, int x) {
+    vector<AirportRef> airports;
+    for (const auto& v : network_.getVertexSet()) {
+        v->setVisited(false);
+    }
+    AirportDFS(airport, airports, 0, x);
+    return airports;
+}
+
+void AirportDFS(AirportRef start, vector<AirportRef>& reachable, int depth, int max) {
+    start.lock()->setVisited(true);
+    reachable.push_back(start);
+
+    if (depth > max) {
+        return;
+    }
+
+    for (const auto& adjacent : start.lock()->getAdj()) {
+        auto dest = adjacent.getDest().lock();
+        if (!dest->isVisited()) {
+            AirportDFS(dest, reachable, depth + 1, max);
+        }
+    }
+}
+
+vector<CityRef> Dataset::getReachableCitiesfromAirport(AirportRef airport, int x) {
+    CitySet cities;
+    auto airports = getReachableAirportsfromAirport(airport, x);
+    for (auto airport : airports) {
+        cities.insert(airport.lock()->getInfo().getCity());
+    }
+    vector<CityRef> cities1(cities.begin(), cities.end());
+    return cities1;
+}
+
+vector<CountryRef> Dataset::getReachableCountriesfromAirport(AirportRef airport, int x) {
+    CountryRefSet countries;
+    auto cities = getReachableCitiesfromAirport(airport, x);
+    for (auto city : cities) {
+        countries.insert(city.lock()->getCountry());
     }
     vector<CountryRef> countries1(countries.begin(), countries.end());
     return countries1;
