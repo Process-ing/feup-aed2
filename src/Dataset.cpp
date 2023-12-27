@@ -168,10 +168,9 @@ vector<CountryRef> Dataset::getCountriesCityFliesTo(const City& city) {
     return countries1;
 }
 
-void dfs_art(AirportRef v, stack<AirportRef> &s, AirportSet &res, int &i);
+void dfs_art(AirportRef v, bool isRoot, AirportSet &res, int &i);
 vector<AirportRef> Dataset::getEssencialAirports() {
     AirportSet airports;
-    stack<AirportRef> s;
     int index = 1;
 
     for (auto v : network_.getVertexSet())
@@ -179,27 +178,25 @@ vector<AirportRef> Dataset::getEssencialAirports() {
 
     for (auto v : network_.getVertexSet()) {
         if (!v->isVisited())
-            dfs_art(v, s, airports, index);
+            dfs_art(v, true, airports, index);
     }
     vector<AirportRef> airports1(airports.begin(), airports.end());
     return airports1;
 }
 
-void dfs_art(AirportRef v, stack<AirportRef> &s, AirportSet &res, int &i) {
+void dfs_art(AirportRef v, bool isRoot, AirportSet &res, int &i) {
     int count = 0;
     v.lock()->setVisited(true);
     v.lock()->setLow(i);
     v.lock()->setNum(i);
     v.lock()->setProcessing(true);
-    bool isRoot = s.empty();
-    s.push(v);
     i++;
 
     for (auto &e: v.lock()->getAdj()) {
         auto w = e.getDest();
         if (!w.lock()->isVisited()) {
             count++;
-            dfs_art(w, s, res, i);
+            dfs_art(w, false, res, i);
             v.lock()->setLow(min(v.lock()->getLow(), w.lock()->getLow()));
             if (!isRoot && w.lock()->getLow() >= v.lock()->getNum()) {
                 res.insert(v.lock());
@@ -210,7 +207,6 @@ void dfs_art(AirportRef v, stack<AirportRef> &s, AirportSet &res, int &i) {
     v.lock()->setProcessing(false);
     if (count > 1 && isRoot)
         res.insert(v.lock());
-    s.pop();
 }
 
 const AirlineSet& Dataset::getAirlines() const {
