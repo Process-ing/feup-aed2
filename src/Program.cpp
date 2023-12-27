@@ -79,7 +79,7 @@ void Program::leave() {
 CountryRef Program::receiveCountry() const {
     string name;
     cout << "Please enter the country's name: ";
-    cin >> name;
+    getline(cin, name);
     CountryRef country = dataset_.getCountry(name);
     if (country.expired()) {
         cout << "The country could not be found. ";
@@ -94,7 +94,7 @@ CityRef Program::receiveCity() const {
     if (country.expired())
         return {};
     cout << "Please enter the city's name: ";
-    cin >> name;
+    getline(cin, name);
     CityRef city = dataset_.getCity(name, country.lock()->getName());
     if (country.expired()) {
         cout << "The city could not be found. ";
@@ -118,7 +118,7 @@ AirlineRef Program::receiveAirlineByCode() const {
 AirlineRef Program::receiveAirlineByName() const {
     string name;
     cout << "Please enter the airline's name: ";
-    cin >> name;
+    getline(cin, name);
     for (const AirlineRef &airline: dataset_.getAirlines()) {
         if (airline.lock()->getName() == name)
             return airline;
@@ -143,7 +143,7 @@ AirportRef Program::receiveAirportByCode() const {
 AirportRef Program::receiveAirportByName() const {
     string name;
     cout << "Please enter the airport's name: ";
-    cin >> name;
+    getline(cin, name);
     for (AirportRef airport: dataset_.getAirports()) {
         if (airport.lock()->getInfo().getName() == name)
             return airport;
