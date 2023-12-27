@@ -113,14 +113,19 @@ void Program::searchMenu() {
                 displayAirlinesByCountry();
                 break;
             case Option::SEARCH_CITIES_IN_COUNTRY:
+                displayCitiesByCountry();
                 break;
             case Option::SEARCH_AIRPORTS_IN_CITY:
+                displayAirportsByCity();
                 break;
             case Option::SEARCH_FLIGHTS_FROM_AIRPORT:
+                displayFlightsFromAirport();
                 break;
             case Option::SEARCH_COUNTRIES_FLYING_TO_AIRPORT:
+                displayCountriesFlyingToAirport();
                 break;
             case Option::SEARCH_COUNTRIES_FLYING_TO_CITY:
+                displayCountriesFlyingToCity();
                 break;
             case Option::SEARCH_DESTINATIONS_FROM_AIRPORT:
                 break;
@@ -165,62 +170,6 @@ void Program::leave() {
     waitForEnter();
 }
 
-vector<AirportInfo> Program::searchFlightsFromAirport(string airPortCode) {
-    AirportRef airport = dataset_.getAirport(airPortCode);
-    vector<AirportInfo> flightStrings;
-    if (airport.lock()) {
-        for (const auto& flight : airport.lock()->getAdj()){
-            const AirportInfo& targetAirport = flight.getDest().lock()->getInfo();
-
-            flightStrings.push_back(targetAirport);
-        }
-    }
-    return flightStrings;
-}
-
-float Program::numberOfFlightsByCity() {
-    int cities = dataset_.getCities().size();
-    int flights = 0;
-    for(const auto& city : dataset_.getCities()){
-        for(const auto& airport : city.lock()->getAirports()){
-            flights += airport.lock()->getAdj().size();
-        }
-    }
-    return flights/cities;
-}
-
-float Program::numberOfFlightsByAirline() {
-    int airlines = dataset_.getAirlines().size();
-    int flights = 0;
-    for(const auto& airport : dataset_.getAirports()){
-        flights += airport->getAdj().size();
-    }
-    return flights/airlines;
-}
-
-vector<AirportInfo> Program::searchDestinationsFromAirport(string airPortCode) {
-    AirportRef airport = dataset_.getAirport(airPortCode);
-    vector<AirportInfo> flights;
-    if (airport.lock()) {
-        for (const auto& flight : airport.lock()->getAdj()){
-            const AirportInfo& targetAirport = flight.getDest().lock()->getInfo();
-            flights.push_back(targetAirport);
-        }
-    }
-    return flights;
-}
-
-vector<AirportRef> Program::searchTopNAirPortsWithGreatestTraffic(int n) {
-    vector<AirportRef> airportTrafficList;
-    vector<AirportRef> airportsList;
-    sort(airportTrafficList.begin(), airportTrafficList.end(), [](const AirportRef& a, const AirportRef& b) {
-        return a.lock()->getAdj().size() > b.lock()->getAdj().size();
-    });
-    for(int i = 0; i < n; i++){
-        airportsList.push_back(airportTrafficList[i]);
-    }
-    return airportsList;
-}
 void Program::displayAllCountries() {
     static const int RESULTS_PER_PAGE = 10;
     enum Option {
@@ -455,6 +404,106 @@ void Program::displayAllAirlines(){
 void Program::displayAirlinesByCountry(){
     static const int RESULTS_PER_PAGE = 10;
     CountryRef country = receiveCountry();
+    if(country.expired())
+        return;
+    vector<AirlineRef> airlines = dataset_.getAirlinesFromCountry(*country.lock());
+    enum Option {
+        NEXT_PAGE = 1,
+        PREVIOUS_PAGE = 2,
+        GO_BACK = 3,
+    };
+    int page = 1;
+    int total_pages = ceil((double) dataset_.getAirlines().size() / RESULTS_PER_PAGE);
+    while (true) {
+        clearScreen();
+        cout << "\n"
+                " ┌─ Search results ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐\n"
+                " │                                                                                                                                                      │\n";
+        for(auto it = airlines.begin(); it != airlines.end(); ++it){
+            cout << " │  " << left << setw(49) << "Name: " + (*it).lock()->getName()
+                 << left << setw(12) << " Code: " + (*it).lock()->getCode()<< left <<setw(40) << " Callsign: " + (*it).lock()->getCallsign()
+                 <<left <<setw(47) << " Country: " + (*it).lock()->getCountry().lock()->getName()
+                 << "│\n";
+        }
+        cout << " │                                                                                                                                                      │\n"
+                " │  Page " << setw(143) << to_string(page) + " of " + to_string(total_pages) << "│\n";
+        if (page < total_pages)
+            cout << " │     [1] Next page                                                                                                                                    │\n";
+
+        if (page > 1)
+            cout << " │     [2] Previous page                                                                                                                                │\n";
+
+        cout << " │     [3] Go back                                                                                                                                      │\n"
+                " │                                                                                                                                                      │\n"
+                " └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘\n\n";
+
+
+        int option;
+        cout << "Please choose an option: ";
+        bool valid_option = false;
+        while (true) {
+            if (!(cin >> option)) {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cout << "Invalid option. Please choose another option: ";
+                continue;
+            }
+
+            switch (option) {
+                case Option::NEXT_PAGE:
+                    if (page < total_pages) {
+                        page++;
+                        valid_option = true;
+                    } else {
+                        valid_option = false;
+                    }
+                    break;
+                case Option::PREVIOUS_PAGE:
+                    if (page > 1) {
+                        page--;
+                        valid_option = true;
+                    } else {
+                        valid_option = false;
+                    }
+                    break;
+                case Option::GO_BACK:
+                    displayMainMenu();
+                    return;
+            }
+            if (valid_option)
+                break;
+            cout << "Invalid option. Please choose another option: ";
+        }
+
+    }
+
+}
+void Program::displayCitiesByCountry() {
+    CountryRef country = receiveCountry();
+    if(country.expired())
+        return;
+    vector<CityRef> cities = dataset_.getCitiesFromCountry(*country.lock());
+    while (true) {
+        clearScreen();
+        cout << "\n"
+                " ┌─ Search results ──────────────────────────────────────────────────────────────────────┐\n"
+                " │                                                                                       │\n";
+        for(const auto& city : cities){
+            cout << " │  " << left << setw(85) << city.lock()->getName() << "│\n";
+        }
+        cout << " │                                                                                       │\n"
+                " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
+        waitForEnter();
+        displayMainMenu();
+    }
+}
+
+void Program::displayAirportsByCity() {
+    static const int RESULTS_PER_PAGE = 10;
+    CityRef city = receiveCity();
+    if(city.expired())
+        return;
+    vector<AirportRef> airports = dataset_.getAirportsFromCity(*city.lock());
     enum Option {
         NEXT_PAGE = 1,
         PREVIOUS_PAGE = 2,
@@ -467,8 +516,233 @@ void Program::displayAirlinesByCountry(){
         cout << "\n"
                 " ┌─ Search results ──────────────────────────────────────────────────────────────────────┐\n"
                 " │                                                                                       │\n";
-        
+
+        int count = 0;
+        for (auto it = airports.begin(); it != airports.end(); ++it) {
+            if (count >= (page - 1) * RESULTS_PER_PAGE && count < page * RESULTS_PER_PAGE) {
+                cout << " │  " << left << setw(60) << "Name: " + (*it).lock()->getInfo().getName()
+                     << left << setw(25) << " Code: " + (*it).lock()->getInfo().getCode()
+                     << "│\n";
+            }
+            ++count;
+        }
+
+        cout << " │                                                                                       │\n"
+                " │  Page " << setw(80) << to_string(page) + " of " + to_string(total_pages) << "│\n";
+        if (page < total_pages)
+            cout << " │     [1] Next page                                                                     │\n";
+
+        if (page > 1)
+            cout << " │     [2] Previous page                                                                 │\n";
+
+        cout << " │     [3] Go back                                                                       │\n"
+                " │                                                                                       │\n"
+                " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
+
+
+        int option;
+        cout << "Please choose an option: ";
+        bool valid_option = false;
+        while (true) {
+            if (!(cin >> option)) {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cout << "Invalid option. Please choose another option: ";
+                continue;
+            }
+
+            switch (option) {
+                case Option::NEXT_PAGE:
+                    if (page < total_pages) {
+                        page++;
+                        valid_option = true;
+                    } else {
+                        valid_option = false;
+                    }
+                    break;
+                case Option::PREVIOUS_PAGE:
+                    if (page > 1) {
+                        page--;
+                        valid_option = true;
+                    } else {
+                        valid_option = false;
+                    }
+                    break;
+                case Option::GO_BACK:
+                    displayMainMenu();
+                    return;
+            }
+            if (valid_option)
+                break;
+            cout << "Invalid option. Please choose another option: ";
+        }
+
     }
+
+}
+
+void Program::displayFlightsFromAirport() {
+    static const int RESULTS_PER_PAGE = 10;
+    AirportRef airport = receiveAirportByCode();
+    if(airport.expired())
+        return;
+    vector<Flight> flights = dataset_.searchFlightsFromAirport(airport.lock()->getInfo().getCode());
+    enum Option {
+        NEXT_PAGE = 1,
+        PREVIOUS_PAGE = 2,
+        GO_BACK = 3,
+    };
+    int page = 1;
+    int total_pages = ceil((double) dataset_.getAirlines().size() / RESULTS_PER_PAGE);
+    while (true) {
+        clearScreen();
+        cout << "\n"
+                " ┌─ Search results ──────────────────────────────────────────────────────────────────────────────────────────────────────────────┐\n"
+                " │                                                                                                                               │\n";
+
+        int count = 0;
+        for (auto it = flights.begin(); it != flights.end(); ++it) {
+            if (count >= (page - 1) * RESULTS_PER_PAGE && count < page * RESULTS_PER_PAGE) {
+                cout << " │  " << left << setw(55) << "Destination: " + (*it).getDest().lock()->getInfo().getName()
+                     << left << setw(15) << " Code: " + (*it).getDest().lock()->getInfo().getCode() << left << setw(55) << " Airline: " + (*it).getInfo().getAirline().lock()->getName()
+                     << "│\n";
+            }
+            ++count;
+        }
+
+        cout << " │                                                                                                                               │\n"
+                " │  Page " << setw(120) << to_string(page) + " of " + to_string(total_pages) << "│\n";
+        if (page < total_pages)
+            cout << " │     [1] Next page                                                                                                             │\n";
+
+        if (page > 1)
+            cout << " │     [2] Previous page                                                                                                         │\n";
+
+        cout << " │     [3] Go back                                                                                                               │\n"
+                " │                                                                                                                               │\n"
+                " └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘\n\n";
+        int option;
+        cout << "Please choose an option: ";
+        bool valid_option = false;
+        while (true) {
+            if (!(cin >> option)) {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cout << "Invalid option. Please choose another option: ";
+                continue;
+            }
+
+            switch (option) {
+                case Option::NEXT_PAGE:
+                    if (page < total_pages) {
+                        page++;
+                        valid_option = true;
+                    } else {
+                        valid_option = false;
+                    }
+                    break;
+                case Option::PREVIOUS_PAGE:
+                    if (page > 1) {
+                        page--;
+                        valid_option = true;
+                    } else {
+                        valid_option = false;
+                    }
+                    break;
+                case Option::GO_BACK:
+                    displayMainMenu();
+                    return;
+            }
+            if (valid_option)
+                break;
+            cout << "Invalid option. Please choose another option: ";
+        }
+
+    }
+}
+
+void Program::displayCountriesFlyingToAirport() {
+    static const int RESULTS_PER_PAGE = 10;
+    AirportRef airport = receiveAirportByCode();
+    if(airport.expired())
+        return;
+    vector<CountryRef> countries = dataset_.getCountriesAirportFliesTo(*airport.lock());
+    enum Option {
+        NEXT_PAGE = 1,
+        PREVIOUS_PAGE = 2,
+        GO_BACK = 3,
+    };
+    int page = 1;
+    int total_pages = ceil((double) countries.size() / RESULTS_PER_PAGE);
+    while (true) {
+        clearScreen();
+        cout << "\n"
+                " ┌─ Search results ──────────────────────────────────────────────────────────────────────┐\n"
+                " │                                                                                       │\n";
+
+        int count = 0;
+        for (auto it = countries.begin(); it != countries.end(); ++it) {
+            if (count >= (page - 1) * RESULTS_PER_PAGE && count < page * RESULTS_PER_PAGE) {
+                cout << " │  " << left << setw(85) << (*it).lock()->getName() << "│\n";
+            }
+            ++count;
+        }
+
+
+        cout << " │                                                                                       │\n"
+                " │  Page " << setw(80) << to_string(page) + " of " + to_string(total_pages) << "│\n";
+        if (page < total_pages)
+            cout << " │     [1] Next page                                                                     │\n";
+
+        if (page > 1)
+            cout << " │     [2] Previous page                                                                 │\n";
+
+        cout << " │     [3] Go back                                                                       │\n"
+                " │                                                                                       │\n"
+                " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
+
+
+        int option;
+        cout << "Please choose an option: ";
+        bool valid_option = false;
+        while (true) {
+            if (!(cin >> option)) {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cout << "Invalid option. Please choose another option: ";
+                continue;
+            }
+
+            switch (option) {
+                case Option::NEXT_PAGE:
+                    if (page < total_pages) {
+                        page++;
+                        valid_option = true;
+                    } else {
+                        valid_option = false;
+                    }
+                    break;
+                case Option::PREVIOUS_PAGE:
+                    if (page > 1) {
+                        page--;
+                        valid_option = true;
+                    } else {
+                        valid_option = false;
+                    }
+                    break;
+                case Option::GO_BACK:
+                    displayMainMenu();
+                    return;
+            }
+            if (valid_option)
+                break;
+            cout << "Invalid option. Please choose another option: ";
+        }
+    }
+}
+void Program::displayCountriesFlyingToCity() {
+
+}
 
 CountryRef Program::receiveCountry() const {
     string name;
@@ -546,3 +820,6 @@ AirportRef Program::receiveAirportByName() const {
     waitForEnter();
     return {};
 }
+
+
+

@@ -14,15 +14,16 @@ class Program {
     Program();
 
     void launch();
-    std::vector<AirportInfo> searchFlightsFromAirport(std::string airPortCode);
-    float numberOfFlightsByCity();
-    float numberOfFlightsByAirline();
-    std::vector<AirportInfo> searchDestinationsFromAirport(std::string airPortCode);
-    std::vector<AirportRef> searchTopNAirPortsWithGreatestTraffic(int n);
     void displayAllCountries();
     void displayAllAirports();
     void displayAllAirlines();
     void displayAirlinesByCountry();
+    void displayCitiesByCountry();
+    void displayAirportsByCity();
+    void displayFlightsFromAirport();
+    void displayCountriesFlyingToAirport();
+    void displayCountriesFlyingToCity();
+
   private:
     Dataset dataset_;
     void displayMainMenu();

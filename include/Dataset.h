@@ -41,6 +41,11 @@ class Dataset {
     std::vector<AirportRef> getAirportsFromCity(const City& city);
     std::vector<CountryRef> getCountriesAirportFliesTo(const Airport& airport);
     std::vector<CountryRef> getCountriesCityFliesTo(const City& city);
+    std::vector<Flight> searchFlightsFromAirport(std::string airPortCode);
+    float numberOfFlightsByCity();
+    float numberOfFlightsByAirline();
+    std::vector<AirportInfo> searchDestinationsFromAirport(std::string airPortCode);
+    std::vector<AirportRef> searchTopNAirPortsWithGreatestTraffic(int n);
 
   private:
     CountrySet countrySet_;

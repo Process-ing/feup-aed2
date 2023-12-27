@@ -9,6 +9,7 @@ const AirlineRef &FlightInfo::getAirline() const {
     return airline_;
 }
 
+
 double FlightInfo::getDistance() const {
     return distance_;
 }

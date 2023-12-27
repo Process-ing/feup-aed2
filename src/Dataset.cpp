@@ -167,6 +167,61 @@ vector<CountryRef> Dataset::getCountriesCityFliesTo(const City& city) {
     return countries1;
 }
 
+vector<Flight> Dataset::searchFlightsFromAirport(string airPortCode) {
+    AirportRef airport = getAirport(airPortCode);
+    vector<Flight> flights;
+    if (airport.lock()) {
+        for (const auto& flight : airport.lock()->getAdj()){
+            flights.push_back(flight);
+        }
+    }
+    return flights;
+}
+
+float Dataset::numberOfFlightsByCity() {
+    int cities = getCities().size();
+    int flights = 0;
+    for(const auto& city : getCities()){
+        for(const auto& airport : city.lock()->getAirports()){
+            flights += airport.lock()->getAdj().size();
+        }
+    }
+    return flights/cities;
+}
+
+float Dataset::numberOfFlightsByAirline() {
+    int airlines = getAirlines().size();
+    int flights = 0;
+    for(const auto& airport : getAirports()){
+        flights += airport->getAdj().size();
+    }
+    return flights/airlines;
+}
+
+vector<AirportInfo> Dataset::searchDestinationsFromAirport(string airPortCode) {
+    AirportRef airport = getAirport(airPortCode);
+    vector<AirportInfo> flights;
+    if (airport.lock()) {
+        for (const auto& flight : airport.lock()->getAdj()){
+            const AirportInfo& targetAirport = flight.getDest().lock()->getInfo();
+            flights.push_back(targetAirport);
+        }
+    }
+    return flights;
+}
+
+vector<AirportRef> Dataset::searchTopNAirPortsWithGreatestTraffic(int n) {
+    vector<AirportRef> airportTrafficList;
+    vector<AirportRef> airportsList;
+    sort(airportTrafficList.begin(), airportTrafficList.end(), [](const AirportRef& a, const AirportRef& b) {
+        return a.lock()->getAdj().size() > b.lock()->getAdj().size();
+    });
+    for(int i = 0; i < n; i++){
+        airportsList.push_back(airportTrafficList[i]);
+    }
+    return airportsList;
+}
+
 const AirlineSet& Dataset::getAirlines() const {
     return airlineSet_;
 }
