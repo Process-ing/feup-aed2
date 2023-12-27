@@ -65,3 +65,13 @@ TEST(FileParseTestSuite, ReadFilesTest) {
     EXPECT_EQ("LAS", SCKAirport.lock()->getAdj()[0].getDest().lock()->getInfo().getCode());
     EXPECT_EQ(1, SCKAirport.lock()->getIndegree());
 }
+
+TEST(Issue25Test, GetReachableAirportsFromAirport) {
+    Dataset dataset;
+
+    dataset.readFiles();
+
+    auto fao = dataset.getAirport("FAO");
+    auto airports = dataset.getReachableAirportsfromAirport(fao, 0);
+    EXPECT_EQ(63, airports.size());
+}
