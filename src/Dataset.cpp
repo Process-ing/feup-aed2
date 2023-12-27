@@ -123,47 +123,6 @@ AirlineRef Dataset::getAirline(const string& code) const {
     return airline != airlineSet_.end() ? *airline : AirlineRef();
 }
 
-vector<string> Dataset::displayCountries(){
-    vector<string> countries;
-    for(const auto& country: countrySet_){
-        countries.push_back("Country : " + country->getName());
-    }
-    return countries;
-}
-
-vector<string> Dataset::displayAirports() {
-    vector<string> airports;
-    for(const auto& airport: network_.getVertexSet()){
-        airports.push_back("Name : " + airport->getInfo().getName() + ", Code : " + airport->getInfo().getCode());
-    }
-    return airports;
-}
-
-vector<string> Dataset::displayAirlines() {
-    vector<string> airlines;
-    for(const auto& airline: airlineSet_){
-        airlines.push_back("Name : " + airline.lock()->getName() + ", Code : " + airline.lock()->getCode() + ", Callsign : " + airline.lock()->getCallsign() + ", Country : " + airline.lock()->getCountry().lock()->getName());
-    }
-    return airlines;
-}
-
-vector<string> Dataset::displayFlightsFromAirport(string airPortCode) {
-    AirportRef airport = getAirport(airPortCode);
-    vector<string> flightStrings;
-    if (airport.lock()) {
-        for (const auto& edge : airport.lock()->getAdj()){
-            const AirportInfo& targetAirport = edge.getDest().lock()->getInfo();
-
-            flightStrings.push_back("Airline : " + edge.getInfo().getAirline().lock()->getName() + ", Source : " + airport.lock()->getInfo().getName() + ", Destination : " + targetAirport.getName());
-        }
-    } else {
-        ostringstream error_msg;
-        error_msg << "Airport with code " << airPortCode << " not found" << endl;
-        throw ios_base::failure(error_msg.str());
-    }
-    return flightStrings;
-}
-
 const AirlineSet& Dataset::getAirlines() const {
     return airlineSet_;
 }

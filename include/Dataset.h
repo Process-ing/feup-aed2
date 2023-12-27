@@ -32,10 +32,6 @@ class Dataset {
     CityRef getCity(const std::string& name, const std::string& countryName) const;
     AirportRef getAirport(const std::string& code) const;
     AirlineRef getAirline(const std::string& code) const;
-    std::vector<std::string> displayCountries();
-    std::vector<std::string> displayAirports();
-    std::vector<std::string> displayAirlines();
-    std::vector<std::string> displayFlightsFromAirport(std::string airPortCode);
 
   private:
     CountrySet countrySet_;
