@@ -1,6 +1,7 @@
 #include <fstream>
 #include <limits>
 #include <sstream>
+#include <set>
 #include "Dataset.h"
 
 using namespace std;
@@ -121,6 +122,50 @@ AirportRef Dataset::getAirport(const string& code) const {
 AirlineRef Dataset::getAirline(const string& code) const {
     auto airline = airlineSet_.find(make_shared<Airline>(Airline(code, "", "", CountryRef())));
     return airline != airlineSet_.end() ? *airline : AirlineRef();
+}
+
+vector<string> Dataset::displayAirlinesFromCountry(const Country& country) {
+    vector<string> airlines;
+    for (const auto& airline : country.getAirlines()) {
+        airlines.push_back("Name : " + airline->getName() + ", Code : " + airline->getCode() + ", Callsign : " + airline->getCallsign());
+    }
+    return airlines;
+}
+
+vector<string> Dataset::displayCitiesFromCountry(const Country& country) {
+    vector<string> cities;
+    for (const auto& city : country.getCities()) {
+        cities.push_back("Name : " + city->getName());
+    }
+    return cities;
+}
+
+vector<string> Dataset::displayAirportsFromCity(const City& city) {
+    vector<string> airports;
+    for (const auto& airport : city.getAirports()) {
+        airports.push_back("Name : " + airport.lock()->getInfo().getName() + ", Code : " + airport.lock()->getInfo().getCode());
+    }
+    return airports;
+}
+
+vector<string> Dataset::displayCountriesAirportFliesTo(const Airport& airport) {
+    set<string> countries;
+    for (const auto& flight : airport.getAdj()) {
+        auto destination = flight.getDest();
+        countries.insert(destination.lock()->getInfo().getCity().lock()->getCountry().lock()->getName());
+    }
+    vector<string> countries1(countries.begin(), countries.end());
+    return countries1;
+}
+
+vector<string> Dataset::displayCountriesCityFliesTo(const City& city) {
+    set<string> countries;
+    for (const auto& airport : city.getAirports()) {
+        vector<string> moreCountries = displayCountriesAirportFliesTo(*airport.lock());
+        countries.insert(moreCountries.begin(), moreCountries.end());
+    }
+    vector<string> countries1(countries.begin(), countries.end());
+    return countries1;
 }
 
 const AirlineSet& Dataset::getAirlines() const {
