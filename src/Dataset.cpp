@@ -123,6 +123,50 @@ AirlineRef Dataset::getAirline(const string& code) const {
     return airline != airlineSet_.end() ? *airline : AirlineRef();
 }
 
+vector<AirlineRef> Dataset::getAirlinesFromCountry(const Country& country) {
+    vector<AirlineRef> airlines;
+    for (const auto& airline : country.getAirlines()) {
+        airlines.push_back(airline);
+    }
+    return airlines;
+}
+
+vector<CityRef> Dataset::getCitiesFromCountry(const Country& country) {
+    vector<CityRef> cities;
+    for (const auto& city : country.getCities()) {
+        cities.push_back(city);
+    }
+    return cities;
+}
+
+vector<AirportRef> Dataset::getAirportsFromCity(const City& city) {
+    vector<AirportRef> airports;
+    for (const auto& airport : city.getAirports()) {
+        airports.push_back(airport);
+    }
+    return airports;
+}
+
+vector<CountryRef> Dataset::getCountriesAirportFliesTo(const Airport& airport) {
+    CountryRefSet countries;
+    for (const auto& flight : airport.getAdj()) {
+        auto destination = flight.getDest();
+        countries.insert(countries.end(), destination.lock()->getInfo().getCity().lock()->getCountry());
+    }
+    vector<CountryRef> countries1(countries.begin(), countries.end());
+    return countries1;
+}
+
+vector<CountryRef> Dataset::getCountriesCityFliesTo(const City& city) {
+    CountryRefSet countries;
+    for (const auto& airport : city.getAirports()) {
+        vector<CountryRef> moreCountries = getCountriesAirportFliesTo(*airport.lock());
+        countries.insert(moreCountries.begin(), moreCountries.end());
+    }
+    vector<CountryRef> countries1(countries.begin(), countries.end());
+    return countries1;
+}
+
 const AirlineSet& Dataset::getAirlines() const {
     return airlineSet_;
 }
