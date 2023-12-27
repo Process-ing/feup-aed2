@@ -22,6 +22,7 @@ class Program {
     void displayAllCountries();
     void displayAllAirports();
     void displayAllAirlines();
+    void displayAirlinesByCountry();
   private:
     Dataset dataset_;
     void displayMainMenu();

@@ -110,6 +110,7 @@ void Program::searchMenu() {
                 displayAllAirlines();
                 break;
             case Option::SEARCH_AIRLINES_BY_COUNTRY:
+                displayAirlinesByCountry();
                 break;
             case Option::SEARCH_CITIES_IN_COUNTRY:
                 break;
@@ -451,6 +452,23 @@ void Program::displayAllAirlines(){
     }
 
 }
+void Program::displayAirlinesByCountry(){
+    static const int RESULTS_PER_PAGE = 10;
+    CountryRef country = receiveCountry();
+    enum Option {
+        NEXT_PAGE = 1,
+        PREVIOUS_PAGE = 2,
+        GO_BACK = 3,
+    };
+    int page = 1;
+    int total_pages = ceil((double) dataset_.getAirlines().size() / RESULTS_PER_PAGE);
+    while (true) {
+        clearScreen();
+        cout << "\n"
+                " ┌─ Search results ──────────────────────────────────────────────────────────────────────┐\n"
+                " │                                                                                       │\n";
+        
+    }
 
 CountryRef Program::receiveCountry() const {
     string name;
