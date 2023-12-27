@@ -36,6 +36,8 @@ class Dataset {
     AirportRef getAirport(const std::string& code) const;
     AirlineRef getAirline(const std::string& code) const;
 
+    std::vector<AirportRef> getBestFlightPath(const AirportRef &src, const AirportRef &dest, double& distance) const;
+
   private:
     CountrySet countrySet_;
     CitySet citySet_;
@@ -44,6 +46,8 @@ class Dataset {
 
     CityRef getOrInsertCity(const std::string& name, const std::string& country);
     CountryRef getOrInsertCountry(const std::string& name);
+
+    static double calculateDistance(double lat1, double lon1, double lat2, double lon2);
 };
 
 
