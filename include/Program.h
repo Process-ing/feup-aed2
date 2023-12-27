@@ -15,7 +15,7 @@ class Program {
 
     void launch();
     std::vector<AirportInfo> searchFlightsFromAirport(std::string airPortCode);
-    float numberOfFlightsByCityAndAirline();
+    float numberOfFlightsByCity();
     std::vector<AirportInfo> searchDestinationsFromAirport(std::string airPortCode);
     std::vector<AirportRef> searchTopNAirPortsWithGreatestTraffic(int n);
     void displayAllCountries();

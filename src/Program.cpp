@@ -1,6 +1,7 @@
 #include <iostream>
 #include <limits>
 #include <iomanip>
+#include <cmath>
 #include "Program.h"
 
 using namespace std;
@@ -174,7 +175,7 @@ vector<AirportInfo> Program::searchFlightsFromAirport(string airPortCode) {
     return flightStrings;
 }
 
-float Program::numberOfFlightsByCityAndAirline() {
+float Program::numberOfFlightsPerCity() {
     int flights=0;
     int cities=0;
     for(const auto& city : dataset_.getCities()){
@@ -186,6 +187,7 @@ float Program::numberOfFlightsByCityAndAirline() {
     float average = flights/cities;
     return average;
 }
+
 
 vector<AirportInfo> Program::searchDestinationsFromAirport(string airPortCode) {
     AirportRef airport = dataset_.getAirport(airPortCode);
@@ -211,14 +213,73 @@ vector<AirportRef> Program::searchTopNAirPortsWithGreatestTraffic(int n) {
     return airportsList;
 }
 void Program::displayAllCountries() {
-    cout << "\n"
-            " ┌─ Search results ──────────────────────────────────────────────────────────────────────┐\n"
-            " │                                                                                       │\n";
-    for (const auto& country : dataset_.getCountries()) {
-        cout << " │  "<< left << setw(85) << country->getName() << "│\n";
+    static const int RESULTS_PER_PAGE = 10;
+    enum Option {
+        NEXT_PAGE = 1,
+        PREVIOUS_PAGE = 2,
+        GO_BACK = 3,
+    };
+    int page = 1;
+    int total_pages = ceil((double)dataset_.getCountries().size() / RESULTS_PER_PAGE);
+    auto countries = dataset_.getCountries();
+    while (true) {
+        clearScreen();
+        cout << "\n"
+                " ┌─ Search results ──────────────────────────────────────────────────────────────────────┐\n"
+                " │                                                                                       │\n";
+
+        for (int i = (page - 1) * RESULTS_PER_PAGE; i < min(page * RESULTS_PER_PAGE, (int)dataset_.getCountries().size()); i++) {
+            cout << " │  "<< left << setw(85) << ->getName() << "│\n";
+        }
+
+        cout << " │                                                                                       │\n"
+                " │  Page " << setw(80) << to_string(page) + " of " + to_string(total_pages) << "│\n";
+        if (page < total_pages)
+            cout << " │     [1] Next page                                                                     │\n";
+
+        if (page > 1)
+            cout << " │     [2] Previous page                                                                 │\n";
+
+        cout << " │     [3] Go back                                                                       │\n"
+                " │                                                                                       │\n"
+                " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
+
+
+        int option;
+        cout << "Please choose an option: ";
+        bool valid_option = false;
+        while (true) {
+            if (!(cin >> option)) {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cout << "Invalid option. Please choose another option: ";
+                continue;
+            }
+
+            switch (option) {
+                case Option::NEXT_PAGE:
+                    if (page < total_pages) {
+                        page++;
+                        valid_option = true;
+                    } else {
+                        valid_option = false;
+                    }
+                    break;
+                case Option::PREVIOUS_PAGE:
+                    if (page > 1) {
+                        page--;
+                        valid_option = true;
+                    } else {
+                        valid_option = false;
+                    }
+                    break;
+                case Option::GO_BACK:
+                    displayMainMenu();
+                    return;
+            }
+            if (valid_option)
+                break;
+            cout << "Invalid option. Please choose another option: ";
+        }
     }
-    cout << " │                                                                                       │\n"
-            " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
-    waitForEnter();
-    displayMainMenu();
 }
