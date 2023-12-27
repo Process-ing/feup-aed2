@@ -20,6 +20,8 @@ class Program {
     std::vector<AirportInfo> searchDestinationsFromAirport(std::string airPortCode);
     std::vector<AirportRef> searchTopNAirPortsWithGreatestTraffic(int n);
     void displayAllCountries();
+    void displayAllAirports();
+    void displayAllAirlines();
   private:
     Dataset dataset_;
     void displayMainMenu();
