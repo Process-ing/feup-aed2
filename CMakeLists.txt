@@ -53,6 +53,8 @@ add_executable(tests test/tests.cpp
         include/Program.h
         src/FlightPath.cpp
         include/FlightPath.h
+        src/utils.cpp
+        include/utils.h
 )
 target_link_libraries(
         tests
