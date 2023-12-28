@@ -66,6 +66,23 @@ TEST(FileParseTestSuite, ReadFilesTest) {
     EXPECT_EQ(1, SCKAirport.lock()->getIndegree());
 }
 
+TEST(BestFlightTestSuite, GetBestFlightPathTest) {
+    Dataset dataset;
+    dataset.readFiles();
+
+    AirportRef JFK = dataset.getAirport("JFK");
+    AirportRef CDG = dataset.getAirport("CDG");
+    ASSERT_FALSE(JFK.expired());
+    ASSERT_FALSE(CDG.expired());
+    vector<FlightPath> paths = dataset.getBestFlightPaths({ JFK }, { CDG });
+    ASSERT_EQ(1, paths.size());
+    FlightPath path = paths[0];
+
+    ASSERT_EQ(2, path.getAirports().size());
+    EXPECT_EQ(JFK.lock(), path.getAirports()[0].lock());
+    EXPECT_EQ(CDG.lock(), path.getAirports()[1].lock());
+}
+
 TEST(Issue16Test, GetAirlinesFromCountry) {
     Dataset dataset;
 

@@ -1,6 +1,8 @@
 #include <fstream>
 #include <limits>
 #include <sstream>
+#include <queue>
+#include <cmath>
 #include "Dataset.h"
 
 using namespace std;
@@ -80,7 +82,9 @@ void Dataset::readFlights() {
         AirportInfo sourceAirport = getAirport(source).lock()->getInfo();
         AirportInfo targetAirport = getAirport(target).lock()->getInfo();
         AirlineRef airline = getAirline(airlineCode);
-        FlightInfo flightInfo(airline, sourceAirport, targetAirport);
+        double distance = calculateDistance(sourceAirport.getLatitude(), sourceAirport.getLongitude(),
+                                            targetAirport.getLatitude(), targetAirport.getLongitude());
+        FlightInfo flightInfo(airline, distance);
         network_.addEdge(sourceAirport, targetAirport, flightInfo);
     }
 }
@@ -231,4 +235,87 @@ const CitySet &Dataset::getCities() const {
 
 const AirportSet &Dataset::getAirports() const {
     return network_.getVertexSet();
+}
+
+FlightPath Dataset::getBestFlightPath(const AirportRef &src, const AirportRef &dest) const {
+    for (AirportRef airport: network_.getVertexSet()) {
+        airport.lock()->setVisited(false);
+        airport.lock()->setParent(AirportRef());
+    }
+    queue<AirportRef> airportQueue;
+    airportQueue.push(src);
+    src.lock()->setVisited(true);
+    while (!airportQueue.empty()) {
+        AirportRef parent = airportQueue.front();
+        airportQueue.pop();
+        if (parent.lock()->getInfo().getCode() == dest.lock()->getInfo().getCode())
+            break;
+
+        for (const Flight& flight: parent.lock()->getAdj()) {
+            AirportRef child = flight.getDest();
+            if (!child.lock()->isVisited()) {
+                airportQueue.push(child);
+                child.lock()->setVisited(true);
+                child.lock()->setParent(parent);
+            }
+        }
+    }
+
+    if (!dest.lock()->isVisited())
+        return {};
+
+    FlightPath path;
+    double distance = 0.0;
+    path.getAirports().push_back(dest);
+    AirportRef curr = dest;
+    while (curr.lock()->getInfo().getCode() != src.lock()->getInfo().getCode()) {
+        AirportRef next = curr.lock()->getParent();
+        distance += calculateDistance(
+            curr.lock()->getInfo().getLatitude(),
+            curr.lock()->getInfo().getLongitude(),
+            next.lock()->getInfo().getLatitude(),
+            next.lock()->getInfo().getLongitude()
+        );
+        curr = next;
+        path.getAirports().push_back(curr);
+    }
+    reverse(path.getAirports().begin(), path.getAirports().end());
+    path.setDistance(distance);
+    return path;
+}
+
+vector<FlightPath> Dataset::getBestFlightPaths(const vector<AirportRef> &srcs, const vector<AirportRef> &dests) const {
+    int minFlights = numeric_limits<int>::max();
+    vector<FlightPath> paths;
+
+    for (const AirportRef &src: srcs) {
+        for (const AirportRef &dest: dests) {
+            FlightPath path = getBestFlightPath(src, dest);
+            int flights = path.getFlights();
+
+            if (flights < minFlights) {
+                paths.clear();
+                paths.push_back(path);
+                minFlights = flights;
+            } else if (flights == minFlights) {
+                paths.push_back(path);
+            }
+        }
+    }
+
+    return paths;
+}
+
+double hav(double x) {
+    double sinVal = sin(x / 2);
+    return sinVal * sinVal;
+}
+
+double Dataset::calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    static const double EARTH_DIAMETER = 12742.0;
+    static const double DEG_TO_RAD_FACTOR = M_PI / 180.0;
+    double latRad1 = lat1 * DEG_TO_RAD_FACTOR, lonRad1 = lon1 * DEG_TO_RAD_FACTOR,
+            latRad2 = lat2 * DEG_TO_RAD_FACTOR, lonRad2 = lon2 * DEG_TO_RAD_FACTOR;
+
+    return EARTH_DIAMETER * asin(hav(latRad2 - latRad1) + cos(latRad1) * cos(latRad2) * hav(lonRad2 - lonRad1));
 }

@@ -44,6 +44,8 @@ class Vertex {
     void setNum(int num);
     int getLow() const;
     void setLow(int low);
+    VertexRef<VertexInfo, EdgeInfo> getParent();
+    void setParent(VertexRef<VertexInfo, EdgeInfo> parent);
     const std::vector<Edge<VertexInfo, EdgeInfo>> &getAdj() const;
     void addEdge(VertexRef<VertexInfo, EdgeInfo> dest, const EdgeInfo &info);
 
@@ -55,6 +57,7 @@ class Vertex {
     int indegree_;
     int num_;
     int low_;
+    VertexRef<VertexInfo, EdgeInfo> parent_;
 };
 
 
@@ -166,6 +169,16 @@ int Vertex<VertexInfo, EdgeInfo>::getLow() const {
 template<class VertexInfo, class EdgeInfo>
 void Vertex<VertexInfo, EdgeInfo>::setLow(int low) {
     low_ = low;
+}
+
+template<class VertexInfo, class EdgeInfo>
+VertexRef<VertexInfo, EdgeInfo> Vertex<VertexInfo, EdgeInfo>::getParent() {
+    return parent_;
+}
+
+template<class VertexInfo, class EdgeInfo>
+void Vertex<VertexInfo, EdgeInfo>::setParent(VertexRef<VertexInfo, EdgeInfo> parent) {
+    parent_ = parent;
 }
 
 template<class VertexInfo, class EdgeInfo>
