@@ -237,62 +237,63 @@ const AirportSet &Dataset::getAirports() const {
     return network_.getVertexSet();
 }
 
-FlightPath Dataset::getBestFlightPath(const AirportRef &src, const AirportRef &dest) const {
-    for (AirportRef airport: network_.getVertexSet()) {
-        airport.lock()->setVisited(false);
-        airport.lock()->setParent(AirportRef());
-    }
-    queue<AirportRef> airportQueue;
-    airportQueue.push(src);
-    src.lock()->setVisited(true);
-    while (!airportQueue.empty()) {
-        AirportRef parent = airportQueue.front();
-        airportQueue.pop();
-        if (parent.lock()->getInfo().getCode() == dest.lock()->getInfo().getCode())
-            break;
-
-        for (const Flight& flight: parent.lock()->getAdj()) {
-            AirportRef child = flight.getDest();
-            if (!child.lock()->isVisited()) {
-                airportQueue.push(child);
-                child.lock()->setVisited(true);
-                child.lock()->setParent(parent);
-            }
-        }
-    }
-
-    if (!dest.lock()->isVisited())
-        return {};
-
-    FlightPath path;
-    double distance = 0.0;
-    path.getAirports().push_back(dest);
-    AirportRef curr = dest;
-    while (curr.lock()->getInfo().getCode() != src.lock()->getInfo().getCode()) {
-        AirportRef next = curr.lock()->getParent();
-        distance += calculateDistance(
-            curr.lock()->getInfo().getLatitude(),
-            curr.lock()->getInfo().getLongitude(),
-            next.lock()->getInfo().getLatitude(),
-            next.lock()->getInfo().getLongitude()
-        );
-        curr = next;
-        path.getAirports().push_back(curr);
-    }
-    reverse(path.getAirports().begin(), path.getAirports().end());
-    path.setDistance(distance);
-    return path;
-}
-
-vector<FlightPath> Dataset::getBestFlightPaths(const vector<AirportRef> &srcs, const vector<AirportRef> &dests) const {
+vector<FlightPath> Dataset::getBestFlightPaths(const vector<AirportRef> &srcs, const vector<AirportRef> &dests,
+    const unordered_set<string> &availableAirports, const unordered_set<string> &availableAirlines) const {
     int minFlights = numeric_limits<int>::max();
     vector<FlightPath> paths;
 
     for (const AirportRef &src: srcs) {
-        for (const AirportRef &dest: dests) {
-            FlightPath path = getBestFlightPath(src, dest);
-            int flights = path.getFlights();
+        if (availableAirports.find(src.lock()->getInfo().getCode()) == availableAirports.end())
+            continue;
 
+        for (AirportRef airport: network_.getVertexSet()) {
+            airport.lock()->setVisited(false);
+            airport.lock()->setParent(AirportRef());
+        }
+        queue<AirportRef> airportQueue;
+        airportQueue.push(src);
+        src.lock()->setVisited(true);
+        while (!airportQueue.empty()) {
+            AirportRef parent = airportQueue.front();
+            airportQueue.pop();
+
+            for (const Flight& flight: parent.lock()->getAdj()) {
+                if (availableAirlines.find(flight.getInfo().getAirline().lock()->getCode()) == availableAirlines.end())
+                    continue;
+                AirportRef child = flight.getDest();
+                if (!child.lock()->isVisited() && availableAirports.find(child.lock()->getInfo().getCode()) != availableAirports.end()) {
+                    airportQueue.push(child);
+                    child.lock()->setVisited(true);
+                    child.lock()->setParent(parent);
+                }
+            }
+        }
+
+        for (const AirportRef &dest: dests) {
+            if (!dest.lock()->isVisited())
+                return {};
+
+            FlightPath path;
+            double distance = 0.0;
+            path.getAirports().push_back(dest);
+            AirportRef curr = dest;
+            while (curr.lock()->getInfo().getCode() != src.lock()->getInfo().getCode()) {
+                AirportRef next = curr.lock()->getParent();
+                distance += calculateDistance(
+                        curr.lock()->getInfo().getLatitude(),
+                        curr.lock()->getInfo().getLongitude(),
+                        next.lock()->getInfo().getLatitude(),
+                        next.lock()->getInfo().getLongitude()
+                );
+                curr = next;
+                path.getAirports().push_back(curr);
+            }
+            if (path.getAirports().empty())
+                continue;
+            reverse(path.getAirports().begin(), path.getAirports().end());
+            path.setDistance(distance);
+
+            int flights = path.getFlights();
             if (flights < minFlights) {
                 paths.clear();
                 paths.push_back(path);
