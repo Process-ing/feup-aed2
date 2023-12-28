@@ -237,10 +237,11 @@ const AirportSet &Dataset::getAirports() const {
     return network_.getVertexSet();
 }
 
-vector<FlightPath> Dataset::getBestFlightPaths(const vector<AirportRef> &srcs, const vector<AirportRef> &dests,
-    const unordered_set<string> &availableAirports, const unordered_set<string> &availableAirlines) const {
+FlightPath Dataset::getBestFlightPath(const std::vector<AirportRef> &srcs, const std::vector<AirportRef> &dests,
+                                      const std::unordered_set<std::string> &availableAirports, const std::unordered_set<std::string> &availableAirlines) const {
     int minFlights = numeric_limits<int>::max();
-    vector<FlightPath> paths;
+    double minDist = numeric_limits<double>::infinity();
+    FlightPath res;
 
     for (const AirportRef &src: srcs) {
         if (availableAirports.find(src.lock()->getInfo().getCode()) == availableAirports.end())
@@ -294,17 +295,15 @@ vector<FlightPath> Dataset::getBestFlightPaths(const vector<AirportRef> &srcs, c
             path.setDistance(distance);
 
             int flights = path.getFlights();
-            if (flights < minFlights) {
-                paths.clear();
-                paths.push_back(path);
+            if (flights < minFlights || (flights == minFlights && distance < minDist)) {
+                res = path;
                 minFlights = flights;
-            } else if (flights == minFlights) {
-                paths.push_back(path);
+                minDist = distance;
             }
         }
     }
 
-    return paths;
+    return res;
 }
 
 double hav(double x) {

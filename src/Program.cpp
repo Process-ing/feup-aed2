@@ -93,8 +93,8 @@ void Program::chooseBestFlight() {
     unordered_set<string> availableAirports = chooseAirportFilter();
     unordered_set<string> availableAirlines = chooseAirlineFilter();
 
-    vector<FlightPath> paths = dataset_.getBestFlightPaths(srcs, dests, availableAirports, availableAirlines);
-    displayBestFlight(paths);
+    FlightPath path = dataset_.getBestFlightPath(srcs, dests, availableAirports, availableAirlines);
+    displayBestFlight(path);
 }
 
 unordered_set<string> Program::receiveStrings() {
@@ -276,87 +276,37 @@ string getAirportInfoString(const Airport& airport) {
     return "Code: " + airport.getInfo().getCode() + ", Name: " + airport.getInfo().getName();
 }
 
-void Program::displayBestFlight(const vector<FlightPath> &paths) {
+void Program::displayBestFlight(const FlightPath &path) {
     enum Option {
         NEXT_PAGE = 1,
         PREVIOUS_PAGE = 2,
         GO_BACK = 3,
     };
 
-    if (paths.empty()) {
+    if (path.getAirports().empty()) {
         cout << "No flight paths were found. ";
         waitForEnter();
         return;
     }
 
-    int pathIndex = 0;
-    while (true) {
-        const FlightPath& path = paths[pathIndex];
-        clearScreen();
-        cout << "\n"
-                " ┌─ Best flight paths ─────────────────────────────────────────────────────────┐\n"
-                " │                                                                             │\n"
-                " │  Total flights: " << left << setw(60) << path.getFlights() << "│\n"
-                " │  Total travel distance: " << setw(52) << to_string(path.getDistance()) + " Km" << "│\n"
-                " │                                                                             │\n"
-                " │  Travel airports:                                                           │\n";
+    clearScreen();
+    cout << "\n"
+            " ┌─ Best flight path ──────────────────────────────────────────────────────────┐\n"
+            " │                                                                             │\n"
+            " │  Total flights: " << left << setw(60) << path.getFlights() << "│\n"
+            " │  Total travel distance: " << setw(52) << to_string(path.getDistance()) + " Km" << "│\n"
+            " │                                                                             │\n"
+            " │  Travel airports:                                                           │\n";
 
-        for (int i = 0; i < path.getAirports().size(); i++) {
-            const AirportRef &airport = path.getAirports()[i];
-            cout << " │      " << left << setw(71)
-                 << to_string(i + 1) + ". " + getAirportInfoString(*airport.lock()) << "│\n";
-        }
-
-        cout << " │                                                                             │\n"
-                " │  Flight path " << left << setw(63) << to_string(pathIndex + 1) + " of " + to_string(paths.size()) <<  "│\n";
-        if (pathIndex < paths.size() - 1)
-            cout << " │     [1] Next page                                                           │\n";
-        if (pathIndex > 0)
-            cout << " │     [2] Previous page                                                       │\n";
-
-        cout << " │     [3] Go back                                                             │\n"
-                " │                                                                             │\n"
-                " └─────────────────────────────────────────────────────────────────────────────┘\n"
-                "\n";
-
-        int option;
-        cout << "Please choose an option: ";
-        bool valid_option = false;
-        while (true) {
-            if (!(cin >> option)) {
-                cin.clear();
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                cout << "Invalid option. Please choose another option: ";
-                continue;
-            }
-
-            switch (option) {
-                case NEXT_PAGE:
-                    if (pathIndex < paths.size() - 1) {
-                        pathIndex++;
-                        valid_option = true;
-                    } else {
-                        valid_option = false;
-                    }
-                    break;
-                case PREVIOUS_PAGE:
-                    if (pathIndex > 0) {
-                        pathIndex--;
-                        valid_option = true;
-                    } else {
-                        valid_option = false;
-                    }
-                    break;
-                case GO_BACK:
-                    return;
-                default:
-                    break;
-            }
-            if (valid_option)
-                break;
-            cout << "Invalid option. Please choose another option: ";
-        }
+    for (int i = 0; i < path.getAirports().size(); i++) {
+        const AirportRef &airport = path.getAirports()[i];
+        cout << " │      " << left << setw(71)
+             << to_string(i + 1) + ". " + getAirportInfoString(*airport.lock()) << "│\n";
     }
+    cout << " │                                                                             │\n"
+            " └─────────────────────────────────────────────────────────────────────────────┘\n"
+            "\n";
+    waitForEnter();
 }
 
 void Program::clearScreen() {

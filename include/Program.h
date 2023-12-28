@@ -21,7 +21,7 @@ class Program {
     void displayMainMenu();
     void chooseBestFlight();
     std::vector<AirportRef> chooseAirportsForBestFlight();
-    static void displayBestFlight(const std::vector<FlightPath> &paths);
+    static void displayBestFlight(const FlightPath &path);
     std::unordered_set<std::string> chooseAirportFilter();
     std::unordered_set<std::string> chooseAirlineFilter();
 
