@@ -224,7 +224,6 @@ pair<AirportRef, AirportRef> Dataset::diameterBFS(const AirportRef& airport, int
     q.push(airport);
     airport.lock()->setDistance(0);
     airport.lock()->setVisited(true);
-    diameter = 0;
     while (!q.empty()) {
         AirportRef curr = q.front();
         q.pop();
@@ -246,17 +245,18 @@ pair<AirportRef, AirportRef> Dataset::diameterBFS(const AirportRef& airport, int
 
 vector<pair<AirportRef, AirportRef>> Dataset::getMaxTrips(int &diameter) {
     vector<pair<AirportRef, AirportRef>> pairs;
-    int current = 0;
+    int max = 0;
 
     for(const auto& airport : network_.getVertexSet()) {
-        pair<AirportRef, AirportRef> new_pair = diameterBFS(airport, diameter);
-        if (diameter > current) {
+        int current = 0;
+        pair<AirportRef, AirportRef> new_pair = diameterBFS(airport, current);
+        if (current > max) {
             pairs.clear();
             pairs.push_back(new_pair);
-            current = diameter;
-        } else if (diameter == current) pairs.push_back(new_pair);
+            max = current;
+        } else if (current == max) pairs.push_back(new_pair);
     }
-    diameter = current;
+    diameter = max;
     return pairs;
 }
 
