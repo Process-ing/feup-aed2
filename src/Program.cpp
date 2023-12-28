@@ -63,6 +63,8 @@ void Program::chooseBestFlight() {
             " │  Options:                                                                   │\n"
             " │    [1] Airport code                                                         │\n"
             " │    [2] Airport name                                                         │\n"
+            " │    [3]                                                                      │\n"
+            " │    [4] Geographical position                                                │\n"
             " │                                                                             │\n"
             " └─────────────────────────────────────────────────────────────────────────────┘\n"
             "\n";
@@ -77,6 +79,8 @@ void Program::chooseBestFlight() {
             " │  Options:                                                                   │\n"
             " │    [1] Airport code                                                         │\n"
             " │    [2] Airport name                                                         │\n"
+            " │    [3]                                                                      │\n"
+            " │    [4] Geographical position                                                │\n"
             " │                                                                             │\n"
             " └─────────────────────────────────────────────────────────────────────────────┘\n"
             "\n";
@@ -89,13 +93,15 @@ void Program::chooseBestFlight() {
 }
 
 vector<AirportRef> Program::chooseAirportsForBestFlight() {
-    const static int NUM_OPTIONS = 2;
+    const static int NUM_OPTIONS = 4;
     enum Option {
         AIRPORT_CODE = 1,
         AIRPORT_NAME = 2,
+        COORDINATES = 4,
     };
 
     vector<AirportRef> airports;
+    double lat, lon;
     switch (receiveOption(NUM_OPTIONS)) {
         case AIRPORT_CODE:
             airports = { receiveAirportByCode() };
@@ -107,6 +113,20 @@ vector<AirportRef> Program::chooseAirportsForBestFlight() {
             if (airports[0].expired())
                 return {};
             break;
+        case COORDINATES:
+            cout << "Please input the latitude: ";
+            while (!(cin >> lat) || lat < -90 || lat > 90) {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cout << "Invalid value. Please input a valid latitude: ";
+            }
+            cout << "Please input the longitude: ";
+            while (!(cin >> lon) || lon < -180 || lon > 180) {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cout << "Invalid value. Please input a valid longitude: ";
+            }
+            airports = dataset_.getClosestAirports(lat, lon);
     }
 
     return airports;

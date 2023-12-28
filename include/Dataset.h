@@ -48,6 +48,7 @@ class Dataset {
 
     FlightPath getBestFlightPath(const AirportRef &src, const AirportRef &dest) const;
     std::vector<FlightPath> getBestFlightPaths(const std::vector<AirportRef> &srcs, const std::vector<AirportRef> &dests) const;
+    std::vector<AirportRef> getClosestAirports(double latitude, double longitude) const;
 
   private:
     CountrySet countrySet_;

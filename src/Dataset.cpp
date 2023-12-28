@@ -319,3 +319,25 @@ double Dataset::calculateDistance(double lat1, double lon1, double lat2, double 
 
     return EARTH_DIAMETER * asin(hav(latRad2 - latRad1) + cos(latRad1) * cos(latRad2) * hav(lonRad2 - lonRad1));
 }
+
+vector<AirportRef> Dataset::getClosestAirports(double latitude, double longitude) const {
+    double minDist = numeric_limits<double>::infinity();
+    vector<AirportRef> airports;
+    for (AirportRef airport: network_.getVertexSet()) {
+        double dist = calculateDistance(
+            latitude,
+            longitude,
+            airport.lock()->getInfo().getLatitude(),
+            airport.lock()->getInfo().getLongitude()
+        );
+        if (dist < minDist) {
+            minDist = dist;
+            airports.clear();
+            airports.push_back(airport);
+        } else if (dist == minDist) {
+            airports.push_back(airport);
+        }
+    }
+
+    return airports;
+}
