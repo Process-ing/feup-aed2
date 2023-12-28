@@ -1,5 +1,7 @@
 #include <iostream>
 #include <limits>
+#include <iomanip>
+#include <cmath>
 #include "Program.h"
 
 using namespace std;
@@ -43,11 +45,104 @@ void Program::displayMainMenu() {
                 "\n";
 
         switch (receiveOption(NUM_OPTIONS)) {
-            case Option::EXIT:
+            case BEST_FLIGHT:
+                chooseBestFlight();
+                break;
+            case EXIT:
                 leave();
                 return;
         }
     }
+}
+
+void Program::chooseBestFlight() {
+    const static int NUM_OPTIONS = 2;
+    enum Option {
+        AIRPORT_CODE = 1,
+        AIRPORT_NAME = 2,
+    };
+
+    clearScreen();
+    cout << "\n"
+            " ┌─ Choose source ─────────────────────────────────────────────────────────────┐\n"
+            " │                                                                             │\n"
+            " │  Options:                                                                   │\n"
+            " │    [1] Airport code                                                         │\n"
+            " │    [2] Airport name                                                         │\n"
+            " │                                                                             │\n"
+            " └─────────────────────────────────────────────────────────────────────────────┘\n"
+            "\n";
+    AirportRef src;
+    switch (receiveOption(NUM_OPTIONS)) {
+        case AIRPORT_CODE:
+            src = receiveAirportByCode();
+            break;
+        case AIRPORT_NAME:
+            src = receiveAirportByName();
+            break;
+    }
+    if (src.expired())
+        return;
+
+    clearScreen();
+    cout << "\n"
+            " ┌─ Choose destination ────────────────────────────────────────────────────────┐\n"
+            " │                                                                             │\n"
+            " │  Options:                                                                   │\n"
+            " │    [1] Airport code                                                         │\n"
+            " │    [2] Airport name                                                         │\n"
+            " │                                                                             │\n"
+            " └─────────────────────────────────────────────────────────────────────────────┘\n"
+            "\n";
+    AirportRef dest;
+    switch (receiveOption(NUM_OPTIONS)) {
+        case AIRPORT_CODE:
+            dest = receiveAirportByCode();
+            break;
+        case AIRPORT_NAME:
+            dest = receiveAirportByName();
+            break;
+    }
+    if (dest.expired())
+        return;
+
+    double distance;
+    vector<AirportRef> airports = dataset_.getBestFlightPath(src, dest, distance);
+    displayBestFlight(airports, distance);
+}
+
+string getAirportInfoString(const Airport& airport) {
+    return "Code: " + airport.getInfo().getCode() + ", Name: " + airport.getInfo().getName();
+}
+
+void Program::displayBestFlight(const std::vector<AirportRef> &airports, double distance) {
+    if (airports.empty()) {
+        cout << "\nNo flight paths were found. ";
+        waitForEnter();
+        return;
+    }
+
+    int totalFlights = (int)airports.size() - 1;
+
+    clearScreen();
+    cout << "\n"
+            " ┌─ Best flight ───────────────────────────────────────────────────────────────┐\n"
+            " │                                                                             │\n"
+            " │  Total flights: " << left << setw(60) << totalFlights <<  "│\n"
+            " │  Total travel distance: " << setw(52) << to_string(distance) + " Km" << "│\n"
+            " │                                                                             │\n"
+            " │  Travel airports:                                                           │\n";
+
+    for (int i = 0; i < airports.size(); i++) {
+        const AirportRef &airport = airports[i];
+        cout << " │      " << left << setw(71)
+             << to_string(i + 1) + ". " + getAirportInfoString(*airport.lock()) << "│\n";
+    }
+
+    cout << " │                                                                             │\n"
+            " └─────────────────────────────────────────────────────────────────────────────┘\n"
+            "\n";
+    waitForEnter();
 }
 
 void Program::clearScreen() {
@@ -79,6 +174,7 @@ void Program::leave() {
 CountryRef Program::receiveCountry() const {
     string name;
     cout << "Please enter the country's name: ";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
     getline(cin, name);
     CountryRef country = dataset_.getCountry(name);
     if (country.expired()) {
@@ -94,6 +190,7 @@ CityRef Program::receiveCity() const {
     if (country.expired())
         return {};
     cout << "Please enter the city's name: ";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
     getline(cin, name);
     CityRef city = dataset_.getCity(name, country.lock()->getName());
     if (country.expired()) {
@@ -118,6 +215,7 @@ AirlineRef Program::receiveAirlineByCode() const {
 AirlineRef Program::receiveAirlineByName() const {
     string name;
     cout << "Please enter the airline's name: ";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
     getline(cin, name);
     for (const AirlineRef &airline: dataset_.getAirlines()) {
         if (airline.lock()->getName() == name)
@@ -143,6 +241,7 @@ AirportRef Program::receiveAirportByCode() const {
 AirportRef Program::receiveAirportByName() const {
     string name;
     cout << "Please enter the airport's name: ";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
     getline(cin, name);
     for (AirportRef airport: dataset_.getAirports()) {
         if (airport.lock()->getInfo().getName() == name)
