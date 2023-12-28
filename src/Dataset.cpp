@@ -1,6 +1,9 @@
 #include <fstream>
 #include <limits>
 #include <sstream>
+#include <stack>
+#include <set>
+#include <iostream>
 #include "Dataset.h"
 
 using namespace std;
@@ -213,9 +216,9 @@ vector<CountryRef> Dataset::getReachableCountriesfromAirport(AirportRef airport,
     return countries1;
 }
 
-void dfs_art(AirportRef v, bool isRoot, AirportSet &res, int &i);
+void dfs_art(AirportRef v, bool isRoot, set<string> &res, int &i);
 vector<AirportRef> Dataset::getEssencialAirports() {
-    AirportSet airports;
+    set<string> airports;
     int index = 1;
 
     for (auto v : network_.getVertexSet())
@@ -225,11 +228,13 @@ vector<AirportRef> Dataset::getEssencialAirports() {
         if (!v->isVisited())
             dfs_art(v, true, airports, index);
     }
-    vector<AirportRef> airports1(airports.begin(), airports.end());
+    vector<AirportRef> airports1;
+    for (const auto& airportCode : airports)
+        airports1.push_back(getAirport(airportCode));
     return airports1;
 }
 
-void dfs_art(AirportRef v, bool isRoot, AirportSet &res, int &i) {
+void dfs_art(AirportRef v, bool isRoot, set<string> &res, int &i) {
     int count = 0;
     v.lock()->setVisited(true);
     v.lock()->setLow(i);
@@ -244,14 +249,14 @@ void dfs_art(AirportRef v, bool isRoot, AirportSet &res, int &i) {
             dfs_art(w, false, res, i);
             v.lock()->setLow(min(v.lock()->getLow(), w.lock()->getLow()));
             if (!isRoot && w.lock()->getLow() >= v.lock()->getNum()) {
-                res.insert(v.lock());
+                res.insert(v.lock()->getInfo().getCode());
             }
         } else if (w.lock()->isProcessing())
             v.lock()->setLow(min(v.lock()->getLow(), w.lock()->getNum()));
     }
     v.lock()->setProcessing(false);
     if (count > 1 && isRoot)
-        res.insert(v.lock());
+        res.insert(v.lock()->getInfo().getCode());
 }
 
 const AirlineSet& Dataset::getAirlines() const {
@@ -272,4 +277,44 @@ const CitySet &Dataset::getCities() const {
 
 const AirportSet &Dataset::getAirports() const {
     return network_.getVertexSet();
+}
+
+void dfs(const AirportRef& airport);
+void dfs(const AirportRef& airport) {
+    airport.lock()->setVisited(true);
+
+    for (auto flight : airport.lock()->getAdj()) {
+        auto neighbour = flight.getDest();
+        if (!neighbour.lock()->isVisited()) {
+            dfs(neighbour);
+        }
+    }
+}
+
+int Dataset::connectedComponents() {
+    int numComponents = 0;
+
+    for (const auto& node : network_.getVertexSet())
+        node->setVisited(false);
+
+    for (const auto& node : network_.getVertexSet()) {
+        if (!node->isVisited()) {
+            ++numComponents;
+            dfs(node);
+        }
+    }
+    return numComponents;
+}
+
+std::vector<AirportRef> Dataset::getEssencialAirportsBruteForce() {
+    vector<AirportRef> art;
+
+    for (const auto& v : network_.getVertexSet()) {
+        Dataset temp;
+        temp.readFiles();
+        temp.network_.removeVertex(v->getInfo());
+        int components = temp.connectedComponents();
+        if (components > 16)
+            art.push_back(v);
+    }
 }

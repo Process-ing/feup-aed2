@@ -142,5 +142,27 @@ TEST(Issue29Test, GetEssencialAirports) {
     dataset.readFiles();
 
     auto airports = dataset.getEssencialAirports();
+    unordered_set<string> aset;
+    for (const AirportRef& airport: airports)
+        aset.insert(airport.lock()->getInfo().getCode());
+    EXPECT_EQ(airports.size(), aset.size());
     ASSERT_EQ(312, airports.size());
+}
+
+TEST(Issue29Test, ConnectedComponents) {
+    Dataset dataset;
+
+    dataset.readFiles();
+
+    int comp = dataset.connectedComponents();
+    EXPECT_EQ(16, comp);
+}
+
+TEST(Issue29Test, getEssencialAirportsBruteForce) {
+    Dataset dataset;
+
+    dataset.readFiles();
+
+    auto comp = dataset.getEssencialAirportsBruteForce();
+    EXPECT_EQ(312, comp.size());
 }

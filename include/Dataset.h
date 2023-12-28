@@ -45,6 +45,8 @@ class Dataset {
     std::vector<CityRef> getReachableCitiesfromAirport(AirportRef airport, int x);
     std::vector<CountryRef> getReachableCountriesfromAirport(AirportRef airport, int x);
     std::vector<AirportRef> getEssencialAirports();
+    int connectedComponents();
+    std::vector<AirportRef> getEssencialAirportsBruteForce();
 
   private:
     CountrySet countrySet_;
