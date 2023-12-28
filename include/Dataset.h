@@ -8,6 +8,7 @@
 
 #include <unordered_set>
 #include "City.h"
+#include "FlightPath.h"
 
 typedef Graph<AirportInfo, FlightInfo, AirportInfoHash> Network;
 typedef VertexSet<AirportInfo, FlightInfo, AirportInfoHash> AirportSet;
@@ -36,20 +37,20 @@ class Dataset {
     CityRef getCity(const std::string& name, const std::string& countryName) const;
     AirportRef getAirport(const std::string& code) const;
     AirlineRef getAirline(const std::string& code) const;
-    std::vector<AirlineRef> getAirlinesFromCountry(const Country& country);
-    std::vector<CityRef> getCitiesFromCountry(const Country& country);
-    std::vector<AirportRef> getAirportsFromCity(const City& city);
-    std::vector<CountryRef> getCountriesAirportFliesTo(const Airport& airport);
-    std::vector<CountryRef> getCountriesCityFliesTo(const City& city);
-    std::vector<Flight> searchFlightsFromAirport(std::string airPortCode);
-    float numberOfFlightsByCity();
-    float numberOfFlightsByAirline();
-    std::vector<AirportInfo> searchDestinationsFromAirport(std::string airPortCode);
-    std::vector<AirportRef> searchTopNAirPortsWithGreatestTraffic(int n);
-    std::vector<AirportRef> getReachableAirportsfromAirport(AirportRef airport, int x);
-    std::vector<CityRef> getReachableCitiesfromAirport(AirportRef airport, int x);
-    std::vector<CountryRef> getReachableCountriesfromAirport(AirportRef airport, int x);
-
+    std::vector<AirlineRef> getAirlinesFromCountry(const Country& country) const;
+    std::vector<CityRef> getCitiesFromCountry(const Country& country) const;
+    std::vector<CountryRef> getCountriesAirportFliesTo(const Airport& airport) const;
+    std::vector<CountryRef> getCountriesCityFliesTo(const City& city) const;
+    std::vector<Flight> searchFlightsFromAirport(std::string airportCode) const;
+    float numberOfFlightsByCity() const;
+    float numberOfFlightsByAirline() const;
+    std::vector<AirportRef> searchDestinationsFromAirport(const std::string& airportCode) const;
+    std::vector<AirportRef> searchTopNAirPortsWithGreatestTraffic(int n) const;
+    std::vector<AirportRef> getReachableAirportsfromAirport(AirportRef airport, int x) const;
+    std::vector<CityRef> getReachableCitiesfromAirport(AirportRef airport, int x) const;
+    std::vector<CountryRef> getReachableCountriesfromAirport(AirportRef airport, int x) const;
+    FlightPath getBestFlightPath(const AirportRef &src, const AirportRef &dest) const;
+    std::vector<FlightPath> getBestFlightPaths(const std::vector<AirportRef> &srcs, const std::vector<AirportRef> &dests) const;
 
   private:
     CountrySet countrySet_;
@@ -59,6 +60,8 @@ class Dataset {
 
     CityRef getOrInsertCity(const std::string& name, const std::string& country);
     CountryRef getOrInsertCountry(const std::string& name);
+
+    static double calculateDistance(double lat1, double lon1, double lat2, double lon2);
 };
 
 

@@ -13,23 +13,22 @@ class Program {
   public:
     Program();
 
-    void launch();
-    void displayAllCountries();
-    void displayAllAirports();
-    void displayAllAirlines();
-    void displayAirlinesByCountry();
-    void displayCitiesByCountry();
-    void displayAirportsByCity();
-    void displayFlightsFromAirport();
-    void displayCountriesFlyingToAirport();
-    void displayCountriesFlyingToCity();
+    void launch() const;
 
   private:
     Dataset dataset_;
-    void displayMainMenu();
-    void searchMenu();
-    void statisticsMenu();
-    void sortAirportMenu();
+    void displayMainMenu() const;
+    void searchMenu() const;
+    void statisticsMenu() const;
+    void sortAirportsMenu() const;
+    void sortAirlinesMenu() const;
+    void sortAirports(std::vector<AirportRef>& airports, int sortOption) const;
+    void sortAirlines(std::vector<AirlineRef>& airlines, int sortOption) const;
+    void sortCountries(std::vector<CountryRef> countries) const;
+    void sortCities(std::vector<CityRef> cities) const;
+    void chooseBestFlight() const;
+    std::vector<AirportRef> chooseAirportsForBestFlight() const;
+    static void displayBestFlight(const std::vector<FlightPath> &paths);
     static int receiveOption(int max);
     CountryRef receiveCountry() const;
     CityRef receiveCity() const;
@@ -41,15 +40,25 @@ class Program {
     static void clearScreen();
     static void leave();
 
-    void displayDestinationsFromAirport();
+    void displayDestinationsFromAirport() const;
+    void displayReachableDestinationsFromAirportInNStops() const;
+    void displayTopNAirportsWithGreatestTraffic() const;
+    void displayAirportsEssentialToNetworkCirculation() const;
+    void displayAllCountries() const;
+    void displayAllAirports() const;
+    void displayAllAirlines() const;
+    void displayAirlinesByCountry() const;
+    void displayCitiesByCountry() const;
+    void displayAirportsByCity() const;
+    void displayFlightsFromAirport() const;
+    void displayCountriesFlyingToAirport() const;
+    void displayCountriesFlyingToCity() const;
 
-    void displayReachableDestinationsFromAirportInNStops();
-
-    void displayMaximumTrip();
-
-    void displayTopNAirportsWithGreatestTraffic();
-
-    void displayAirportsEssentialToNetworkCirculation();
+    void displayCountries(const std::vector<CountryRef> &countries) const;
+    void displayCities(const std::vector<CityRef> &cities) const;
+    void displayAirlines(const std::vector<AirlineRef> &airlines) const;
+    void displayAirports(const std::vector<AirportRef> &airports) const;
+    void displayFlights(const std::vector<Flight> &flights) const;
 };
 
 

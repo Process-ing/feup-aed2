@@ -24,6 +24,10 @@ add_executable(feup_aed2 main.cpp
         include/Flight.h
         src/Program.cpp
         include/Program.h
+        src/FlightPath.cpp
+        include/FlightPath.h
+        src/utils.cpp
+        include/utils.h
 )
 
 add_subdirectory(docs)
@@ -47,6 +51,8 @@ add_executable(tests test/tests.cpp
         include/Flight.h
         src/Program.cpp
         include/Program.h
+        src/FlightPath.cpp
+        include/FlightPath.h
 )
 target_link_libraries(
         tests

@@ -17,14 +17,13 @@ class AirportInfo;
 class FlightInfo {
 public:
     explicit FlightInfo(AirlineRef airline, const AirportInfo& src, const AirportInfo& dest);
+    explicit FlightInfo(AirlineRef airline, double distance);
     const AirlineRef &getAirline() const;
     double getDistance() const;
 
 private:
     AirlineRef airline_;
     double distance_;
-
-    static double calculateDistance(const AirportInfo& src, const AirportInfo& dest);
 };
 
 typedef Edge<AirportInfo, FlightInfo> Flight;
