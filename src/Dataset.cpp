@@ -317,4 +317,5 @@ std::vector<AirportRef> Dataset::getEssencialAirportsBruteForce() {
         if (components > 16)
             art.push_back(v);
     }
+    return art;
 }
