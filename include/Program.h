@@ -19,6 +19,9 @@ class Program {
     Dataset dataset_;
 
     void displayMainMenu();
+    void chooseBestFlight();
+    std::vector<AirportRef> chooseAirportsForBestFlight();
+    static void displayBestFlight(const std::vector<FlightPath> &paths);
 
     static int receiveOption(int max);
     CountryRef receiveCountry() const;
