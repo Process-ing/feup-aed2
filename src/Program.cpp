@@ -63,7 +63,7 @@ void Program::chooseBestFlight() {
             " │  Options:                                                                   │\n"
             " │    [1] Airport code                                                         │\n"
             " │    [2] Airport name                                                         │\n"
-            " │    [3]                                                                      │\n"
+            " │    [3] City                                                                 │\n"
             " │    [4] Geographical position                                                │\n"
             " │                                                                             │\n"
             " └─────────────────────────────────────────────────────────────────────────────┘\n"
@@ -79,7 +79,7 @@ void Program::chooseBestFlight() {
             " │  Options:                                                                   │\n"
             " │    [1] Airport code                                                         │\n"
             " │    [2] Airport name                                                         │\n"
-            " │    [3]                                                                      │\n"
+            " │    [3] City                                                                 │\n"
             " │    [4] Geographical position                                                │\n"
             " │                                                                             │\n"
             " └─────────────────────────────────────────────────────────────────────────────┘\n"
@@ -97,10 +97,12 @@ vector<AirportRef> Program::chooseAirportsForBestFlight() {
     enum Option {
         AIRPORT_CODE = 1,
         AIRPORT_NAME = 2,
+        CITY = 3,
         COORDINATES = 4,
     };
 
     vector<AirportRef> airports;
+    CityRef city;
     double lat, lon;
     switch (receiveOption(NUM_OPTIONS)) {
         case AIRPORT_CODE:
@@ -112,6 +114,12 @@ vector<AirportRef> Program::chooseAirportsForBestFlight() {
             airports = { receiveAirportByName() };
             if (airports[0].expired())
                 return {};
+            break;
+        case CITY:
+            city = receiveCity();
+            if (city.expired())
+                return {};
+            airports = dataset_.getAirportsFromCity(*city.lock());
             break;
         case COORDINATES:
             cout << "Please input the latitude: ";
@@ -264,7 +272,6 @@ CityRef Program::receiveCity() const {
     if (country.expired())
         return {};
     cout << "Please enter the city's name: ";
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
     getline(cin, name);
     CityRef city = dataset_.getCity(name, country.lock()->getName());
     if (country.expired()) {
