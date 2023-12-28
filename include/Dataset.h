@@ -49,6 +49,17 @@ class Dataset {
     std::vector<AirportRef> getReachableAirportsfromAirport(AirportRef airport, int x) const;
     std::vector<CityRef> getReachableCitiesfromAirport(AirportRef airport, int x) const;
     std::vector<CountryRef> getReachableCountriesfromAirport(AirportRef airport, int x) const;
+    std::vector<AirlineRef> getAirlinesFromCountry(const Country& country);
+    std::vector<CityRef> getCitiesFromCountry(const Country& country);
+    std::vector<AirportRef> getAirportsFromCity(const City& city);
+    std::vector<CountryRef> getCountriesAirportFliesTo(const Airport& airport);
+    std::vector<CountryRef> getCountriesCityFliesTo(const City& city);
+    std::vector<AirportRef> getReachableAirportsfromAirport(const AirportRef& airport, int x);
+    std::vector<CityRef> getReachableCitiesfromAirport(const AirportRef& airport, int x);
+    std::vector<CountryRef> getReachableCountriesfromAirport(const AirportRef& airport, int x);
+    std::vector<std::pair<AirportRef, AirportRef>> getMaxTrips(int& diameter);
+    std::pair<AirportRef, AirportRef> diameterBFS(const AirportRef& airport, int &diameter);
+
     FlightPath getBestFlightPath(const AirportRef &src, const AirportRef &dest) const;
     std::vector<FlightPath> getBestFlightPaths(const std::vector<AirportRef> &srcs, const std::vector<AirportRef> &dests) const;
 
