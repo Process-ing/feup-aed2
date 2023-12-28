@@ -29,6 +29,7 @@ class Program {
     void displayMainMenu();
     void searchMenu();
     void statisticsMenu();
+    void sortAirportMenu();
     static int receiveOption(int max);
     CountryRef receiveCountry() const;
     CityRef receiveCity() const;

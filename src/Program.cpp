@@ -148,6 +148,15 @@ void Program::searchMenu() {
 void Program::statisticsMenu(){
 
 }
+void Program::sortAirportMenu(){
+    static const int NUM_OPTIONS = 3;
+    enum Option {
+        SORT_BY_AIRPORT_NAME = 1,
+        SORT_BY_AIRPORT_CODE = 2,
+        SORT_BY_AIRPORT_CITY = 3
+    };
+}
+
 
 void Program::clearScreen() {
     system("clear || cls");
