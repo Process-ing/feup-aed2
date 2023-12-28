@@ -41,6 +41,9 @@ class Dataset {
     std::vector<AirportRef> getAirportsFromCity(const City& city);
     std::vector<CountryRef> getCountriesAirportFliesTo(const Airport& airport);
     std::vector<CountryRef> getCountriesCityFliesTo(const City& city);
+    std::vector<AirportRef> getReachableAirportsfromAirport(AirportRef airport, int x);
+    std::vector<CityRef> getReachableCitiesfromAirport(AirportRef airport, int x);
+    std::vector<CountryRef> getReachableCountriesfromAirport(AirportRef airport, int x);
 
   private:
     CountrySet countrySet_;
