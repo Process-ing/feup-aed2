@@ -106,7 +106,7 @@ class Graph {
 
 template<class VertexInfo, class EdgeInfo>
 Vertex<VertexInfo, EdgeInfo>::Vertex(const VertexInfo &info): info_(info), adj_(),
-    visited_(false), processing_(false), indegree_(0), num_(0), low_(0) {}
+    visited_(false), processing_(false), indegree_(0), num_(0), low_(0), distance_(0) {}
 
 template<class VertexInfo, class EdgeInfo>
 const VertexInfo &Vertex<VertexInfo, EdgeInfo>::getInfo() const {
