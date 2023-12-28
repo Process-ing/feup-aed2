@@ -56,12 +56,6 @@ void Program::displayMainMenu() {
 }
 
 void Program::chooseBestFlight() {
-    const static int NUM_OPTIONS = 2;
-    enum Option {
-        AIRPORT_CODE = 1,
-        AIRPORT_NAME = 2,
-    };
-
     clearScreen();
     cout << "\n"
             " ┌─ Choose source ─────────────────────────────────────────────────────────────┐\n"
@@ -72,19 +66,9 @@ void Program::chooseBestFlight() {
             " │                                                                             │\n"
             " └─────────────────────────────────────────────────────────────────────────────┘\n"
             "\n";
-    vector<AirportRef> srcs;
-    switch (receiveOption(NUM_OPTIONS)) {
-        case AIRPORT_CODE:
-            srcs = { receiveAirportByCode() };
-            if (srcs[0].expired())
-                return;
-            break;
-        case AIRPORT_NAME:
-            srcs = { receiveAirportByName() };
-            if (srcs[0].expired())
-                return;
-            break;
-    }
+    vector<AirportRef> srcs = chooseAirportsForBestFlight();
+    if (srcs.empty())
+        return;
 
     clearScreen();
     cout << "\n"
@@ -96,22 +80,36 @@ void Program::chooseBestFlight() {
             " │                                                                             │\n"
             " └─────────────────────────────────────────────────────────────────────────────┘\n"
             "\n";
-    vector<AirportRef> dests;
-    switch (receiveOption(NUM_OPTIONS)) {
-        case AIRPORT_CODE:
-            dests = { receiveAirportByCode() };
-            if (dests[0].expired())
-                return;
-            break;
-        case AIRPORT_NAME:
-            dests = { receiveAirportByName() };
-            if (dests[0].expired())
-                return;
-            break;
-    }
+    vector<AirportRef> dests = chooseAirportsForBestFlight();
+    if (dests.empty())
+        return;
 
     vector<FlightPath> paths = dataset_.getBestFlightPaths(srcs, dests);
     displayBestFlight(paths);
+}
+
+vector<AirportRef> Program::chooseAirportsForBestFlight() {
+    const static int NUM_OPTIONS = 2;
+    enum Option {
+        AIRPORT_CODE = 1,
+        AIRPORT_NAME = 2,
+    };
+
+    vector<AirportRef> airports;
+    switch (receiveOption(NUM_OPTIONS)) {
+        case AIRPORT_CODE:
+            airports = { receiveAirportByCode() };
+            if (airports[0].expired())
+                return {};
+            break;
+        case AIRPORT_NAME:
+            airports = { receiveAirportByName() };
+            if (airports[0].expired())
+                return {};
+            break;
+    }
+
+    return airports;
 }
 
 string getAirportInfoString(const Airport& airport) {
