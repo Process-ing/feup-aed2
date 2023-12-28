@@ -74,9 +74,11 @@ TEST(BestFlightTestSuite, GetBestFlightPathTest) {
     AirportRef CDG = dataset.getAirport("CDG");
     ASSERT_FALSE(JFK.expired());
     ASSERT_FALSE(CDG.expired());
-    double distance;
-    vector<AirportRef> airports = dataset.getBestFlightPath(JFK, CDG, distance);
-    ASSERT_EQ(2, airports.size());
-    EXPECT_EQ(JFK.lock(), airports[0].lock());
-    EXPECT_EQ(CDG.lock(), airports[1].lock());
+    vector<FlightPath> paths = dataset.getBestFlightPaths({ JFK }, { CDG });
+    ASSERT_EQ(1, paths.size());
+    FlightPath path = paths[0];
+
+    ASSERT_EQ(2, path.getAirports().size());
+    EXPECT_EQ(JFK.lock(), path.getAirports()[0].lock());
+    EXPECT_EQ(CDG.lock(), path.getAirports()[1].lock());
 }

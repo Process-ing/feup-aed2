@@ -20,7 +20,7 @@ class Program {
 
     void displayMainMenu();
     void chooseBestFlight();
-    static void displayBestFlight(const std::vector<AirportRef> &airports, double distance);
+    static void displayBestFlight(const std::vector<FlightPath> &paths);
 
     static int receiveOption(int max);
     CountryRef receiveCountry() const;

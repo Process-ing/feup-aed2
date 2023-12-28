@@ -147,7 +147,7 @@ const AirportSet &Dataset::getAirports() const {
     return network_.getVertexSet();
 }
 
-std::vector<AirportRef> Dataset::getBestFlightPath(const AirportRef& src, const AirportRef& dest, double &distance) const {
+FlightPath Dataset::getBestFlightPath(const AirportRef &src, const AirportRef &dest) const {
     for (AirportRef airport: network_.getVertexSet()) {
         airport.lock()->setVisited(false);
         airport.lock()->setParent(AirportRef());
@@ -174,10 +174,10 @@ std::vector<AirportRef> Dataset::getBestFlightPath(const AirportRef& src, const 
     if (!dest.lock()->isVisited())
         return {};
 
-    vector<AirportRef> airports;
-    airports.push_back(dest);
+    FlightPath path;
+    double distance = 0.0;
+    path.getAirports().push_back(dest);
     AirportRef curr = dest;
-    distance = 0;
     while (curr.lock()->getInfo().getCode() != src.lock()->getInfo().getCode()) {
         AirportRef next = curr.lock()->getParent();
         distance += calculateDistance(
@@ -187,10 +187,33 @@ std::vector<AirportRef> Dataset::getBestFlightPath(const AirportRef& src, const 
             next.lock()->getInfo().getLongitude()
         );
         curr = next;
-        airports.push_back(curr);
+        path.getAirports().push_back(curr);
     }
-    reverse(airports.begin(), airports.end());
-    return airports;
+    reverse(path.getAirports().begin(), path.getAirports().end());
+    path.setDistance(distance);
+    return path;
+}
+
+vector<FlightPath> Dataset::getBestFlightPaths(const vector<AirportRef> &srcs, const vector<AirportRef> &dests) const {
+    int minFlights = numeric_limits<int>::max();
+    vector<FlightPath> paths;
+
+    for (const AirportRef &src: srcs) {
+        for (const AirportRef &dest: dests) {
+            FlightPath path = getBestFlightPath(src, dest);
+            int flights = path.getFlights();
+
+            if (flights < minFlights) {
+                paths.clear();
+                paths.push_back(path);
+                minFlights = flights;
+            } else if (flights == minFlights) {
+                paths.push_back(path);
+            }
+        }
+    }
+
+    return paths;
 }
 
 double hav(double x) {

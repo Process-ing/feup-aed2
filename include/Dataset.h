@@ -8,6 +8,7 @@
 
 #include <unordered_set>
 #include "City.h"
+#include "FlightPath.h"
 
 typedef Graph<AirportInfo, FlightInfo, AirportInfoHash> Network;
 typedef VertexSet<AirportInfo, FlightInfo, AirportInfoHash> AirportSet;
@@ -36,7 +37,8 @@ class Dataset {
     AirportRef getAirport(const std::string& code) const;
     AirlineRef getAirline(const std::string& code) const;
 
-    std::vector<AirportRef> getBestFlightPath(const AirportRef &src, const AirportRef &dest, double& distance) const;
+    FlightPath getBestFlightPath(const AirportRef &src, const AirportRef &dest) const;
+    std::vector<FlightPath> getBestFlightPaths(const std::vector<AirportRef> &srcs, const std::vector<AirportRef> &dests) const;
 
   private:
     CountrySet countrySet_;
