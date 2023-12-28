@@ -127,6 +127,96 @@ AirlineRef Dataset::getAirline(const string& code) const {
     return airline != airlineSet_.end() ? *airline : AirlineRef();
 }
 
+vector<AirlineRef> Dataset::getAirlinesFromCountry(const Country& country) {
+    vector<AirlineRef> airlines;
+    for (const auto& airline : country.getAirlines()) {
+        airlines.push_back(airline);
+    }
+    return airlines;
+}
+
+vector<CityRef> Dataset::getCitiesFromCountry(const Country& country) {
+    vector<CityRef> cities;
+    for (const auto& city : country.getCities()) {
+        cities.push_back(city);
+    }
+    return cities;
+}
+
+vector<AirportRef> Dataset::getAirportsFromCity(const City& city) {
+    vector<AirportRef> airports;
+    for (const auto& airport : city.getAirports()) {
+        airports.push_back(airport);
+    }
+    return airports;
+}
+
+vector<CountryRef> Dataset::getCountriesAirportFliesTo(const Airport& airport) {
+    CountryRefSet countries;
+    for (const auto& flight : airport.getAdj()) {
+        auto destination = flight.getDest();
+        countries.insert(countries.end(), destination.lock()->getInfo().getCity().lock()->getCountry());
+    }
+    vector<CountryRef> countries1(countries.begin(), countries.end());
+    return countries1;
+}
+
+vector<CountryRef> Dataset::getCountriesCityFliesTo(const City& city) {
+    CountryRefSet countries;
+    for (const auto& airport : city.getAirports()) {
+        vector<CountryRef> moreCountries = getCountriesAirportFliesTo(*airport.lock());
+        countries.insert(moreCountries.begin(), moreCountries.end());
+    }
+    vector<CountryRef> countries1(countries.begin(), countries.end());
+    return countries1;
+}
+
+void AirportDFS(AirportRef start, vector<AirportRef>& reachable, int depth, int max);
+vector<AirportRef> Dataset::getReachableAirportsfromAirport(AirportRef airport, int x) {
+    vector<AirportRef> airports;
+    for (const auto& v : network_.getVertexSet()) {
+        v->setVisited(false);
+    }
+    AirportDFS(airport, airports, 0, x);
+    return airports;
+}
+
+void AirportDFS(AirportRef start, vector<AirportRef>& reachable, int depth, int max) {
+    start.lock()->setVisited(true);
+    reachable.push_back(start);
+
+    if (depth > max) {
+        return;
+    }
+
+    for (const auto& adjacent : start.lock()->getAdj()) {
+        auto dest = adjacent.getDest().lock();
+        if (!dest->isVisited()) {
+            AirportDFS(dest, reachable, depth + 1, max);
+        }
+    }
+}
+
+vector<CityRef> Dataset::getReachableCitiesfromAirport(AirportRef airport, int x) {
+    CitySet cities;
+    auto airports = getReachableAirportsfromAirport(airport, x);
+    for (auto airport : airports) {
+        cities.insert(airport.lock()->getInfo().getCity());
+    }
+    vector<CityRef> cities1(cities.begin(), cities.end());
+    return cities1;
+}
+
+vector<CountryRef> Dataset::getReachableCountriesfromAirport(AirportRef airport, int x) {
+    CountryRefSet countries;
+    auto cities = getReachableCitiesfromAirport(airport, x);
+    for (auto city : cities) {
+        countries.insert(city.lock()->getCountry());
+    }
+    vector<CountryRef> countries1(countries.begin(), countries.end());
+    return countries1;
+}
+
 const AirlineSet& Dataset::getAirlines() const {
     return airlineSet_;
 }

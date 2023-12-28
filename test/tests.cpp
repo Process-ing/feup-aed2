@@ -82,3 +82,73 @@ TEST(BestFlightTestSuite, GetBestFlightPathTest) {
     EXPECT_EQ(JFK.lock(), path.getAirports()[0].lock());
     EXPECT_EQ(CDG.lock(), path.getAirports()[1].lock());
 }
+
+TEST(Issue16Test, GetAirlinesFromCountry) {
+    Dataset dataset;
+
+    dataset.readFiles();
+
+    CountryRef portugal = dataset.getCountry("Portugal");
+    auto airlines = dataset.getAirlinesFromCountry(*portugal.lock());
+    ASSERT_EQ(5, airlines.size());
+}
+
+TEST(Issue16Test, GetCitiesFromCountry) {
+    Dataset dataset;
+
+    dataset.readFiles();
+
+    CountryRef portugal = dataset.getCountry("Portugal");
+    auto cities = dataset.getCitiesFromCountry(*portugal.lock());
+    ASSERT_EQ(14, cities.size());
+}
+
+TEST(Issue16Test, GetAirportsFromCity) {
+    Dataset dataset;
+
+    dataset.readFiles();
+
+    CityRef faro = dataset.getCity("Faro", "Portugal");
+    auto airports = dataset.getAirportsFromCity(*faro.lock());
+    ASSERT_EQ(1, airports.size());
+}
+
+TEST(Issue17Test, GetCountriesCityFliesTo) {
+    Dataset dataset;
+
+    dataset.readFiles();
+
+    CityRef faro = dataset.getCity("Faro", "Portugal");
+    auto countries = dataset.getCountriesCityFliesTo(*faro.lock());
+    ASSERT_EQ(14, countries.size());
+}
+
+TEST(Issue25Test, GetReachableAirportsFromAirport) {
+    Dataset dataset;
+
+    dataset.readFiles();
+
+    auto fao = dataset.getAirport("FAO");
+    auto airports = dataset.getReachableAirportsfromAirport(fao, 0);
+    EXPECT_EQ(63, airports.size());
+}
+
+TEST(Issue25Test, GetReachableCitiesFromAirport) {
+    Dataset dataset;
+
+    dataset.readFiles();
+
+    auto fao = dataset.getAirport("FAO");
+    auto cities = dataset.getReachableCitiesfromAirport(fao, 0);
+    EXPECT_EQ(58, cities.size());
+}
+
+TEST(Issue25Test, GetReachableCountriesFromAirport) {
+    Dataset dataset;
+
+    dataset.readFiles();
+
+    auto fao = dataset.getAirport("FAO");
+    auto countries = dataset.getReachableCountriesfromAirport(fao, 0);
+    EXPECT_EQ(14, countries.size());
+}
