@@ -201,26 +201,41 @@ float Dataset::numberOfFlightsByAirline() {
 vector<AirportInfo> Dataset::searchDestinationsFromAirport(string airPortCode) {
     AirportRef airport = getAirport(airPortCode);
     vector<AirportInfo> flights;
+
     if (airport.lock()) {
-        for (const auto& flight : airport.lock()->getAdj()){
+        for (const auto& flight : airport.lock()->getAdj()) {
             const AirportInfo& targetAirport = flight.getDest().lock()->getInfo();
-            flights.push_back(targetAirport);
+
+            bool alreadyExists = false;
+            for (auto it = flights.begin(); it != flights.end(); ++it) {
+                if (it->getCode() == targetAirport.getCode()) {
+                    alreadyExists = true;
+                    break;
+                }
+            }
+
+            if (!alreadyExists) {
+                flights.push_back(targetAirport);
+            }
         }
     }
     return flights;
 }
 
 vector<AirportRef> Dataset::searchTopNAirPortsWithGreatestTraffic(int n) {
-    vector<AirportRef> airportTrafficList;
     vector<AirportRef> airportsList;
-    sort(airportTrafficList.begin(), airportTrafficList.end(), [](const AirportRef &a, const AirportRef &b) {
+    for (const auto& airport : network_.getVertexSet()) {
+        airportsList.push_back(airport);
+    }
+
+    sort(airportsList.begin(), airportsList.end(), [](const AirportRef &a, const AirportRef &b) {
         return a.lock()->getAdj().size() > b.lock()->getAdj().size();
     });
-    for (int i = 0; i < n; i++) {
-        airportsList.push_back(airportTrafficList[i]);
-    }
+    airportsList.resize(min(n, static_cast<int>(airportsList.size())));
+
     return airportsList;
 }
+
 void AirportDFS(AirportRef start, vector<AirportRef>& reachable, int depth, int max);
 vector<AirportRef> Dataset::getReachableAirportsfromAirport(AirportRef airport, int x) {
     vector<AirportRef> airports;

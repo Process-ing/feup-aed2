@@ -39,6 +39,16 @@ class Program {
     static void waitForEnter();
     static void clearScreen();
     static void leave();
+
+    void displayDestinationsFromAirport();
+
+    void displayReachableDestinationsFromAirportInNStops();
+
+    void displayMaximumTrip();
+
+    void displayTopNAirportsWithGreatestTraffic();
+
+    void displayAirportsEssentialToNetworkCirculation();
 };
 
 
