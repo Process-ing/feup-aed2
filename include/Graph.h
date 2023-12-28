@@ -40,6 +40,8 @@ class Vertex {
     void setProcessing(bool processing);
     int getIndegree() const;
     void setIndegree(int indegree);
+    int getDistance() const;
+    void setDistance(int distance);
     int getNum() const;
     void setNum(int num);
     int getLow() const;
@@ -55,6 +57,7 @@ class Vertex {
     bool visited_;
     bool processing_;
     int indegree_;
+    int distance_;
     int num_;
     int low_;
     VertexRef<VertexInfo, EdgeInfo> parent_;
@@ -103,7 +106,7 @@ class Graph {
 
 template<class VertexInfo, class EdgeInfo>
 Vertex<VertexInfo, EdgeInfo>::Vertex(const VertexInfo &info): info_(info), adj_(),
-    visited_(false), processing_(false), indegree_(0), num_(0), low_(0) {}
+    visited_(false), processing_(false), indegree_(0), num_(0), low_(0), distance_(0) {}
 
 template<class VertexInfo, class EdgeInfo>
 const VertexInfo &Vertex<VertexInfo, EdgeInfo>::getInfo() const {
@@ -149,6 +152,16 @@ int Vertex<VertexInfo, EdgeInfo>::getIndegree() const {
 template<class VertexInfo, class EdgeInfo>
 void Vertex<VertexInfo, EdgeInfo>::setIndegree(int indegree) {
     indegree_ = indegree;
+}
+
+template<class VertexInfo, class EdgeInfo>
+int Vertex<VertexInfo, EdgeInfo>::getDistance() const {
+    return distance_;
+}
+
+template<class VertexInfo, class EdgeInfo>
+void Vertex<VertexInfo, EdgeInfo>::setDistance(int distance) {
+    distance_ = distance;
 }
 
 template<class VertexInfo, class EdgeInfo>
