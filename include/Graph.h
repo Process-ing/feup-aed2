@@ -150,6 +150,7 @@ class Vertex {
 
     /**
      * @brief Add an outgoing edge to the vertex.
+     * Complexity: O(1)
      * @param dest Edge's destination
      * @param info Edge's info
      */
@@ -250,6 +251,7 @@ class Graph {
 
     /**
      * @brief Returns the vertex with the given info.
+     * Complexity: O(1)
      * @param info Vertex's info
      * @return Reference to the respective vertex
      */
@@ -257,6 +259,8 @@ class Graph {
 
     /**
      * @brief Adds a vertex to the graph, with the given info.
+     * Complexity: O(1)
+     *
      * @param info Vertex's info
      * @return True if the graph was successfully added, false otherwise (if another vertex with the same info already
      *         exists).
@@ -266,6 +270,7 @@ class Graph {
     /**
      * @brief Adds an edge from one vertex to the other, with the respective info.
      * This function also updates the vertexes in degree appropriately.
+     * Complexity: O(1)
      *
      * @param src Source vertex's info
      * @param dest Destination vertex's info
@@ -401,8 +406,7 @@ VertexRef<VertexInfo, EdgeInfo> Graph<VertexInfo, EdgeInfo, VertexInfoHash>::fin
 
 template<class VertexInfo, class EdgeInfo, class VertexInfoHash>
 bool Graph<VertexInfo, EdgeInfo, VertexInfoHash>::addVertex(const VertexInfo &info) {
-    return vertexSet_.insert(std::make_shared<Vertex<VertexInfo, EdgeInfo>>(Vertex<VertexInfo, EdgeInfo>(info)))
-        .second;
+    return vertexSet_.insert(std::make_shared<Vertex<VertexInfo, EdgeInfo>>(Vertex<VertexInfo, EdgeInfo>(info))).second;
 }
 
 template<class VertexInfo, class EdgeInfo, class VertexInfoHash>

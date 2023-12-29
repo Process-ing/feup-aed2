@@ -797,7 +797,7 @@ void Program::displayDestinationsFromAirport() const {
     AirportRef airport = receiveAirportByCode();
     if (airport.expired())
         return;
-    vector<AirportRef> airports = dataset_.searchAirportsFromAirport(airport);
+    vector<AirportRef> airports = dataset_.searchReachableAirportsFromAirport(airport);
     airports = sortAirportsMenu(airports);
     displayAirports(airports);
 }
@@ -806,7 +806,7 @@ void Program::displayCountriesFromAirport() const {
     AirportRef airport = receiveAirportByCode();
     if (airport.expired())
         return;
-    vector<CountryRef> countries = dataset_.searchCountriesFromAirport(airport);
+    vector<CountryRef> countries = dataset_.searchReachableCountriesFromAirport(airport);
     countries = sortCountries(countries);
     displayCountries(countries);
 }
@@ -815,7 +815,7 @@ void Program::displayCitiesFromAirport() const {
     AirportRef airport = receiveAirportByCode();
     if (airport.expired())
         return;
-    vector<CityRef> cities = dataset_.searchCitiesFromAirport(airport);
+    vector<CityRef> cities = dataset_.searchReachableCitiesFromAirport(airport);
     cities = sortCities(cities);
     displayCities(cities);
 }
@@ -876,7 +876,7 @@ void Program::displayTopNAirportsWithGreatestTraffic() const {
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
         cout << "Invalid number of airports. Please enter another number: ";
     }
-    vector<AirportRef> airports = dataset_.searchTopNAirPortsWithGreatestTraffic(n);
+    vector<AirportRef> airports = dataset_.searchTopNAirportsWithGreatestTraffic(n);
     displayAirports(airports);
 }
 
@@ -1425,9 +1425,9 @@ void Program::displayNumberOfDifferentDestinationsFromAirport() const {
     AirportRef airport = receiveAirportByCode();
     if (airport.expired())
         return;
-    vector<AirportRef> airports = dataset_.searchAirportsFromAirport(airport);
-    vector<CountryRef> countries = dataset_.searchCountriesFromAirport(airport);
-    vector<CityRef> cities = dataset_.searchCitiesFromAirport(airport);
+    vector<AirportRef> airports = dataset_.searchReachableAirportsFromAirport(airport);
+    vector<CountryRef> countries = dataset_.searchReachableCountriesFromAirport(airport);
+    vector<CityRef> cities = dataset_.searchReachableCitiesFromAirport(airport);
     cout << "\n"
             " ┌─ Statistics results ──────────────────────────────────────────────────────────────────┐\n"
             " │                                                                                       │\n";
