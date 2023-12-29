@@ -40,10 +40,14 @@ class Vertex {
     void setProcessing(bool processing);
     int getIndegree() const;
     void setIndegree(int indegree);
+    int getDistance() const;
+    void setDistance(int distance);
     int getNum() const;
     void setNum(int num);
     int getLow() const;
     void setLow(int low);
+    VertexRef<VertexInfo, EdgeInfo> getParent();
+    void setParent(VertexRef<VertexInfo, EdgeInfo> parent);
     const std::vector<Edge<VertexInfo, EdgeInfo>> &getAdj() const;
     std::vector<Edge<VertexInfo, EdgeInfo>> &getAdj();
     void addEdge(VertexRef<VertexInfo, EdgeInfo> dest, const EdgeInfo &info);
@@ -54,8 +58,10 @@ class Vertex {
     bool visited_;
     bool processing_;
     int indegree_;
+    int distance_;
     int num_;
     int low_;
+    VertexRef<VertexInfo, EdgeInfo> parent_;
 };
 
 
@@ -103,7 +109,7 @@ class Graph {
 
 template<class VertexInfo, class EdgeInfo>
 Vertex<VertexInfo, EdgeInfo>::Vertex(const VertexInfo &info): info_(info), adj_(),
-    visited_(false), processing_(false), indegree_(0), num_(0), low_(0) {}
+    visited_(false), processing_(false), indegree_(0), num_(0), low_(0), distance_(0) {}
 
 template<class VertexInfo, class EdgeInfo>
 const VertexInfo &Vertex<VertexInfo, EdgeInfo>::getInfo() const {
@@ -152,6 +158,16 @@ void Vertex<VertexInfo, EdgeInfo>::setIndegree(int indegree) {
 }
 
 template<class VertexInfo, class EdgeInfo>
+int Vertex<VertexInfo, EdgeInfo>::getDistance() const {
+    return distance_;
+}
+
+template<class VertexInfo, class EdgeInfo>
+void Vertex<VertexInfo, EdgeInfo>::setDistance(int distance) {
+    distance_ = distance;
+}
+
+template<class VertexInfo, class EdgeInfo>
 int Vertex<VertexInfo, EdgeInfo>::getNum() const {
     return num_;
 }
@@ -169,6 +185,16 @@ int Vertex<VertexInfo, EdgeInfo>::getLow() const {
 template<class VertexInfo, class EdgeInfo>
 void Vertex<VertexInfo, EdgeInfo>::setLow(int low) {
     low_ = low;
+}
+
+template<class VertexInfo, class EdgeInfo>
+VertexRef<VertexInfo, EdgeInfo> Vertex<VertexInfo, EdgeInfo>::getParent() {
+    return parent_;
+}
+
+template<class VertexInfo, class EdgeInfo>
+void Vertex<VertexInfo, EdgeInfo>::setParent(VertexRef<VertexInfo, EdgeInfo> parent) {
+    parent_ = parent;
 }
 
 template<class VertexInfo, class EdgeInfo>

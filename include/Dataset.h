@@ -8,6 +8,7 @@
 
 #include <unordered_set>
 #include "City.h"
+#include "FlightPath.h"
 
 typedef Graph<AirportInfo, FlightInfo, AirportInfoHash> Network;
 typedef VertexSet<AirportInfo, FlightInfo, AirportInfoHash> AirportSet;
@@ -47,6 +48,28 @@ class Dataset {
     std::vector<AirportRef> getEssencialAirports();
     int connectedComponents();
     std::vector<AirportRef> getEssencialAirportsBruteForce();
+    std::vector<AirlineRef> getAirlinesFromCountry(const CountryRef &country) const;
+    std::vector<CityRef> getCitiesFromCountry(const CountryRef &country) const;
+    std::vector<AirportRef> getAirportsFromCountry(const CountryRef &country) const;
+    static std::vector<AirportRef> getAirportsFromCity(const CityRef &city) ;
+    std::vector<CountryRef> getCountriesAirportFliesTo(const AirportRef &airport) const;
+    std::vector<CountryRef> getCountriesCityFliesTo(const CityRef &city) const;
+    std::vector<Flight> searchFlightsFromAirport(const AirportRef &airport) const;
+    float numberOfFlightsByCity() const;
+    float numberOfFlightsByAirline() const;
+    int numberOfFlights() const;
+    std::vector<CityRef> searchCitiesFromAirport(const AirportRef& airport) const;
+    std::vector<AirportRef> searchAirportsFromAirport(const AirportRef& airport) const;
+    std::vector<CountryRef> searchCountriesFromAirport(const AirportRef& airport) const;
+    std::vector<AirportRef> searchTopNAirPortsWithGreatestTraffic(int n) const;
+    std::vector<AirportRef> getReachableAirportsFromAirport(const AirportRef& airport, int x) const;
+    std::vector<CityRef> getReachableCitiesFromAirport(const AirportRef& airport, int x) const;
+    std::vector<CountryRef> getReachableCountriesFromAirport(const AirportRef& airport, int x) const;
+    std::vector<std::pair<AirportRef, AirportRef>> getMaxTrips(int& diameter) const;
+    std::pair<AirportRef, AirportRef> diameterBFS(const AirportRef& airport, int &diameter) const;
+
+    FlightPath getBestFlightPath(const std::vector<AirportRef> &srcs, const std::vector<AirportRef> &dests, const std::unordered_set<std::string> &availableAirports, const std::unordered_set<std::string> &availableAirlines) const;
+    std::vector<AirportRef> getClosestAirports(double latitude, double longitude) const;
 
   private:
     CountrySet countrySet_;
@@ -56,6 +79,8 @@ class Dataset {
 
     CityRef getOrInsertCity(const std::string& name, const std::string& country);
     CountryRef getOrInsertCountry(const std::string& name);
+
+    static double calculateDistance(double lat1, double lon1, double lat2, double lon2);
 };
 
 

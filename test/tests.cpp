@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <algorithm>
 #include "Dataset.h"
+#include "Program.h"
 
 using namespace std;
 
@@ -36,26 +37,28 @@ TEST(FileParseTestSuite, ReadFilesTest) {
 
     EXPECT_EQ(444, dataset.getAirlines().size());
     AirlineRef americanAirlines = dataset.getAirline("AAL");
-    EXPECT_EQ(americanAirlines.lock()->getName(),"American Airlines");
-    EXPECT_EQ(americanAirlines.lock()->getCountry().lock()->getName(),"United States");
-    EXPECT_EQ(americanAirlines.lock()->getCallsign(),"AMERICAN");
+    EXPECT_EQ(americanAirlines.lock()->getName(), "American Airlines");
+    EXPECT_EQ(americanAirlines.lock()->getCountry().lock()->getName(), "United States");
+    EXPECT_EQ(americanAirlines.lock()->getCallsign(), "AMERICAN");
     AirlineRef airEuropa = dataset.getAirline("AEA");
-    EXPECT_EQ(airEuropa.lock()->getName(),"Air Europa");
-    EXPECT_EQ(airEuropa.lock()->getCountry().lock()->getName(),"Spain");
-    EXPECT_EQ(airEuropa.lock()->getCallsign(),"EUROPA");
+    EXPECT_EQ(airEuropa.lock()->getName(), "Air Europa");
+    EXPECT_EQ(airEuropa.lock()->getCountry().lock()->getName(), "Spain");
+    EXPECT_EQ(airEuropa.lock()->getCallsign(), "EUROPA");
     AirlineRef airCaraibes = dataset.getAirline("FWI");
-    EXPECT_EQ(airCaraibes.lock()->getName(),"Air Caraibes");
-    EXPECT_EQ(airCaraibes.lock()->getCountry().lock()->getName(),"France");
-    EXPECT_EQ(airCaraibes.lock()->getCallsign(),"FRENCH WEST");
+    EXPECT_EQ(airCaraibes.lock()->getName(), "Air Caraibes");
+    EXPECT_EQ(airCaraibes.lock()->getCountry().lock()->getName(), "France");
+    EXPECT_EQ(airCaraibes.lock()->getCallsign(), "FRENCH WEST");
 
     int total = 0;
     for (auto &v: dataset.getNetwork().getVertexSet())
-        total += (int)v->getAdj().size();
+        total += (int) v->getAdj().size();
     EXPECT_EQ(63832, total);
 
     AirportRef JFKAirport = dataset.getAirport("JFK");
     vector<Flight> flights = JFKAirport.lock()->getAdj();
-    auto specific_flight = find_if(flights.begin(), flights.end(), [](const Flight& f) { return f.getDest().lock()->getInfo().getCode() == "FRA" && f.getInfo().getAirline().lock()->getCode() == "ETH"; });
+    auto specific_flight = find_if(flights.begin(), flights.end(), [](const Flight &f) {
+        return f.getDest().lock()->getInfo().getCode() == "FRA" && f.getInfo().getAirline().lock()->getCode() == "ETH";
+    });
     EXPECT_NE(specific_flight, flights.end());
 
     AirportRef SCKAirport = dataset.getAirport("SCK");
@@ -66,14 +69,29 @@ TEST(FileParseTestSuite, ReadFilesTest) {
     EXPECT_EQ(1, SCKAirport.lock()->getIndegree());
 }
 
+TEST(BestFlightTestSuite, GetBestFlightPathTest) {
+    Dataset dataset;
+    dataset.readFiles();
+
+    AirportRef JFK = dataset.getAirport("JFK");
+    AirportRef CDG = dataset.getAirport("CDG");
+    ASSERT_FALSE(JFK.expired());
+    ASSERT_FALSE(CDG.expired());
+    FlightPath path = dataset.getBestFlightPath({JFK}, {CDG}, {"JFK", "CDG"}, {"AFR"});
+
+    ASSERT_EQ(2, path.getAirports().size());
+    EXPECT_EQ(JFK.lock(), path.getAirports()[0].lock());
+    EXPECT_EQ(CDG.lock(), path.getAirports()[1].lock());
+}
+
 TEST(Issue16Test, GetAirlinesFromCountry) {
     Dataset dataset;
 
     dataset.readFiles();
 
     CountryRef portugal = dataset.getCountry("Portugal");
-    auto airlines = dataset.getAirlinesFromCountry(*portugal.lock());
-    ASSERT_EQ(5, airlines.size());
+    auto airlines = dataset.getAirlinesFromCountry(portugal);
+    EXPECT_EQ(5, airlines.size());
 }
 
 TEST(Issue16Test, GetCitiesFromCountry) {
@@ -82,8 +100,8 @@ TEST(Issue16Test, GetCitiesFromCountry) {
     dataset.readFiles();
 
     CountryRef portugal = dataset.getCountry("Portugal");
-    auto cities = dataset.getCitiesFromCountry(*portugal.lock());
-    ASSERT_EQ(14, cities.size());
+    auto cities = dataset.getCitiesFromCountry(portugal);
+    EXPECT_EQ(14, cities.size());
 }
 
 TEST(Issue16Test, GetAirportsFromCity) {
@@ -92,8 +110,8 @@ TEST(Issue16Test, GetAirportsFromCity) {
     dataset.readFiles();
 
     CityRef faro = dataset.getCity("Faro", "Portugal");
-    auto airports = dataset.getAirportsFromCity(*faro.lock());
-    ASSERT_EQ(1, airports.size());
+    auto airports = dataset.getAirportsFromCity(faro);
+    EXPECT_EQ(1, airports.size());
 }
 
 TEST(Issue17Test, GetCountriesCityFliesTo) {
@@ -102,8 +120,8 @@ TEST(Issue17Test, GetCountriesCityFliesTo) {
     dataset.readFiles();
 
     CityRef faro = dataset.getCity("Faro", "Portugal");
-    auto countries = dataset.getCountriesCityFliesTo(*faro.lock());
-    ASSERT_EQ(14, countries.size());
+    auto countries = dataset.getCountriesCityFliesTo(faro);
+    EXPECT_EQ(14, countries.size());
 }
 
 TEST(Issue25Test, GetReachableAirportsFromAirport) {
@@ -112,7 +130,7 @@ TEST(Issue25Test, GetReachableAirportsFromAirport) {
     dataset.readFiles();
 
     auto fao = dataset.getAirport("FAO");
-    auto airports = dataset.getReachableAirportsfromAirport(fao, 0);
+    auto airports = dataset.getReachableAirportsFromAirport(fao, 0);
     EXPECT_EQ(63, airports.size());
 }
 
@@ -122,7 +140,7 @@ TEST(Issue25Test, GetReachableCitiesFromAirport) {
     dataset.readFiles();
 
     auto fao = dataset.getAirport("FAO");
-    auto cities = dataset.getReachableCitiesfromAirport(fao, 0);
+    auto cities = dataset.getReachableCitiesFromAirport(fao, 0);
     EXPECT_EQ(58, cities.size());
 }
 
@@ -132,7 +150,7 @@ TEST(Issue25Test, GetReachableCountriesFromAirport) {
     dataset.readFiles();
 
     auto fao = dataset.getAirport("FAO");
-    auto countries = dataset.getReachableCountriesfromAirport(fao, 0);
+    auto countries = dataset.getReachableCountriesFromAirport(fao, 0);
     EXPECT_EQ(14, countries.size());
 }
 
@@ -165,4 +183,15 @@ TEST(Issue29Test, getEssencialAirportsBruteForce) {
 
     auto comp = dataset.getEssencialAirportsBruteForce();
     EXPECT_EQ(312, comp.size());
+}
+
+TEST(Issue31Test, GetMaxTrips) {
+    Dataset dataset;
+
+    dataset.readFiles();
+
+    int diameter = 0;
+    auto pairs = dataset.getMaxTrips(diameter);
+    EXPECT_EQ(12, diameter);
+    EXPECT_EQ(8, pairs.size());
 }
