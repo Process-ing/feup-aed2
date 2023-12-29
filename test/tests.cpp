@@ -132,7 +132,7 @@ TEST(Issue25Test, GetReachableAirportsFromAirport) {
     dataset.readFiles();
 
     auto fao = dataset.getAirport("FAO");
-    auto airports = dataset.getReachableAirportsfromAirport(fao, 0);
+    auto airports = dataset.getReachableAirportsFromAirport(fao, 0);
     EXPECT_EQ(63, airports.size());
 }
 
@@ -142,7 +142,7 @@ TEST(Issue25Test, GetReachableCitiesFromAirport) {
     dataset.readFiles();
 
     auto fao = dataset.getAirport("FAO");
-    auto cities = dataset.getReachableCitiesfromAirport(fao, 0);
+    auto cities = dataset.getReachableCitiesFromAirport(fao, 0);
     EXPECT_EQ(58, cities.size());
 }
 
@@ -152,7 +152,7 @@ TEST(Issue25Test, GetReachableCountriesFromAirport) {
     dataset.readFiles();
 
     auto fao = dataset.getAirport("FAO");
-    auto countries = dataset.getReachableCountriesfromAirport(fao, 0);
+    auto countries = dataset.getReachableCountriesFromAirport(fao, 0);
     EXPECT_EQ(14, countries.size());
 }
 
