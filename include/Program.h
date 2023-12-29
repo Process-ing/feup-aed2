@@ -22,6 +22,7 @@ class Program {
     void destinationsFromAirportMenu() const;
     void reachableDestinationsFromAirportMenu() const;
     void statisticsMenu() const;
+    void countryStatisticsMenu() const;
     static std::vector<AirportRef> sortAirportsMenu(std::vector<AirportRef> airports) ;
     std::vector<AirlineRef> sortAirlinesMenu(std::vector<AirlineRef> airlines) const;
     static std::vector<AirportRef> sortAirportsCityMenu(std::vector<AirportRef> airports) ;
@@ -37,8 +38,6 @@ class Program {
     static int receiveOption(int max);
     CountryRef receiveCountry() const;
     CityRef receiveCity() const;
-    AirlineRef receiveAirlineByCode() const;
-    AirlineRef receiveAirlineByName() const;
     AirportRef receiveAirportByCode() const;
     AirportRef receiveAirportByName() const;
     static std::unordered_set<std::string> receiveStrings();
@@ -68,11 +67,6 @@ class Program {
     void displayAirlines(const std::vector<AirlineRef> &airlines) const;
     void displayAirports(const std::vector<AirportRef> &airports) const;
     void displayFlights(const std::vector<Flight> &flights) const;
-
-    void displayNumberOfAirports() const;
-    void displayNumberOfAvailableFlights() const;
-    void displayNumberOfFlightsPerCity() const;
-    void displayNumberOfFlightsPerAirline() const;
     void displayNumberOfDifferentCountriesThatFlyToAirport() const;
     void displayNumberOfDifferentCountriesThatFlyToCity() const;
     void displayNumberOfDifferentDestinationsFromAirport() const;
@@ -82,6 +76,8 @@ class Program {
     void displayNumberOfCountries() const;
     void displayNumberOfCities() const;
     void displayNumberOfAirlines() const;
+    void displayGlobalStatistics() const;
+    void airportStatisticsMenu() const;
 };
 
 
