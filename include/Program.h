@@ -9,6 +9,9 @@
 
 #include "Dataset.h"
 
+/**
+ * @brief Class responsible for the interaction with the user.
+ */
 class Program {
   public:
     Program();

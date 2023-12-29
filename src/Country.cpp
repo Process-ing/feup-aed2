@@ -27,10 +27,6 @@ AirlineRef Country::addAirline(const Airline &airline) {
     return *airlines_.insert(airlines_.end(), make_shared<Airline>(airline));
 }
 
-bool Country::operator==(const Country& other) const {
-    return name_ == other.name_;
-}
-
 int CountryHash::operator()(const CountryRef &country) const {
     return (int)hash<string>()(country.lock()->getName());
 }

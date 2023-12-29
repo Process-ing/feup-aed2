@@ -18,8 +18,19 @@ template <class VertexInfo, class EdgeInfo, class VertexInfoHash> class Graph;
 template <class VertexInfo, class EdgeInfo> class Vertex;
 template <class VertexInfo, class EdgeInfo, class VertexInfoHash> struct VertexHash;
 
+/**
+ * @brief Reference to a vertex.
+ * @tparam VertexInfo Type of the vertex's info.
+ * @tparam EdgeInfo Type of the edge's info.
+ */
 template <class VertexInfo, class EdgeInfo>
 using VertexRef = std::weak_ptr<Vertex<VertexInfo, EdgeInfo>>;
+/**
+ * @brief Hash table for for storing vertexes, used by the Graph class.
+ * @tparam VertexInfo Type of the vertex's info.
+ * @tparam EdgeInfo Type of the edge's info.
+ * @tparam VertexInfoHash Hash class for VertexInfo.
+ */
 template <class VertexInfo, class EdgeInfo, class VertexInfoHash>
 using VertexSet = std::unordered_set<
     std::shared_ptr<Vertex<VertexInfo, EdgeInfo>>,
@@ -27,6 +38,11 @@ using VertexSet = std::unordered_set<
     VertexHash<VertexInfo, EdgeInfo, VertexInfoHash>
 >;
 
+/**
+ * @brief Vertex of a graph, containing some info.
+ * @tparam VertexInfo Type of the vertex's info.
+ * @tparam EdgeInfo Type of the edge's info.
+ */
 template <class VertexInfo, class EdgeInfo>
 class Vertex {
   public:
@@ -63,7 +79,12 @@ class Vertex {
     VertexRef<VertexInfo, EdgeInfo> parent_;
 };
 
-
+/**
+ * @brief Hash class for a graph's vertex, based on VertexInfoHash.
+ * @tparam VertexInfo Type of the vertex's info.
+ * @tparam EdgeInfo Type of the edge's info.
+ * @tparam VertexInfoHash Hash class for VertexInfo.
+ */
 template<class VertexInfo, class EdgeInfo, class VertexInfoHash>
 struct VertexHash {
   int operator()(const std::shared_ptr<Vertex<VertexInfo, EdgeInfo>> &v) const;
@@ -73,7 +94,11 @@ struct VertexHash {
   ) const;
 };
 
-
+/**
+ * @brief Edge of a graph, containing some info.
+ * @tparam VertexInfo Type of the vertex's info.
+ * @tparam EdgeInfo Type of the edge's info.
+ */
 template <class VertexInfo, class EdgeInfo>
 class Edge {
   public:
@@ -88,7 +113,14 @@ class Edge {
     EdgeInfo info_;
 };
 
-
+/**
+ * @brief Graph class, with the structure of a CRUD graph.
+ * The class stores the vertexes in a hash table to allow constant time access to its vertices (see VertexSet).
+ *
+ * @tparam VertexInfo Type of the vertex's info.
+ * @tparam EdgeInfo Type of the edge's info.
+ * @tparam VertexInfoHash Hash class for VertexInfo.
+ */
 template <class VertexInfo, class EdgeInfo, class VertexInfoHash>
 class Graph {
   public:

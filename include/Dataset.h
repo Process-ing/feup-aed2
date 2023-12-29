@@ -17,7 +17,9 @@ typedef std::unordered_set<CountryRef, CountryHash, CountryHash> CountryRefSet;
 typedef std::unordered_set<CityRef, CityHash, CityHash> CitySet;
 typedef std::unordered_set<AirlineRef, AirlineHash, AirlineHash> AirlineSet;
 
-
+/**
+ * @brief Class that contains all the data of the dataset and executes the necessary operations on it.
+ */
 class Dataset {
   public:
     Dataset();
