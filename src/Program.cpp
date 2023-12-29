@@ -181,7 +181,7 @@ void Program::statisticsMenu() const {
 }
 
 void Program::airportStatisticsMenu() const {
-    static const int NUM_OPTIONS = 3;
+    static const int NUM_OPTIONS = 4;
     enum Option {
         NUMBER_OF_DIFFERENT_DESTINATIONS_FROM_AIRPORT = 1,
         NUMBER_OF_REACHABLE_DESTINATIONS_IN_N_STOPS_FROM_AIRPORT = 2,
@@ -1399,7 +1399,7 @@ void Program::displayNumberOfAirportsEssentialToNetworkCirculation() const {
 void Program::displayGlobalStatistics() const {
     clearScreen();
     cout << "Calculating the maximum trip, this might take a while...\n";
-    
+
     int diameter;
 
     dataset_.getMaxTrips(diameter);
