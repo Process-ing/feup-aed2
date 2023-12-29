@@ -49,6 +49,7 @@ class Vertex {
     VertexRef<VertexInfo, EdgeInfo> getParent();
     void setParent(VertexRef<VertexInfo, EdgeInfo> parent);
     const std::vector<Edge<VertexInfo, EdgeInfo>> &getAdj() const;
+    std::vector<Edge<VertexInfo, EdgeInfo>> &getAdj();
     void addEdge(VertexRef<VertexInfo, EdgeInfo> dest, const EdgeInfo &info);
 
   private:
@@ -98,6 +99,8 @@ class Graph {
     VertexRef<VertexInfo, EdgeInfo> findVertex(const VertexInfo &info) const;
     bool addVertex(const VertexInfo &info);
     bool addEdge(const VertexInfo &src, const VertexInfo &dest, const EdgeInfo &info);
+    void removeVertex(const VertexInfo &info);
+    void removeEdge(const VertexInfo &src, const VertexInfo &dest);
 
   private:
     VertexSet<VertexInfo, EdgeInfo, VertexInfoHash> vertexSet_;
@@ -199,6 +202,11 @@ const std::vector<Edge<VertexInfo, EdgeInfo>> &Vertex<VertexInfo, EdgeInfo>::get
     return adj_;
 }
 
+template<class VertexInfo, class EdgeInfo>
+std::vector<Edge<VertexInfo, EdgeInfo>> &Vertex<VertexInfo, EdgeInfo>::getAdj() {
+    return adj_;
+}
+
 
 template<class VertexInfo, class EdgeInfo>
 Edge<VertexInfo, EdgeInfo>::Edge(VertexRef<VertexInfo, EdgeInfo> dest, const EdgeInfo &info)
@@ -256,6 +264,30 @@ bool Graph<VertexInfo, EdgeInfo, VertexInfoHash>::addEdge(
     v1.lock()->addEdge(v2.lock(), info);
     v2.lock()->setIndegree(v2.lock()->getIndegree() + 1);
     return true;
+}
+
+template<class VertexInfo, class EdgeInfo, class VertexInfoHash>
+void Graph<VertexInfo, EdgeInfo, VertexInfoHash>::removeVertex(const VertexInfo &info) {
+    VertexRef<VertexInfo, EdgeInfo> vertex = findVertex(info);
+    for (std::shared_ptr<Vertex<VertexInfo, EdgeInfo>> other: getVertexSet())
+        removeEdge(other->getInfo(), vertex.lock()->getInfo());
+    vertexSet_.erase(vertex.lock());
+}
+
+template<class VertexInfo, class EdgeInfo, class VertexInfoHash>
+void Graph<VertexInfo, EdgeInfo, VertexInfoHash>::removeEdge(const VertexInfo &src, const VertexInfo &dest) {
+    VertexRef<VertexInfo, EdgeInfo> u = findVertex(src);
+    VertexRef<VertexInfo, EdgeInfo> v = findVertex(dest);
+    if (u.expired() || v.expired())
+        return;
+    if (u.lock()->getInfo().getCode() == "CTU")
+        std::stoi("1");
+    for (auto it = u.lock()->getAdj().begin(); it != u.lock()->getAdj().end(); ) {
+        if (it->getDest().lock()->getInfo().getCode() == v.lock()->getInfo().getCode())
+            it = u.lock()->getAdj().erase(it);
+        else
+            it++;
+    }
 }
 
 
