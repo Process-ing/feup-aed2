@@ -90,7 +90,7 @@ TEST(Issue16Test, GetAirlinesFromCountry) {
     dataset.readFiles();
 
     CountryRef portugal = dataset.getCountry("Portugal");
-    auto airlines = dataset.getAirlinesFromCountry(*portugal.lock());
+    auto airlines = dataset.getAirlinesFromCountry(portugal);
     EXPECT_EQ(5, airlines.size());
 }
 
@@ -100,7 +100,7 @@ TEST(Issue16Test, GetCitiesFromCountry) {
     dataset.readFiles();
 
     CountryRef portugal = dataset.getCountry("Portugal");
-    auto cities = dataset.getCitiesFromCountry(*portugal.lock());
+    auto cities = dataset.getCitiesFromCountry(portugal);
     EXPECT_EQ(14, cities.size());
 }
 
@@ -110,7 +110,7 @@ TEST(Issue16Test, GetAirportsFromCity) {
     dataset.readFiles();
 
     CityRef faro = dataset.getCity("Faro", "Portugal");
-    auto airports = dataset.getAirportsFromCity(*faro.lock());
+    auto airports = dataset.getAirportsFromCity(faro);
     EXPECT_EQ(1, airports.size());
 }
 
@@ -120,7 +120,7 @@ TEST(Issue17Test, GetCountriesCityFliesTo) {
     dataset.readFiles();
 
     CityRef faro = dataset.getCity("Faro", "Portugal");
-    auto countries = dataset.getCountriesCityFliesTo(*faro.lock());
+    auto countries = dataset.getCountriesCityFliesTo(faro);
     EXPECT_EQ(14, countries.size());
 }
 
