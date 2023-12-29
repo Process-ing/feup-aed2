@@ -167,24 +167,6 @@ TEST(Issue29Test, GetEssencialAirports) {
     ASSERT_EQ(312, airports.size());
 }
 
-TEST(Issue29Test, ConnectedComponents) {
-    Dataset dataset;
-
-    dataset.readFiles();
-
-    int comp = dataset.connectedComponents();
-    EXPECT_EQ(16, comp);
-}
-
-TEST(Issue29Test, getEssencialAirportsBruteForce) {
-    Dataset dataset;
-
-    dataset.readFiles();
-
-    auto comp = dataset.getEssencialAirportsBruteForce();
-    EXPECT_EQ(312, comp.size());
-}
-
 TEST(Issue31Test, GetMaxTrips) {
     Dataset dataset;
 

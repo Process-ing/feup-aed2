@@ -441,34 +441,6 @@ void dfs(const AirportRef& airport) {
     }
 }
 
-int Dataset::connectedComponents() {
-    int numComponents = 0;
-
-    for (const auto& node : network_.getVertexSet())
-        node->setVisited(false);
-
-    for (const auto& node : network_.getVertexSet()) {
-        if (!node->isVisited()) {
-            ++numComponents;
-            dfs(node);
-        }
-    }
-    return numComponents;
-}
-
-std::vector<AirportRef> Dataset::getEssencialAirportsBruteForce() {
-    vector<AirportRef> art;
-
-    for (const auto& v : network_.getVertexSet()) {
-        Dataset temp;
-        temp.readFiles();
-        temp.network_.removeVertex(v->getInfo());
-        int components = temp.connectedComponents();
-        if (components > 16)
-            art.push_back(v);
-    }
-    return art;
-}
 FlightPath Dataset::getBestFlightPath(const std::vector<AirportRef> &srcs, const std::vector<AirportRef> &dests,
                                       const std::unordered_set<std::string> &availableAirports, const std::unordered_set<std::string> &availableAirlines) const {
     int minFlights = numeric_limits<int>::max();

@@ -37,17 +37,7 @@ class Dataset {
     CityRef getCity(const std::string& name, const std::string& countryName) const;
     AirportRef getAirport(const std::string& code) const;
     AirlineRef getAirline(const std::string& code) const;
-    std::vector<AirlineRef> getAirlinesFromCountry(const Country& country);
-    std::vector<CityRef> getCitiesFromCountry(const Country& country);
-    std::vector<AirportRef> getAirportsFromCity(const City& city);
-    std::vector<CountryRef> getCountriesAirportFliesTo(const Airport& airport);
-    std::vector<CountryRef> getCountriesCityFliesTo(const City& city);
-    std::vector<AirportRef> getReachableAirportsfromAirport(AirportRef airport, int x);
-    std::vector<CityRef> getReachableCitiesfromAirport(AirportRef airport, int x);
-    std::vector<CountryRef> getReachableCountriesfromAirport(AirportRef airport, int x);
     std::vector<AirportRef> getEssencialAirports();
-    int connectedComponents();
-    std::vector<AirportRef> getEssencialAirportsBruteForce();
     std::vector<AirlineRef> getAirlinesFromCountry(const CountryRef &country) const;
     std::vector<CityRef> getCitiesFromCountry(const CountryRef &country) const;
     std::vector<AirportRef> getAirportsFromCountry(const CountryRef &country) const;
