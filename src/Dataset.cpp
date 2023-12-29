@@ -303,47 +303,50 @@ vector<CountryRef> Dataset::searchCountriesFromAirport(const AirportRef& airport
     return countries1;
 }
 
-void dfs_art(AirportRef v, bool isRoot, set<string> &res, int &i);
-vector<AirportRef> Dataset::getEssencialAirports() {
-    set<string> airports;
-    int index = 1;
+void essentialAirportDfs(vector<AirportRef> &airports, const AirportRef &src, int &i, bool isRoot) {
+    src.lock()->setNum(i);
+    src.lock()->setLow(i);
+    src.lock()->setVisited(true);
+    src.lock()->setProcessing(true);
+    i++;
+    bool isEssential = false;
+    int childCount = 0;
 
-    for (auto v : network_.getVertexSet())
-        v->setVisited(false);
-
-    for (auto v : network_.getVertexSet()) {
-        if (!v->isVisited())
-            dfs_art(v, true, airports, index);
+    for (const Flight& flight: src.lock()->getAdj()) {
+        AirportRef dest = flight.getDest();
+        if (!dest.lock()->isVisited()) {
+            childCount++;
+            essentialAirportDfs(airports, dest, i, false);
+            src.lock()->setLow(min(src.lock()->getLow(), dest.lock()->getLow()));
+            if (!isRoot && dest.lock()->getLow() >= src.lock()->getNum())
+                isEssential = true;
+        } else if (dest.lock()->isProcessing()) {
+            src.lock()->setLow(min(src.lock()->getLow(), dest.lock()->getNum()));
+        }
     }
-    vector<AirportRef> airports1;
-    for (const auto& airportCode : airports)
-        airports1.push_back(getAirport(airportCode));
-    return airports1;
+
+    if (isRoot && childCount > 1)
+        isEssential = true;
+    if (isEssential)
+        airports.push_back(src);
+
+    src.lock()->setProcessing(false);
 }
 
-void dfs_art(AirportRef v, bool isRoot, set<string> &res, int &i) {
-    int count = 0;
-    v.lock()->setVisited(true);
-    v.lock()->setLow(i);
-    v.lock()->setNum(i);
-    v.lock()->setProcessing(true);
-    i++;
-
-    for (auto &e: v.lock()->getAdj()) {
-        auto w = e.getDest();
-        if (!w.lock()->isVisited()) {
-            count++;
-            dfs_art(w, false, res, i);
-            v.lock()->setLow(min(v.lock()->getLow(), w.lock()->getLow()));
-            if (!isRoot && w.lock()->getLow() >= v.lock()->getNum()) {
-                res.insert(v.lock()->getInfo().getCode());
-            }
-        } else if (w.lock()->isProcessing())
-            v.lock()->setLow(min(v.lock()->getLow(), w.lock()->getNum()));
+vector<AirportRef> Dataset::getEssencialAirports() {
+    vector<AirportRef> airports;
+    int i = 1;
+    for (AirportRef airport: network_.getVertexSet()) {
+        airport.lock()->setVisited(false);
+        airport.lock()->setProcessing(false);
     }
-    v.lock()->setProcessing(false);
-    if (count > 1 && isRoot)
-        res.insert(v.lock()->getInfo().getCode());
+
+    for (AirportRef airport: network_.getVertexSet()) {
+        if (!airport.lock()->isVisited())
+            essentialAirportDfs(airports, airport, i, true);
+    }
+
+    return airports;
 }
 
 vector<AirportRef> Dataset::searchTopNAirPortsWithGreatestTraffic(int n) const {
