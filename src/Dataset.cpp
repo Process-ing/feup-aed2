@@ -127,33 +127,42 @@ AirlineRef Dataset::getAirline(const string& code) const {
     return airline != airlineSet_.end() ? *airline : AirlineRef();
 }
 
-vector<AirlineRef> Dataset::getAirlinesFromCountry(const Country& country) const {
+vector<AirlineRef> Dataset::getAirlinesFromCountry(const CountryRef &country) const {
     vector<AirlineRef> airlines;
-    for (const auto& airline : country.getAirlines()) {
+    for (const auto& airline : country.lock()->getAirlines()) {
         airlines.push_back(airline);
     }
     return airlines;
 }
 
-vector<CityRef> Dataset::getCitiesFromCountry(const Country& country) const {
+vector<CityRef> Dataset::getCitiesFromCountry(const CountryRef &country) const {
     vector<CityRef> cities;
-    for (const auto& city : country.getCities()) {
+    for (const auto& city : country.lock()->getCities()) {
         cities.push_back(city);
     }
     return cities;
 }
 
-vector<AirportRef> Dataset::getAirportsFromCity(const City& city) const {
+vector<AirportRef> Dataset::getAirportsFromCity(const CityRef &city) {
     vector<AirportRef> airports;
-    for (const auto& airport : city.getAirports()) {
+    for (const auto& airport : city.lock()->getAirports()) {
         airports.push_back(airport);
     }
     return airports;
 }
 
-vector<CountryRef> Dataset::getCountriesAirportFliesTo(const Airport& airport) const {
+vector<AirportRef> Dataset::getAirportsFromCountry(const CountryRef &country) const {
+    vector<AirportRef> airports;
+    for (CityRef city: country.lock()->getCities()) {
+        for (const AirportRef& airport : city.lock()->getAirports())
+            airports.push_back(airport);
+    }
+    return airports;
+}
+
+vector<CountryRef> Dataset::getCountriesAirportFliesTo(const AirportRef &airport) const {
     CountryRefSet countries;
-    for (const auto& flight : airport.getAdj()) {
+    for (const auto& flight : airport.lock()->getAdj()) {
         auto destination = flight.getDest();
         countries.insert(countries.end(), destination.lock()->getInfo().getCity().lock()->getCountry());
     }
@@ -161,10 +170,10 @@ vector<CountryRef> Dataset::getCountriesAirportFliesTo(const Airport& airport) c
     return countries1;
 }
 
-vector<CountryRef> Dataset::getCountriesCityFliesTo(const City& city) const {
+vector<CountryRef> Dataset::getCountriesCityFliesTo(const CityRef &city) const {
     CountryRefSet countries;
-    for (const auto& airport : city.getAirports()) {
-        vector<CountryRef> moreCountries = getCountriesAirportFliesTo(*airport.lock());
+    for (const auto& airport : city.lock()->getAirports()) {
+        vector<CountryRef> moreCountries = getCountriesAirportFliesTo(airport);
         countries.insert(moreCountries.begin(), moreCountries.end());
     }
     vector<CountryRef> countries1(countries.begin(), countries.end());
@@ -217,8 +226,7 @@ vector<CountryRef> Dataset::getReachableCountriesFromAirport(const AirportRef& a
     return countries1;
 }
 
-vector<Flight> Dataset::searchFlightsFromAirport(const string& airportCode) const {
-    AirportRef airport = getAirport(airportCode);
+vector<Flight> Dataset::searchFlightsFromAirport(const AirportRef &airport) const {
     vector<Flight> flights;
     if (airport.lock()) {
         for (const auto& flight : airport.lock()->getAdj()){
@@ -306,7 +314,7 @@ vector<AirportRef> Dataset::searchTopNAirPortsWithGreatestTraffic(int n) const {
     return airportsList;
 }
 
-pair<AirportRef, AirportRef> Dataset::diameterBFS(const AirportRef& airport, int &diameter) {
+pair<AirportRef, AirportRef> Dataset::diameterBFS(const AirportRef& airport, int &diameter) const {
     for (const auto& v : network_.getVertexSet()) {
         v->setVisited(false);
         v->setDistance(0);
@@ -335,7 +343,7 @@ pair<AirportRef, AirportRef> Dataset::diameterBFS(const AirportRef& airport, int
     return {airport, final};
 }
 
-vector<pair<AirportRef, AirportRef>> Dataset::getMaxTrips(int &diameter) {
+vector<pair<AirportRef, AirportRef>> Dataset::getMaxTrips(int &diameter) const {
     vector<pair<AirportRef, AirportRef>> pairs;
     int max = 0;
 
@@ -372,73 +380,73 @@ const AirportSet &Dataset::getAirports() const {
     return network_.getVertexSet();
 }
 
-FlightPath Dataset::getBestFlightPath(const AirportRef &src, const AirportRef &dest) const {
-    for (AirportRef airport: network_.getVertexSet()) {
-        airport.lock()->setVisited(false);
-        airport.lock()->setParent(AirportRef());
-    }
-    queue<AirportRef> airportQueue;
-    airportQueue.push(src);
-    src.lock()->setVisited(true);
-    while (!airportQueue.empty()) {
-        AirportRef parent = airportQueue.front();
-        airportQueue.pop();
-        if (parent.lock()->getInfo().getCode() == dest.lock()->getInfo().getCode())
-            break;
-
-        for (const Flight& flight: parent.lock()->getAdj()) {
-            AirportRef child = flight.getDest();
-            if (!child.lock()->isVisited()) {
-                airportQueue.push(child);
-                child.lock()->setVisited(true);
-                child.lock()->setParent(parent);
-            }
-        }
-    }
-
-    if (!dest.lock()->isVisited())
-        return {};
-
-    FlightPath path;
-    double distance = 0.0;
-    path.getAirports().push_back(dest);
-    AirportRef curr = dest;
-    while (curr.lock()->getInfo().getCode() != src.lock()->getInfo().getCode()) {
-        AirportRef next = curr.lock()->getParent();
-        distance += calculateDistance(
-            curr.lock()->getInfo().getLatitude(),
-            curr.lock()->getInfo().getLongitude(),
-            next.lock()->getInfo().getLatitude(),
-            next.lock()->getInfo().getLongitude()
-        );
-        curr = next;
-        path.getAirports().push_back(curr);
-    }
-    reverse(path.getAirports().begin(), path.getAirports().end());
-    path.setDistance(distance);
-    return path;
-}
-
-vector<FlightPath> Dataset::getBestFlightPaths(const vector<AirportRef> &srcs, const vector<AirportRef> &dests) const {
+FlightPath Dataset::getBestFlightPath(const std::vector<AirportRef> &srcs, const std::vector<AirportRef> &dests,
+                                      const std::unordered_set<std::string> &availableAirports, const std::unordered_set<std::string> &availableAirlines) const {
     int minFlights = numeric_limits<int>::max();
-    vector<FlightPath> paths;
+    double minDist = numeric_limits<double>::infinity();
+    FlightPath res;
 
     for (const AirportRef &src: srcs) {
-        for (const AirportRef &dest: dests) {
-            FlightPath path = getBestFlightPath(src, dest);
-            int flights = path.getFlights();
+        if (availableAirports.find(src.lock()->getInfo().getCode()) == availableAirports.end())
+            continue;
 
-            if (flights < minFlights) {
-                paths.clear();
-                paths.push_back(path);
+        for (AirportRef airport: network_.getVertexSet()) {
+            airport.lock()->setVisited(false);
+            airport.lock()->setParent(AirportRef());
+        }
+        queue<AirportRef> airportQueue;
+        airportQueue.push(src);
+        src.lock()->setVisited(true);
+        while (!airportQueue.empty()) {
+            AirportRef parent = airportQueue.front();
+            airportQueue.pop();
+
+            for (const Flight& flight: parent.lock()->getAdj()) {
+                if (availableAirlines.find(flight.getInfo().getAirline().lock()->getCode()) == availableAirlines.end())
+                    continue;
+                AirportRef child = flight.getDest();
+                if (!child.lock()->isVisited() && availableAirports.find(child.lock()->getInfo().getCode()) != availableAirports.end()) {
+                    airportQueue.push(child);
+                    child.lock()->setVisited(true);
+                    child.lock()->setParent(parent);
+                }
+            }
+        }
+
+        for (const AirportRef &dest: dests) {
+            if (!dest.lock()->isVisited())
+                return {};
+
+            FlightPath path;
+            double distance = 0.0;
+            path.getAirports().push_back(dest);
+            AirportRef curr = dest;
+            while (curr.lock()->getInfo().getCode() != src.lock()->getInfo().getCode()) {
+                AirportRef next = curr.lock()->getParent();
+                distance += calculateDistance(
+                        curr.lock()->getInfo().getLatitude(),
+                        curr.lock()->getInfo().getLongitude(),
+                        next.lock()->getInfo().getLatitude(),
+                        next.lock()->getInfo().getLongitude()
+                );
+                curr = next;
+                path.getAirports().push_back(curr);
+            }
+            if (path.getAirports().empty())
+                continue;
+            reverse(path.getAirports().begin(), path.getAirports().end());
+            path.setDistance(distance);
+
+            int flights = path.getFlights();
+            if (flights < minFlights || (flights == minFlights && distance < minDist)) {
+                res = path;
                 minFlights = flights;
-            } else if (flights == minFlights) {
-                paths.push_back(path);
+                minDist = distance;
             }
         }
     }
 
-    return paths;
+    return res;
 }
 
 double hav(double x) {
@@ -453,4 +461,26 @@ double Dataset::calculateDistance(double lat1, double lon1, double lat2, double 
             latRad2 = lat2 * DEG_TO_RAD_FACTOR, lonRad2 = lon2 * DEG_TO_RAD_FACTOR;
 
     return EARTH_DIAMETER * asin(hav(latRad2 - latRad1) + cos(latRad1) * cos(latRad2) * hav(lonRad2 - lonRad1));
+}
+
+vector<AirportRef> Dataset::getClosestAirports(double latitude, double longitude) const {
+    double minDist = numeric_limits<double>::infinity();
+    vector<AirportRef> airports;
+    for (AirportRef airport: network_.getVertexSet()) {
+        double dist = calculateDistance(
+            latitude,
+            longitude,
+            airport.lock()->getInfo().getLatitude(),
+            airport.lock()->getInfo().getLongitude()
+        );
+        if (dist < minDist) {
+            minDist = dist;
+            airports.clear();
+            airports.push_back(airport);
+        } else if (dist == minDist) {
+            airports.push_back(airport);
+        }
+    }
+
+    return airports;
 }

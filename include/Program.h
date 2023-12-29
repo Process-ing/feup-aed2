@@ -30,7 +30,10 @@ class Program {
     std::vector<CityRef> sortCities(std::vector<CityRef> cities) const;
     void chooseBestFlight() const;
     std::vector<AirportRef> chooseAirportsForBestFlight() const;
-    static void displayBestFlight(const std::vector<FlightPath> &paths);
+    static void displayBestFlight(const FlightPath &path);
+    std::unordered_set<std::string> chooseAirportFilter() const;
+    std::unordered_set<std::string> chooseAirlineFilter() const;
+
     static int receiveOption(int max);
     CountryRef receiveCountry() const;
     CityRef receiveCity() const;
@@ -38,6 +41,7 @@ class Program {
     AirlineRef receiveAirlineByName() const;
     AirportRef receiveAirportByCode() const;
     AirportRef receiveAirportByName() const;
+    static std::unordered_set<std::string> receiveStrings();
     static void waitForEnter();
     static void clearScreen();
     static void leave();

@@ -147,7 +147,7 @@ void Program::searchMenu() const {
 }
 
 void Program::statisticsMenu() const {
-    static const int NUM_OPTIONS = 11;
+    static const int NUM_OPTIONS = 14;
     enum Option {
         NUMBER_OF_AIRPORTS = 1,
         NUMBER_OF_COUNTRIES = 2,
@@ -425,6 +425,10 @@ void Program::chooseBestFlight() const {
             " │  Options:                                                                   │\n"
             " │    [1] Airport code                                                         │\n"
             " │    [2] Airport name                                                         │\n"
+            " │    [3] City                                                                 │\n"
+            " │    [4] Country                                                              │\n"
+            " │    [5] Geographical position                                                │\n"
+            " │    [6] Go back                                                              │\n"
             " │                                                                             │\n"
             " └─────────────────────────────────────────────────────────────────────────────┘\n"
             "\n";
@@ -439,6 +443,10 @@ void Program::chooseBestFlight() const {
             " │  Options:                                                                   │\n"
             " │    [1] Airport code                                                         │\n"
             " │    [2] Airport name                                                         │\n"
+            " │    [3] City                                                                 │\n"
+            " │    [4] Country                                                              │\n"
+            " │    [5] Geographical position                                                │\n"
+            " │    [6] Go back                                                              │\n"
             " │                                                                             │\n"
             " └─────────────────────────────────────────────────────────────────────────────┘\n"
             "\n";
@@ -446,18 +454,175 @@ void Program::chooseBestFlight() const {
     if (dests.empty())
         return;
 
-    vector<FlightPath> paths = dataset_.getBestFlightPaths(srcs, dests);
-    displayBestFlight(paths);
+    unordered_set<string> availableAirports = chooseAirportFilter();
+    unordered_set<string> availableAirlines = chooseAirlineFilter();
+
+    FlightPath path = dataset_.getBestFlightPath(srcs, dests, availableAirports, availableAirlines);
+    displayBestFlight(path);
+}
+
+unordered_set<string> Program::receiveStrings() {
+    unordered_set<string> strings;
+    string line, str;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    getline(cin, line);
+    istringstream lineStream(line);
+    while (getline(lineStream, str, ',')) {
+        strings.insert(str);
+    }
+    return strings;
+}
+
+unordered_set<std::string> Program::chooseAirportFilter() const {
+    const static int NUM_OPTIONS = 7;
+    enum Option {
+        BLACKLIST_AIRPORTS = 1,
+        WHITELIST_AIRPORTS = 2,
+        BLACKLIST_CITIES = 3,
+        WHITELIST_CITIES = 4,
+        BLACKLIST_COUNTRIES = 5,
+        WHITELIST_COUNTRIES = 6,
+        CONTINUE = 7,
+    };
+    unordered_set<string> availableAirports;
+
+    clearScreen();
+    cout << "\n"
+            " ┌─ Filter airports ───────────────────────────────────────────────────────────┐\n"
+            " │                                                                             │\n"
+            " │  Options:                                                                   │\n"
+            " │    [1] Blacklist airports                                                   │\n"
+            " │    [2] Whitelist airports                                                   │\n"
+            " │    [3] Blacklist cities                                                     │\n"
+            " │    [4] Whitelist cities                                                     │\n"
+            " │    [5] Blacklist countries                                                  │\n"
+            " │    [6] Whitelist countries                                                  │\n"
+            " │    [7] Continue                                                             │\n"
+            " │                                                                             │\n"
+            " └─────────────────────────────────────────────────────────────────────────────┘\n"
+            "\n";
+
+    unordered_set<string> strings;
+    switch (receiveOption(NUM_OPTIONS)) {
+        case BLACKLIST_AIRPORTS:
+            for (AirportRef airport: dataset_.getAirports())
+                availableAirports.insert(airport.lock()->getInfo().getCode());
+            cout << "Please insert the codes of the airports you want to blacklist, seperated by comma and without spaces: ";
+            for (const string &str: receiveStrings())
+                availableAirports.erase(str);
+            break;
+        case WHITELIST_AIRPORTS:
+            cout << "Please insert the codes of the airports you want to whitelist, seperated by comma and without spaces: ";
+            for (const string &str: receiveStrings())
+                availableAirports.insert(str);
+            break;
+        case BLACKLIST_CITIES:
+            cout << "Please insert the names of the cities you want to blacklist, seperated by comma and without spaces: ";
+            strings = receiveStrings();
+            for (const CityRef &city: dataset_.getCities()) {
+                if (strings.find(city.lock()->getName()) == strings.end()) {
+                    for (const AirportRef &airport: city.lock()->getAirports())
+                        availableAirports.insert(airport.lock()->getInfo().getCode());
+                }
+            }
+            break;
+        case WHITELIST_CITIES:
+            cout << "Please insert the names of the cities you want to whitelist, seperated by comma and without spaces: ";
+            strings = receiveStrings();
+            for (const CityRef &city: dataset_.getCities()) {
+                if (strings.find(city.lock()->getName()) != strings.end()) {
+                    for (const AirportRef &airport: city.lock()->getAirports())
+                        availableAirports.insert(airport.lock()->getInfo().getCode());
+                }
+            }
+            break;
+        case BLACKLIST_COUNTRIES:
+            cout << "Please insert the names of the countries you want to blacklist, seperated by comma and without spaces: ";
+            strings = receiveStrings();
+            for (CountryRef country: dataset_.getCountries()) {
+                if (strings.find(country.lock()->getName()) == strings.end()) {
+                    for (const AirportRef& airport: dataset_.getAirportsFromCountry(country))
+                        availableAirports.insert(airport.lock()->getInfo().getCode());
+                }
+            }
+            break;
+        case WHITELIST_COUNTRIES:
+            cout << "Please insert the names of the countries you want to whitelist, seperated by comma and without spaces: ";
+            strings = receiveStrings();
+            for (CountryRef country: dataset_.getCountries()) {
+                if (strings.find(country.lock()->getName()) != strings.end()) {
+                    for (const AirportRef& airport: dataset_.getAirportsFromCountry(country))
+                        availableAirports.insert(airport.lock()->getInfo().getCode());
+                }
+            }
+            break;
+        case CONTINUE:
+            for (AirportRef airport: dataset_.getAirports())
+                availableAirports.insert(airport.lock()->getInfo().getCode());
+            break;
+    }
+
+    return availableAirports;
+}
+
+unordered_set<std::string> Program::chooseAirlineFilter() const {
+    const static int NUM_OPTIONS = 3;
+    enum Option {
+        BLACKLIST_AIRLINES = 1,
+        WHITELIST_AIRLINES = 2,
+        CONTINUE = 3
+    };
+    unordered_set<string> availableAirlines;
+
+    clearScreen();
+    cout << "\n"
+            " ┌─ Filter airlines ───────────────────────────────────────────────────────────┐\n"
+            " │                                                                             │\n"
+            " │  Options:                                                                   │\n"
+            " │    [1] Blacklist airlines                                                   │\n"
+            " │    [2] Whitelist airlines                                                   │\n"
+            " │    [3] Continue                                                             │\n"
+            " │                                                                             │\n"
+            " └─────────────────────────────────────────────────────────────────────────────┘\n"
+            "\n";
+
+    switch (receiveOption(NUM_OPTIONS)) {
+        case BLACKLIST_AIRLINES:
+            for (const AirlineRef &airline: dataset_.getAirlines())
+                availableAirlines.insert(airline.lock()->getCode());
+            cout << "Please insert the codes of the airlines you want to blacklist, seperated by comma and without spaces: ";
+            for (const string &str: receiveStrings())
+                availableAirlines.erase(str);
+            break;
+        case WHITELIST_AIRLINES:
+            cout << "Please insert the codes of the airlines you want to whitelist, seperated by comma and without spaces: ";
+            for (const string &str: receiveStrings())
+                availableAirlines.insert(str);
+            break;
+        case CONTINUE:
+            for (const AirlineRef &airline: dataset_.getAirlines())
+                availableAirlines.insert(airline.lock()->getCode());
+            break;
+    }
+
+    return availableAirlines;
 }
 
 vector<AirportRef> Program::chooseAirportsForBestFlight() const {
-    const static int NUM_OPTIONS = 2;
+    const static int NUM_OPTIONS = 6;
     enum Option {
         AIRPORT_CODE = 1,
         AIRPORT_NAME = 2,
+        CITY = 3,
+        COUNTRY = 4,
+        COORDINATES = 5,
+        GO_BACK = 6,
     };
 
     vector<AirportRef> airports;
+    CityRef city;
+    CountryRef country;
+    double lat, lon;
     switch (receiveOption(NUM_OPTIONS)) {
         case AIRPORT_CODE:
             airports = { receiveAirportByCode() };
@@ -469,6 +634,35 @@ vector<AirportRef> Program::chooseAirportsForBestFlight() const {
             if (airports[0].expired())
                 return {};
             break;
+        case CITY:
+            city = receiveCity();
+            if (city.expired())
+                return {};
+            airports = dataset_.getAirportsFromCity(city);
+            break;
+        case COUNTRY:
+            country = receiveCountry();
+            if (country.expired())
+                return {};
+            airports = dataset_.getAirportsFromCountry(country);
+            break;
+        case COORDINATES:
+            cout << "Please input the latitude: ";
+            while (!(cin >> lat) || lat < -90 || lat > 90) {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cout << "Invalid value. Please input a valid latitude: ";
+            }
+            cout << "Please input the longitude: ";
+            while (!(cin >> lon) || lon < -180 || lon > 180) {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cout << "Invalid value. Please input a valid longitude: ";
+            }
+            airports = dataset_.getClosestAirports(lat, lon);
+            break;
+        case GO_BACK:
+            return {};
     }
 
     return airports;
@@ -478,87 +672,37 @@ string getAirportInfoString(const Airport& airport) {
     return "Code: " + airport.getInfo().getCode() + ", Name: " + airport.getInfo().getName();
 }
 
-void Program::displayBestFlight(const vector<FlightPath> &paths) {
+void Program::displayBestFlight(const FlightPath &path) {
     enum Option {
         NEXT_PAGE = 1,
         PREVIOUS_PAGE = 2,
         GO_BACK = 3,
     };
 
-    if (paths.empty()) {
-        cout << "\nNo flight paths were found. ";
+    if (path.getAirports().empty()) {
+        cout << "No flight paths were found. ";
         waitForEnter();
         return;
     }
 
-    int pathIndex = 0;
-    while (true) {
-        const FlightPath& path = paths[pathIndex];
-        clearScreen();
-        cout << "\n"
-                " ┌─ Best flight paths ─────────────────────────────────────────────────────────┐\n"
-                " │                                                                             │\n"
-                " │  Total flights: " << left << setw(60) << path.getFlights() << "│\n"
-                " │  Total travel distance: " << setw(52) << to_string(path.getDistance()) + " Km" << "│\n"
-                " │                                                                             │\n"
-                " │  Travel airports:                                                           │\n";
+    clearScreen();
+    cout << "\n"
+            " ┌─ Best flight path ──────────────────────────────────────────────────────────┐\n"
+            " │                                                                             │\n"
+            " │  Total flights: " << left << setw(60) << path.getFlights() << "│\n"
+            " │  Total travel distance: " << setw(52) << to_string(path.getDistance()) + " Km" << "│\n"
+            " │                                                                             │\n"
+            " │  Travel airports:                                                           │\n";
 
-        for (int i = 0; i < path.getAirports().size(); i++) {
-            const AirportRef &airport = path.getAirports()[i];
-            cout << " │      " << left << setw(71)
-                 << to_string(i + 1) + ". " + getAirportInfoString(*airport.lock()) << "│\n";
-        }
-
-        cout << " │                                                                             │\n"
-                " │  Flight path " << left << setw(63) << to_string(pathIndex + 1) + " of " + to_string(paths.size()) <<  "│\n";
-        if (pathIndex < paths.size() - 1)
-            cout << " │     [1] Next page                                                           │\n";
-        if (pathIndex > 0)
-            cout << " │     [2] Previous page                                                       │\n";
-
-        cout << " │     [3] Go back                                                             │\n"
-                " │                                                                             │\n"
-                " └─────────────────────────────────────────────────────────────────────────────┘\n"
-                "\n";
-
-        int option;
-        cout << "Please choose an option: ";
-        bool valid_option = false;
-        while (true) {
-            if (!(cin >> option)) {
-                cin.clear();
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                cout << "Invalid option. Please choose another option: ";
-                continue;
-            }
-
-            switch (option) {
-                case NEXT_PAGE:
-                    if (pathIndex < paths.size() - 1) {
-                        pathIndex++;
-                        valid_option = true;
-                    } else {
-                        valid_option = false;
-                    }
-                    break;
-                case PREVIOUS_PAGE:
-                    if (pathIndex > 0) {
-                        pathIndex--;
-                        valid_option = true;
-                    } else {
-                        valid_option = false;
-                    }
-                    break;
-                case GO_BACK:
-                    return;
-                default:
-                    break;
-            }
-            if (valid_option)
-                break;
-            cout << "Invalid option. Please choose another option: ";
-        }
+    for (int i = 0; i < path.getAirports().size(); i++) {
+        const AirportRef &airport = path.getAirports()[i];
+        cout << " │      " << left << setw(71)
+             << to_string(i + 1) + ". " + getAirportInfoString(*airport.lock()) << "│\n";
     }
+    cout << " │                                                                             │\n"
+            " └─────────────────────────────────────────────────────────────────────────────┘\n"
+            "\n";
+    waitForEnter();
 }
 
 void Program::clearScreen() {
@@ -603,7 +747,7 @@ void Program::displayAirlinesByCountry() const {
     CountryRef country = receiveCountry();
     if (country.expired())
         return;
-    vector<AirlineRef> airlines = dataset_.getAirlinesFromCountry(*country.lock());
+    vector<AirlineRef> airlines = dataset_.getAirlinesFromCountry(country);
     airlines = sortAirlinesCountryMenu(airlines);
     displayAirlines(airlines);
 }
@@ -612,7 +756,7 @@ void Program::displayCitiesByCountry() const {
     CountryRef country = receiveCountry();
     if (country.expired())
         return;
-    vector<CityRef> cities = dataset_.getCitiesFromCountry(*country.lock());
+    vector<CityRef> cities = dataset_.getCitiesFromCountry(country);
     displayCities(cities);
 }
 
@@ -629,7 +773,7 @@ void Program::displayFlightsFromAirport() const {
     AirportRef airport = receiveAirportByCode();
     if (airport.expired())
         return;
-    vector<Flight> flights = dataset_.searchFlightsFromAirport(airport.lock()->getInfo().getCode());
+    vector<Flight> flights = dataset_.searchFlightsFromAirport(airport);
     displayFlights(flights);
 }
 
@@ -637,7 +781,7 @@ void Program::displayCountriesFlyingToAirport() const {
     AirportRef airport = receiveAirportByCode();
     if (airport.expired())
         return;
-    vector<CountryRef> countries = dataset_.getCountriesAirportFliesTo(*airport.lock());
+    vector<CountryRef> countries = dataset_.getCountriesAirportFliesTo(airport);
     displayCountries(countries);
 }
 
@@ -645,7 +789,7 @@ void Program::displayCountriesFlyingToCity() const {
     CityRef city = receiveCity();
     if (city.expired())
         return;
-    vector<CountryRef> countries = dataset_.getCountriesCityFliesTo(*city.lock());
+    vector<CountryRef> countries = dataset_.getCountriesCityFliesTo(city);
     displayCountries(countries);
 }
 
@@ -1181,9 +1325,9 @@ void Program::displayFlights(const std::vector<Flight> &flights) const {
 void Program::displayNumberOfAirports() const {
     cout << "\n"
             " ┌─ Statistics results ──────────────────────────────────────────────────────────────────┐\n"
-            " │                                                                                       │\n";
-    cout << " │  Number of airports: " + to_string(dataset_.getAirports().size()) <<setw(65)<< "│\n";
-    cout << " │                                                                                       │\n"
+            " │                                                                                       │\n"
+            " │  Number of airports: " + to_string(dataset_.getAirports().size()) << setw(65)<< "│\n"
+            " │                                                                                       │\n"
             " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
     waitForEnter();
 }
@@ -1253,7 +1397,7 @@ void Program::displayNumberOfDifferentCountriesThatFlyToAirport() const {
     AirportRef airport = receiveAirportByCode();
     if (airport.expired())
         return;
-    vector<CountryRef> countries = dataset_.getCountriesAirportFliesTo(*airport.lock());
+    vector<CountryRef> countries = dataset_.getCountriesAirportFliesTo(airport);
     cout << "\n"
             " ┌─ Statistics results ──────────────────────────────────────────────────────────────────┐\n"
             " │                                                                                       │\n";
@@ -1267,7 +1411,7 @@ void Program::displayNumberOfDifferentCountriesThatFlyToCity() const {
     CityRef city = receiveCity();
     if (city.expired())
         return;
-    vector<CountryRef> countries = dataset_.getCountriesCityFliesTo(*city.lock());
+    vector<CountryRef> countries = dataset_.getCountriesCityFliesTo(city);
     cout << "\n"
             " ┌─ Statistics results ──────────────────────────────────────────────────────────────────┐\n"
             " │                                                                                       │\n";
@@ -1321,24 +1465,20 @@ void Program::displayNumberOfReachableDestinationsInNStopsFromAirport() const {
 }
 
 void Program::displayMaximumTrip() const {
-    AirportRef sourceAirport = receiveAirportByCode();
-    if (sourceAirport.expired())
-        return;
-    AirportRef destinationAirport = receiveAirportByCode();
-    if (destinationAirport.expired())
-        return;
-    vector<FlightPath> paths = dataset_.getBestFlightPaths({sourceAirport}, {destinationAirport});
-    if (paths.empty()) {
-        cout << "\nNo flight paths were found. ";
-        waitForEnter();
-        return;
-    }
+    clearScreen();
+    cout << "Calculating the maximum trip, this might take a while...\n";
+
+    int diameter;
+    dataset_.getMaxTrips(diameter);  // TODO: Display also the source-destination pairs
+
+    clearScreen();
     cout << "\n"
             " ┌─ Statistics results ──────────────────────────────────────────────────────────────────┐\n"
             " │                                                                                       │\n";
-    cout << " │  Maximum trip: " + to_string(paths.size()) + " stops" << setw(97-28-to_string(paths.size()).length()) << "│\n";
+    cout << " │  Maximum trip: " << left << setw(71) << to_string(diameter) + " flights" << "│\n";
     cout << " │                                                                                       │\n"
             " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
+    waitForEnter();
 }
 
 void Program::displayNumberOfAirportsEssentialToNetworkCirculation() const {
