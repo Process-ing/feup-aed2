@@ -317,12 +317,12 @@ vector<AirportRef> Dataset::searchTopNAirPortsWithGreatestTraffic(int n) const {
 pair<AirportRef, AirportRef> Dataset::diameterBFS(const AirportRef& airport, int &diameter) const {
     for (const auto& v : network_.getVertexSet()) {
         v->setVisited(false);
-        v->setDistance(0);
+        v->setDepth(0);
     }
     queue<AirportRef> q;
     AirportRef final;
     q.push(airport);
-    airport.lock()->setDistance(0);
+    airport.lock()->setDepth(0);
     airport.lock()->setVisited(true);
     while (!q.empty()) {
         AirportRef curr = q.front();
@@ -330,9 +330,9 @@ pair<AirportRef, AirportRef> Dataset::diameterBFS(const AirportRef& airport, int
         for (const auto& flight: curr.lock()->getAdj()) {
             auto dest = flight.getDest();
             if (!dest.lock()->isVisited()) {
-                dest.lock()->setDistance(curr.lock()->getDistance() + 1);
-                if (dest.lock()->getDistance() > diameter) {
-                    diameter = dest.lock()->getDistance();
+                dest.lock()->setDepth(curr.lock()->getDepth() + 1);
+                if (dest.lock()->getDepth() > diameter) {
+                    diameter = dest.lock()->getDepth();
                     final = dest;
                 }
                 q.push(dest);
