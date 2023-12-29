@@ -426,8 +426,9 @@ void Program::chooseBestFlight() const {
             " │    [1] Airport code                                                         │\n"
             " │    [2] Airport name                                                         │\n"
             " │    [3] City                                                                 │\n"
-            " │    [4] Geographical position                                                │\n"
-            " │    [5] Go back                                                              │\n"
+            " │    [4] Country                                                              │\n"
+            " │    [5] Geographical position                                                │\n"
+            " │    [6] Go back                                                              │\n"
             " │                                                                             │\n"
             " └─────────────────────────────────────────────────────────────────────────────┘\n"
             "\n";
@@ -443,8 +444,9 @@ void Program::chooseBestFlight() const {
             " │    [1] Airport code                                                         │\n"
             " │    [2] Airport name                                                         │\n"
             " │    [3] City                                                                 │\n"
-            " │    [4] Geographical position                                                │\n"
-            " │    [5] Go back                                                              │\n"
+            " │    [4] Country                                                              │\n"
+            " │    [5] Geographical position                                                │\n"
+            " │    [6] Go back                                                              │\n"
             " │                                                                             │\n"
             " └─────────────────────────────────────────────────────────────────────────────┘\n"
             "\n";
@@ -472,13 +474,15 @@ unordered_set<string> Program::receiveStrings() {
 }
 
 unordered_set<std::string> Program::chooseAirportFilter() const {
-    const static int NUM_OPTIONS = 5;
+    const static int NUM_OPTIONS = 7;
     enum Option {
         BLACKLIST_AIRPORTS = 1,
         WHITELIST_AIRPORTS = 2,
         BLACKLIST_CITIES = 3,
         WHITELIST_CITIES = 4,
-        CONTINUE = 5
+        BLACKLIST_COUNTRIES = 5,
+        WHITELIST_COUNTRIES = 6,
+        CONTINUE = 7,
     };
     unordered_set<string> availableAirports;
 
@@ -491,7 +495,9 @@ unordered_set<std::string> Program::chooseAirportFilter() const {
             " │    [2] Whitelist airports                                                   │\n"
             " │    [3] Blacklist cities                                                     │\n"
             " │    [4] Whitelist cities                                                     │\n"
-            " │    [5] Continue                                                             │\n"
+            " │    [5] Blacklist countries                                                  │\n"
+            " │    [6] Whitelist countries                                                  │\n"
+            " │    [7] Continue                                                             │\n"
             " │                                                                             │\n"
             " └─────────────────────────────────────────────────────────────────────────────┘\n"
             "\n";
@@ -526,6 +532,26 @@ unordered_set<std::string> Program::chooseAirportFilter() const {
             for (const CityRef &city: dataset_.getCities()) {
                 if (strings.find(city.lock()->getName()) != strings.end()) {
                     for (const AirportRef &airport: city.lock()->getAirports())
+                        availableAirports.insert(airport.lock()->getInfo().getCode());
+                }
+            }
+            break;
+        case BLACKLIST_COUNTRIES:
+            cout << "Please insert the names of the countries you want to blacklist, seperated by comma and without spaces: ";
+            strings = receiveStrings();
+            for (CountryRef country: dataset_.getCountries()) {
+                if (strings.find(country.lock()->getName()) == strings.end()) {
+                    for (const AirportRef& airport: dataset_.getAirportsFromCountry(country))
+                        availableAirports.insert(airport.lock()->getInfo().getCode());
+                }
+            }
+            break;
+        case WHITELIST_COUNTRIES:
+            cout << "Please insert the names of the countries you want to whitelist, seperated by comma and without spaces: ";
+            strings = receiveStrings();
+            for (CountryRef country: dataset_.getCountries()) {
+                if (strings.find(country.lock()->getName()) != strings.end()) {
+                    for (const AirportRef& airport: dataset_.getAirportsFromCountry(country))
                         availableAirports.insert(airport.lock()->getInfo().getCode());
                 }
             }
@@ -583,17 +609,19 @@ unordered_set<std::string> Program::chooseAirlineFilter() const {
 }
 
 vector<AirportRef> Program::chooseAirportsForBestFlight() const {
-    const static int NUM_OPTIONS = 5;
+    const static int NUM_OPTIONS = 6;
     enum Option {
         AIRPORT_CODE = 1,
         AIRPORT_NAME = 2,
         CITY = 3,
-        COORDINATES = 4,
-        GO_BACK = 5,
+        COUNTRY = 4,
+        COORDINATES = 5,
+        GO_BACK = 6,
     };
 
     vector<AirportRef> airports;
     CityRef city;
+    CountryRef country;
     double lat, lon;
     switch (receiveOption(NUM_OPTIONS)) {
         case AIRPORT_CODE:
@@ -610,7 +638,13 @@ vector<AirportRef> Program::chooseAirportsForBestFlight() const {
             city = receiveCity();
             if (city.expired())
                 return {};
-            airports = dataset_.getAirportsFromCity(*city.lock());
+            airports = dataset_.getAirportsFromCity(city);
+            break;
+        case COUNTRY:
+            country = receiveCountry();
+            if (country.expired())
+                return {};
+            airports = dataset_.getAirportsFromCountry(country);
             break;
         case COORDINATES:
             cout << "Please input the latitude: ";
@@ -713,7 +747,7 @@ void Program::displayAirlinesByCountry() const {
     CountryRef country = receiveCountry();
     if (country.expired())
         return;
-    vector<AirlineRef> airlines = dataset_.getAirlinesFromCountry(*country.lock());
+    vector<AirlineRef> airlines = dataset_.getAirlinesFromCountry(country);
     airlines = sortAirlinesCountryMenu(airlines);
     displayAirlines(airlines);
 }
@@ -722,7 +756,7 @@ void Program::displayCitiesByCountry() const {
     CountryRef country = receiveCountry();
     if (country.expired())
         return;
-    vector<CityRef> cities = dataset_.getCitiesFromCountry(*country.lock());
+    vector<CityRef> cities = dataset_.getCitiesFromCountry(country);
     displayCities(cities);
 }
 
@@ -739,7 +773,7 @@ void Program::displayFlightsFromAirport() const {
     AirportRef airport = receiveAirportByCode();
     if (airport.expired())
         return;
-    vector<Flight> flights = dataset_.searchFlightsFromAirport(airport.lock()->getInfo().getCode());
+    vector<Flight> flights = dataset_.searchFlightsFromAirport(airport);
     displayFlights(flights);
 }
 
@@ -747,7 +781,7 @@ void Program::displayCountriesFlyingToAirport() const {
     AirportRef airport = receiveAirportByCode();
     if (airport.expired())
         return;
-    vector<CountryRef> countries = dataset_.getCountriesAirportFliesTo(*airport.lock());
+    vector<CountryRef> countries = dataset_.getCountriesAirportFliesTo(airport);
     displayCountries(countries);
 }
 
@@ -755,7 +789,7 @@ void Program::displayCountriesFlyingToCity() const {
     CityRef city = receiveCity();
     if (city.expired())
         return;
-    vector<CountryRef> countries = dataset_.getCountriesCityFliesTo(*city.lock());
+    vector<CountryRef> countries = dataset_.getCountriesCityFliesTo(city);
     displayCountries(countries);
 }
 
@@ -1291,9 +1325,9 @@ void Program::displayFlights(const std::vector<Flight> &flights) const {
 void Program::displayNumberOfAirports() const {
     cout << "\n"
             " ┌─ Statistics results ──────────────────────────────────────────────────────────────────┐\n"
-            " │                                                                                       │\n";
-    cout << " │  Number of airports: " + to_string(dataset_.getAirports().size()) <<setw(65)<< "│\n";
-    cout << " │                                                                                       │\n"
+            " │                                                                                       │\n"
+            " │  Number of airports: " + to_string(dataset_.getAirports().size()) << setw(65)<< "│\n"
+            " │                                                                                       │\n"
             " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
     waitForEnter();
 }
@@ -1363,7 +1397,7 @@ void Program::displayNumberOfDifferentCountriesThatFlyToAirport() const {
     AirportRef airport = receiveAirportByCode();
     if (airport.expired())
         return;
-    vector<CountryRef> countries = dataset_.getCountriesAirportFliesTo(*airport.lock());
+    vector<CountryRef> countries = dataset_.getCountriesAirportFliesTo(airport);
     cout << "\n"
             " ┌─ Statistics results ──────────────────────────────────────────────────────────────────┐\n"
             " │                                                                                       │\n";
@@ -1377,7 +1411,7 @@ void Program::displayNumberOfDifferentCountriesThatFlyToCity() const {
     CityRef city = receiveCity();
     if (city.expired())
         return;
-    vector<CountryRef> countries = dataset_.getCountriesCityFliesTo(*city.lock());
+    vector<CountryRef> countries = dataset_.getCountriesCityFliesTo(city);
     cout << "\n"
             " ┌─ Statistics results ──────────────────────────────────────────────────────────────────┐\n"
             " │                                                                                       │\n";
