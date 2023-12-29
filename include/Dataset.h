@@ -279,6 +279,7 @@ class Dataset {
      * @return Vector of pairs of source-destination airports with the longest trip
      */
     std::vector<std::pair<AirportRef, AirportRef>> getMaxTrips(int& diameter) const;
+    std::vector<AirportRef> getEssencialAirports() const;
 
     /**
      * @brief Returns one of the best flight paths (in terms of number of stops) from one set of airports to the other,

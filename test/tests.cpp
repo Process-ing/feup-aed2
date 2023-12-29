@@ -154,6 +154,19 @@ TEST(Issue25Test, GetReachableCountriesFromAirport) {
     EXPECT_EQ(14, countries.size());
 }
 
+TEST(Issue29Test, GetEssencialAirports) {
+    Dataset dataset;
+
+    dataset.readFiles();
+
+    auto airports = dataset.getEssencialAirports();
+    unordered_set<string> aset;
+    for (const AirportRef& airport: airports)
+        aset.insert(airport.lock()->getInfo().getCode());
+    EXPECT_EQ(airports.size(), aset.size());
+    ASSERT_EQ(312, airports.size());
+}
+
 TEST(Issue31Test, GetMaxTrips) {
     Dataset dataset;
 

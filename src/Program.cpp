@@ -149,81 +149,95 @@ void Program::searchMenu() const {
 void Program::statisticsMenu() const {
     static const int NUM_OPTIONS = 14;
     enum Option {
-        NUMBER_OF_AIRPORTS = 1,
-        NUMBER_OF_COUNTRIES = 2,
-        NUMBER_OF_CITIES = 3,
-        NUMBER_OF_AIRLINES = 4,
-        NUMBER_OF_AVAILABLE_FLIGHTS = 5,
-        NUMBER_OF_FLIGHTS_PER_CITY = 6,
-        NUMBER_OF_FLIGHTS_PER_AIRLINE =7,
-        NUMBER_OF_DIFFERENT_COUNTRIES_THAT_FLY_TO_AIRPORT = 8,
-        NUMBER_OF_DIFFERENT_COUNTRIES_THAT_FLY_TO_CITY = 9,
-        NUMBER_OF_DIFFERENT_DESTINATIONS_FROM_AIRPORT = 10,
-        NUMBER_OF_REACHABLE_DESTINATIONS_IN_N_STOPS_FROM_AIRPORT = 11,
-        MAXIMUM_TRIP = 12,
-        NUMBER_OF_AIRPORTS_ESSENTIAL_TO_NETWORK_CIRCULATION = 13,
-        GO_BACK = 14
+        GLOBAL_STATISTICS = 1,
+        COUNTRY_STATISTICS = 2,
+        AIRPORT_STATISTICS = 3,
+        GO_BACK = 4
     };
     cout << "\n"
             " ┌─ Statistics ────────────────────────────────────────────────────────────────┐\n"
             " │                                                                             │\n"
             " │  Options:                                                                   │\n"
-            " │    [1] Number of airports                                                   │\n"
-            " │    [2] Number of countries                                                  │\n"
-            " │    [3] Number of cities                                                     │\n"
-            " │    [4] Number of airlines                                                   │\n"
-            " │    [5] Number of available flights                                          │\n"
-            " │    [6] Number of flights per city                                           │\n"
-            " │    [7] Number of flights per airline                                        │\n"
-            " │    [8] Number of different countries that fly to airport                    │\n"
-            " │    [9] Number of different countries that fly to city                       │\n"
-            " │    [10] Number of different destinations from airport                       │\n"
-            " │    [11] Number of reachable destinations in n stops from airport            │\n"
-            " │    [12] Maximum trip                                                        │\n"
-            " │    [13] Number of airports essential to network circulation                 │\n"
-            " │    [14] Go Back                                                             │\n"
+            " │    [1] Global statistics                                                    │\n"
+            " │    [2] Country statistics                                                   │\n"
+            " │    [3] Airport statistics                                                   │\n"
+            " │    [4] Go back                                                              │\n"
+            " │                                                                             │\n"
+            " └─────────────────────────────────────────────────────────────────────────────┘\n"
+            "\n";
+    switch (receiveOption(NUM_OPTIONS)) {
+        case GLOBAL_STATISTICS:
+            displayGlobalStatistics();
+            break;
+        case COUNTRY_STATISTICS:
+            countryStatisticsMenu();
+            break;
+        case AIRPORT_STATISTICS:
+            airportStatisticsMenu();
+            break;
+        case GO_BACK:
+            return;
+    }
+}
+
+void Program::airportStatisticsMenu() const {
+    static const int NUM_OPTIONS = 4;
+    enum Option {
+        NUMBER_OF_DIFFERENT_DESTINATIONS_FROM_AIRPORT = 1,
+        NUMBER_OF_REACHABLE_DESTINATIONS_IN_N_STOPS_FROM_AIRPORT = 2,
+        NUMBER_OF_AIRPORTS_ESSENTIAL_TO_NETWORK_CIRCULATION = 3,
+        GO_BACK = 4
+    };
+    cout << "\n"
+            " ┌─ Airport statistics ────────────────────────────────────────────────────────┐\n"
+            " │                                                                             │\n"
+            " │  Options:                                                                   │\n"
+            " │    [1] Number of different destinations from airport                        │\n"
+            " │    [2] Number of reachable destinations in n stops from airport             │\n"
+            " │    [3] Number of airports essential to network circulation                  │\n"
+            " │    [4] Go back                                                              │\n"
             " │                                                                             │\n"
             " └─────────────────────────────────────────────────────────────────────────────┘\n"
             "\n";
     switch(receiveOption(NUM_OPTIONS)){
-        case NUMBER_OF_AIRPORTS:
-            displayNumberOfAirports();
-            break;
-        case NUMBER_OF_COUNTRIES:
-            displayNumberOfCountries();
-            break;
-        case NUMBER_OF_CITIES:
-            displayNumberOfCities();
-            break;
-        case NUMBER_OF_AIRLINES:
-            displayNumberOfAirlines();
-            break;
-        case NUMBER_OF_AVAILABLE_FLIGHTS:
-            displayNumberOfAvailableFlights();
-            break;
-        case NUMBER_OF_FLIGHTS_PER_CITY:
-            displayNumberOfFlightsPerCity();
-            break;
-        case NUMBER_OF_FLIGHTS_PER_AIRLINE:
-            displayNumberOfFlightsPerAirline();
-            break;
-        case NUMBER_OF_DIFFERENT_COUNTRIES_THAT_FLY_TO_AIRPORT:
-            displayNumberOfDifferentCountriesThatFlyToAirport();
-            break;
-        case NUMBER_OF_DIFFERENT_COUNTRIES_THAT_FLY_TO_CITY:
-            displayNumberOfDifferentCountriesThatFlyToCity();
-            break;
         case NUMBER_OF_DIFFERENT_DESTINATIONS_FROM_AIRPORT:
             displayNumberOfDifferentDestinationsFromAirport();
             break;
         case NUMBER_OF_REACHABLE_DESTINATIONS_IN_N_STOPS_FROM_AIRPORT:
             displayNumberOfReachableDestinationsInNStopsFromAirport();
             break;
-        case MAXIMUM_TRIP:
-            displayMaximumTrip();
-            break;
         case NUMBER_OF_AIRPORTS_ESSENTIAL_TO_NETWORK_CIRCULATION:
             displayNumberOfAirportsEssentialToNetworkCirculation();
+            break;
+        case GO_BACK:
+            return;
+
+    }
+}
+
+void Program::countryStatisticsMenu() const{
+    static const int NUM_OPTIONS = 3;
+    enum Option {
+        NUMBER_OF_DIFFERENT_COUNTRIES_THAT_FLY_TO_AIRPORT = 1,
+        NUMBER_OF_DIFFERENT_COUNTRIES_THAT_FLY_TO_CITY = 2,
+        GO_BACK = 3
+    };
+    cout << "\n"
+            " ┌─ Country statistics ────────────────────────────────────────────────────────┐\n"
+            " │                                                                             │\n"
+            " │  Options:                                                                   │\n"
+            " │    [1] Number of different countries that fly to airport                    │\n"
+            " │    [2] Number of different countries that fly to city                       │\n"
+            " │    [3] Go back                                                              │\n"
+            " │                                                                             │\n"
+            " └─────────────────────────────────────────────────────────────────────────────┘\n"
+            "\n";
+    switch(receiveOption(NUM_OPTIONS)){
+        case NUMBER_OF_DIFFERENT_COUNTRIES_THAT_FLY_TO_AIRPORT:
+            displayNumberOfDifferentCountriesThatFlyToAirport();
+            break;
+        case NUMBER_OF_DIFFERENT_COUNTRIES_THAT_FLY_TO_CITY:
+            displayNumberOfDifferentCountriesThatFlyToCity();
             break;
         case GO_BACK:
             return;
@@ -881,7 +895,8 @@ void Program::displayTopNAirportsWithGreatestTraffic() const {
 }
 
 void Program::displayAirportsEssentialToNetworkCirculation() const {
-
+    vector<AirportRef> airports = dataset_.getEssencialAirports();
+    displayAirports(airports);
 }
 
 CountryRef Program::receiveCountry() const {
@@ -910,32 +925,6 @@ CityRef Program::receiveCity() const {
         waitForEnter();
     }
     return city;
-}
-
-AirlineRef Program::receiveAirlineByCode() const {
-    string code;
-    cout << "Please enter the airline's code: ";
-    cin >> code;
-    AirlineRef airline = dataset_.getAirline(code);
-    if (airline.expired()) {
-        cout << "The airline could not be found. ";
-        waitForEnter();
-    }
-    return airline;
-}
-
-AirlineRef Program::receiveAirlineByName() const {
-    string name;
-    cout << "Please enter the airline's name: ";
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    getline(cin, name);
-    for (const AirlineRef &airline: dataset_.getAirlines()) {
-        if (airline.lock()->getName() == name)
-            return airline;
-    }
-    cout << "The airline could not be found. ";
-    waitForEnter();
-    return {};
 }
 
 AirportRef Program::receiveAirportByCode() const {
@@ -1124,8 +1113,12 @@ void Program::displayAirlines(const vector<AirlineRef> &airlines) const {
             const Airline &airline = *airlines[i].lock();
             cout << " │  " << left << setw(49) << "Name: " + airline.getName()
                  << setw(12) << " Code: " + airline.getCode()
-                 << setw(40) << " Callsign: " + airline.getCallsign()
-                 << setw(47) << " Country: " + airline.getCountry().lock()->getName()<< "│\n";
+                 << setw(40);
+            if (airline.getCallsign() == "_")
+                cout << " Callsign: No Callsign";
+            else
+                cout << " Callsign: " + airline.getCallsign();
+            cout << setw(47) << " Country: " + airline.getCountry().lock()->getName()<< "│\n";
         }
 
         cout << " │                                                                                                                                                      │\n"
@@ -1322,76 +1315,7 @@ void Program::displayFlights(const std::vector<Flight> &flights) const {
     }
 }
 
-void Program::displayNumberOfAirports() const {
-    cout << "\n"
-            " ┌─ Statistics results ──────────────────────────────────────────────────────────────────┐\n"
-            " │                                                                                       │\n"
-            " │  Number of airports: " + to_string(dataset_.getAirports().size()) << setw(65)<< "│\n"
-            " │                                                                                       │\n"
-            " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
-    waitForEnter();
-}
 
-void Program::displayNumberOfCountries() const {
-    cout << "\n"
-            " ┌─ Statistics results ──────────────────────────────────────────────────────────────────┐\n"
-            " │                                                                                       │\n";
-    cout << " │  Number of countries: " + to_string(dataset_.getCountries().size()) << setw(65) << "│\n";
-    cout << " │                                                                                       │\n"
-            " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
-    waitForEnter();
-}
-
-void Program::displayNumberOfCities() const {
-    cout << "\n"
-            " ┌─ Statistics results ──────────────────────────────────────────────────────────────────┐\n"
-            " │                                                                                       │\n";
-    cout << " │  Number of cities: " + to_string(dataset_.getCities().size()) << setw(67) << "│\n";
-    cout << " │                                                                                       │\n"
-            " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
-    waitForEnter();
-}
-
-void Program::displayNumberOfAirlines() const {
-    cout << "\n"
-            " ┌─ Statistics results ──────────────────────────────────────────────────────────────────┐\n"
-            " │                                                                                       │\n";
-    cout << " │  Number of airlines: " + to_string(dataset_.getAirlines().size()) << setw(66) << "│\n";
-    cout << " │                                                                                       │\n"
-            " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
-    waitForEnter();
-}
-
-
-void Program::displayNumberOfAvailableFlights() const {
-    cout << "\n"
-            " ┌─ Statistics results ──────────────────────────────────────────────────────────────────┐\n"
-            " │                                                                                       │\n";
-    cout << " │  Number of available flights: " + to_string(dataset_.numberOfFlights()) << setw(55) << "│\n";
-    cout << " │                                                                                       │\n"
-            " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
-    waitForEnter();
-}
-
-void Program::displayNumberOfFlightsPerCity() const {
-    cout << "\n"
-            " ┌─ Statistics results ──────────────────────────────────────────────────────────────────┐\n"
-            " │                                                                                       │\n";
-    cout << " │  Number of flights per city: " + to_string(dataset_.numberOfFlightsByCity()) << setw(52) << "│\n";
-    cout << " │                                                                                       │\n"
-            " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
-    waitForEnter();
-}
-
-void Program::displayNumberOfFlightsPerAirline() const {
-    cout << "\n"
-            " ┌─ Statistics results ──────────────────────────────────────────────────────────────────┐\n"
-            " │                                                                                       │\n";
-    cout << " │  Number of flights per airline: " + to_string(dataset_.numberOfFlightsByAirline()) << setw(48) << "│\n";
-    cout << " │                                                                                       │\n"
-            " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
-    waitForEnter();
-}
 
 void Program::displayNumberOfDifferentCountriesThatFlyToAirport() const {
     AirportRef airport = receiveAirportByCode();
@@ -1401,7 +1325,7 @@ void Program::displayNumberOfDifferentCountriesThatFlyToAirport() const {
     cout << "\n"
             " ┌─ Statistics results ──────────────────────────────────────────────────────────────────┐\n"
             " │                                                                                       │\n";
-    cout << " │  Number of different countries that fly to airport: " + to_string(countries.size()) <<setw(97-59-to_string(countries.size()).length()) << "│\n";
+    cout << left << setw(91) << " │  Number of different countries that fly to airport: " + to_string(countries.size()) << "│\n";
     cout << " │                                                                                       │\n"
             " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
     waitForEnter();
@@ -1415,7 +1339,7 @@ void Program::displayNumberOfDifferentCountriesThatFlyToCity() const {
     cout << "\n"
             " ┌─ Statistics results ──────────────────────────────────────────────────────────────────┐\n"
             " │                                                                                       │\n";
-    cout << " │  Number of different countries that fly to city: " + to_string(countries.size()) << setw(97-56-to_string(countries.size()).length()) << "│\n";
+    cout << left << setw(91) << " │  Number of different countries that fly to city: " + to_string(countries.size()) << "│\n";
     cout << " │                                                                                       │\n"
             " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
     waitForEnter();
@@ -1431,9 +1355,9 @@ void Program::displayNumberOfDifferentDestinationsFromAirport() const {
     cout << "\n"
             " ┌─ Statistics results ──────────────────────────────────────────────────────────────────┐\n"
             " │                                                                                       │\n";
-    cout << " │  Number of airport destinations from airport: " + to_string(airports.size()) << setw(97-53-to_string(airports.size()).length()) << "│\n";
-    cout << " │  Number of countries destinations from airport: " + to_string(countries.size()) << setw(97-55-to_string(countries.size()).length()) << "│\n";
-    cout << " │  Number of city destinations from airport: " + to_string(cities.size()) << setw(97-50-to_string(cities.size()).length()) << "│\n";
+    cout << left << setw(91) << " │  Number of airport destinations from airport: " + to_string(airports.size()) <<  "│\n";
+    cout << left << setw(91) << " │  Number of countries destinations from airport: " + to_string(countries.size()) << "│\n";
+    cout << left << setw(91) << " │  Number of city destinations from airport: " + to_string(cities.size()) << "│\n";
     cout << " │                                                                                       │\n"
             " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
     waitForEnter();
@@ -1456,33 +1380,47 @@ void Program::displayNumberOfReachableDestinationsInNStopsFromAirport() const {
     cout << "\n"
             " ┌─ Statistics results ──────────────────────────────────────────────────────────────────┐\n"
             " │                                                                                       │\n";
-    cout << " │  Number of reachable airports from airport in " + to_string(n_stops) + " stops: " + to_string(airports.size()) << setw(97-61-to_string(n_stops).length()-to_string(airports.size()).length()) << "│\n";
-    cout << " │  Number of reachable countries from airport in " + to_string(n_stops) + " stops: " + to_string(countries.size()) << setw(97-62-to_string(n_stops).length()-to_string(countries.size()).length()) << "│\n";
-    cout << " │  Number of reachable cities from airport in " + to_string(n_stops) + " stops: " + to_string(cities.size()) << setw(97-59-to_string(n_stops).length()-to_string(cities.size()).length()) << "│\n";
-    cout << " │                                                                                       │\n"
-            " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
-    waitForEnter();
-}
-
-void Program::displayMaximumTrip() const {
-    clearScreen();
-    cout << "Calculating the maximum trip, this might take a while...\n";
-
-    int diameter;
-    dataset_.getMaxTrips(diameter);  // TODO: Display also the source-destination pairs
-
-    clearScreen();
-    cout << "\n"
-            " ┌─ Statistics results ──────────────────────────────────────────────────────────────────┐\n"
-            " │                                                                                       │\n";
-    cout << " │  Maximum trip: " << left << setw(71) << to_string(diameter) + " flights" << "│\n";
+    cout << left << setw(91) << " │  Number of reachable airports from airport in " + to_string(n_stops) + " stops: " + to_string(airports.size()) << "│\n";
+    cout << left << setw(91) << " │  Number of reachable countries from airport in " + to_string(n_stops) + " stops: " + to_string(countries.size()) << "│\n";
+    cout << left << setw(91) << " │  Number of reachable cities from airport in " + to_string(n_stops) + " stops: " + to_string(cities.size()) << "│\n";
     cout << " │                                                                                       │\n"
             " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
     waitForEnter();
 }
 
 void Program::displayNumberOfAirportsEssentialToNetworkCirculation() const {
+    clearScreen();
+    vector<AirportRef> airports = dataset_.getEssencialAirports();
+    cout << "\n"
+            " ┌─ Statistics results ──────────────────────────────────────────────────────────────────┐\n"
+            " │                                                                                       │\n";
+    cout << left << setw(91) <<" │  Number of essencial airports to network circulation : " + to_string(airports.size()) << "│\n";
+    cout << " │                                                                                       │\n"
+            " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
+    waitForEnter();
+}
 
+void Program::displayGlobalStatistics() const {
+    clearScreen();
+    cout << "Calculating the maximum trip, this might take a while...\n";
+
+    int diameter;
+
+    dataset_.getMaxTrips(diameter);
+
+    clearScreen();
+    cout << "\n"
+            " ┌─ Statistics results ──────────────────────────────────────────────────────────────────┐\n"
+            " │                                                                                       │\n";
+    cout << left << setw(91) << " │  Number of airports: " + to_string(dataset_.getAirports().size()) << "│\n";
+    cout << left << setw(91) << " │  Number of airlines: " + to_string(dataset_.getAirlines().size()) << "│\n";
+    cout << left << setw(91) << " │  Number of available flights: " + to_string(dataset_.numberOfFlights()) << "│\n";
+    cout << left << setw(91) << " │  Number of countries: " + to_string(dataset_.getCountries().size()) << "│\n";
+    cout << left << setw(91) << " │  Number of cities: " + to_string(dataset_.getCities().size()) << "│\n";
+    cout << left << setw(91) << " │  Maximum trip: "+ to_string(diameter) + " flights" << "│\n";
+    cout << " │                                                                                       │\n"
+            " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
+    waitForEnter();
 }
 
 

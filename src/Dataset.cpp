@@ -1,6 +1,8 @@
 #include <fstream>
 #include <limits>
 #include <sstream>
+#include <set>
+#include <iostream>
 #include <queue>
 #include <cmath>
 #include "Dataset.h"
@@ -287,6 +289,52 @@ vector<CountryRef> Dataset::searchReachableCountriesFromAirport(const AirportRef
     return countries1;
 }
 
+void essentialAirportDfs(vector<AirportRef> &airports, const AirportRef &src, int &i, bool isRoot) {
+    src.lock()->setNum(i);
+    src.lock()->setLow(i);
+    src.lock()->setVisited(true);
+    src.lock()->setProcessing(true);
+    i++;
+    bool isEssential = false;
+    int childCount = 0;
+
+    for (const Flight& flight: src.lock()->getAdj()) {
+        AirportRef dest = flight.getDest();
+        if (!dest.lock()->isVisited()) {
+            childCount++;
+            essentialAirportDfs(airports, dest, i, false);
+            src.lock()->setLow(min(src.lock()->getLow(), dest.lock()->getLow()));
+            if (!isRoot && dest.lock()->getLow() >= src.lock()->getNum())
+                isEssential = true;
+        } else if (dest.lock()->isProcessing()) {
+            src.lock()->setLow(min(src.lock()->getLow(), dest.lock()->getNum()));
+        }
+    }
+
+    if (isRoot && childCount > 1)
+        isEssential = true;
+    if (isEssential)
+        airports.push_back(src);
+
+    src.lock()->setProcessing(false);
+}
+
+vector<AirportRef> Dataset::getEssencialAirports() const{
+    vector<AirportRef> airports;
+    int i = 1;
+    for (AirportRef airport: network_.getVertexSet()) {
+        airport.lock()->setVisited(false);
+        airport.lock()->setProcessing(false);
+    }
+
+    for (AirportRef airport: network_.getVertexSet()) {
+        if (!airport.lock()->isVisited())
+            essentialAirportDfs(airports, airport, i, true);
+    }
+
+    return airports;
+}
+
 vector<AirportRef> Dataset::searchTopNAirportsWithGreatestTraffic(int n) const {
     vector<AirportRef> airportsList;
     for (const auto& airport : network_.getVertexSet()) {
@@ -365,6 +413,18 @@ const CitySet &Dataset::getCities() const {
 
 const AirportSet &Dataset::getAirports() const {
     return network_.getVertexSet();
+}
+
+void dfs(const AirportRef& airport);
+void dfs(const AirportRef& airport) {
+    airport.lock()->setVisited(true);
+
+    for (auto flight : airport.lock()->getAdj()) {
+        auto neighbour = flight.getDest();
+        if (!neighbour.lock()->isVisited()) {
+            dfs(neighbour);
+        }
+    }
 }
 
 FlightPath Dataset::getBestFlightPath(const std::vector<AirportRef> &srcs, const std::vector<AirportRef> &dests,
