@@ -147,7 +147,7 @@ void Program::searchMenu() const {
 }
 
 void Program::statisticsMenu() const {
-    static const int NUM_OPTIONS = 11;
+    static const int NUM_OPTIONS = 14;
     enum Option {
         NUMBER_OF_AIRPORTS = 1,
         NUMBER_OF_COUNTRIES = 2,
@@ -471,7 +471,7 @@ unordered_set<string> Program::receiveStrings() {
     return strings;
 }
 
-unordered_set<std::string> Program::chooseAirportFilter() {
+unordered_set<std::string> Program::chooseAirportFilter() const {
     const static int NUM_OPTIONS = 5;
     enum Option {
         BLACKLIST_AIRPORTS = 1,
@@ -539,7 +539,7 @@ unordered_set<std::string> Program::chooseAirportFilter() {
     return availableAirports;
 }
 
-unordered_set<std::string> Program::chooseAirlineFilter() {
+unordered_set<std::string> Program::chooseAirlineFilter() const {
     const static int NUM_OPTIONS = 3;
     enum Option {
         BLACKLIST_AIRLINES = 1,
@@ -1431,24 +1431,20 @@ void Program::displayNumberOfReachableDestinationsInNStopsFromAirport() const {
 }
 
 void Program::displayMaximumTrip() const {
-    AirportRef sourceAirport = receiveAirportByCode();
-    if (sourceAirport.expired())
-        return;
-    AirportRef destinationAirport = receiveAirportByCode();
-    if (destinationAirport.expired())
-        return;
-    vector<FlightPath> paths = dataset_.getBestFlightPaths({sourceAirport}, {destinationAirport});
-    if (paths.empty()) {
-        cout << "\nNo flight paths were found. ";
-        waitForEnter();
-        return;
-    }
+    clearScreen();
+    cout << "Calculating the maximum trip, this might take a while...\n";
+
+    int diameter;
+    dataset_.getMaxTrips(diameter);  // TODO: Display also the source-destination pairs
+
+    clearScreen();
     cout << "\n"
             " ┌─ Statistics results ──────────────────────────────────────────────────────────────────┐\n"
             " │                                                                                       │\n";
-    cout << " │  Maximum trip: " + to_string(paths.size()) + " stops" << setw(97-28-to_string(paths.size()).length()) << "│\n";
+    cout << " │  Maximum trip: " << left << setw(71) << to_string(diameter) + " flights" << "│\n";
     cout << " │                                                                                       │\n"
             " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
+    waitForEnter();
 }
 
 void Program::displayNumberOfAirportsEssentialToNetworkCirculation() const {

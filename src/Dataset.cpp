@@ -306,7 +306,7 @@ vector<AirportRef> Dataset::searchTopNAirPortsWithGreatestTraffic(int n) const {
     return airportsList;
 }
 
-pair<AirportRef, AirportRef> Dataset::diameterBFS(const AirportRef& airport, int &diameter) {
+pair<AirportRef, AirportRef> Dataset::diameterBFS(const AirportRef& airport, int &diameter) const {
     for (const auto& v : network_.getVertexSet()) {
         v->setVisited(false);
         v->setDistance(0);
@@ -335,7 +335,7 @@ pair<AirportRef, AirportRef> Dataset::diameterBFS(const AirportRef& airport, int
     return {airport, final};
 }
 
-vector<pair<AirportRef, AirportRef>> Dataset::getMaxTrips(int &diameter) {
+vector<pair<AirportRef, AirportRef>> Dataset::getMaxTrips(int &diameter) const {
     vector<pair<AirportRef, AirportRef>> pairs;
     int max = 0;
 
