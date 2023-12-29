@@ -1113,8 +1113,12 @@ void Program::displayAirlines(const vector<AirlineRef> &airlines) const {
             const Airline &airline = *airlines[i].lock();
             cout << " │  " << left << setw(49) << "Name: " + airline.getName()
                  << setw(12) << " Code: " + airline.getCode()
-                 << setw(40) << " Callsign: " + airline.getCallsign()
-                 << setw(47) << " Country: " + airline.getCountry().lock()->getName()<< "│\n";
+                 << setw(40);
+            if (airline.getCallsign() == "_")
+                cout << " Callsign: No Callsign";
+            else
+                cout << " Callsign: " + airline.getCallsign();
+            cout << setw(47) << " Country: " + airline.getCountry().lock()->getName()<< "│\n";
         }
 
         cout << " │                                                                                                                                                      │\n"

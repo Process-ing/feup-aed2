@@ -356,7 +356,7 @@ vector<AirportRef> Dataset::searchTopNAirPortsWithGreatestTraffic(int n) const {
     }
 
     sort(airportsList.begin(), airportsList.end(), [](const AirportRef &a, const AirportRef &b) {
-        return a.lock()->getAdj().size() > b.lock()->getAdj().size();
+        return a.lock()->getAdj().size() + a.lock()->getIndegree() > b.lock()->getAdj().size() + b.lock()->getIndegree();
     });
     airportsList.resize(min(n, static_cast<int>(airportsList.size())));
 
