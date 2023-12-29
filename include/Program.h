@@ -65,6 +65,31 @@ class Program {
     void displayAirports(const std::vector<AirportRef> &airports) const;
     void displayFlights(const std::vector<Flight> &flights) const;
 
+    void displayNumberOfAirports() const;
+
+    void displayNumberOfAvailableFlights() const;
+
+    void displayNumberOfFlightsPerCity() const;
+
+    void displayNumberOfFlightsPerAirline() const;
+
+    void displayNumberOfDifferentCountriesThatFlyToAirport() const;
+
+    void displayNumberOfDifferentCountriesThatFlyToCity() const;
+
+    void displayNumberOfDifferentDestinationsFromAirport() const;
+
+    void displayNumberOfReachableDestinationsInNStopsFromAirport() const;
+
+    void displayMaximumTrip() const;
+
+    void displayNumberOfAirportsEssentialToNetworkCirculation() const;
+
+    void displayNumberOfCountries() const;
+
+    void displayNumberOfCities() const;
+
+    void displayNumberOfAirlines() const;
 };
 
 

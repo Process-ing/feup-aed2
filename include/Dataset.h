@@ -45,6 +45,7 @@ class Dataset {
     std::vector<Flight> searchFlightsFromAirport(const std::string& airportCode) const;
     float numberOfFlightsByCity() const;
     float numberOfFlightsByAirline() const;
+    int numberOfFlights() const;
     std::vector<CityRef> searchCitiesFromAirport(const AirportRef& airport) const;
     std::vector<AirportRef> searchAirportsFromAirport(const AirportRef& airport) const;
     std::vector<CountryRef> searchCountriesFromAirport(const AirportRef& airport) const;

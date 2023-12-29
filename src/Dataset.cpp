@@ -246,6 +246,14 @@ float Dataset::numberOfFlightsByAirline() const {
     return flights/airlines;
 }
 
+int Dataset::numberOfFlights() const{
+    int flights = 0;
+    for(const auto& airport : getAirports()){
+        flights += airport->getAdj().size();
+    }
+    return flights;
+}
+
 vector<AirportRef> Dataset::searchAirportsFromAirport(const AirportRef& airport) const {
     vector<AirportRef> airports;
 
