@@ -22,9 +22,9 @@ class Program {
     void destinationsFromAirportMenu() const;
     void reachableDestinationsFromAirportMenu() const;
     void statisticsMenu() const;
-    std::vector<AirportRef> sortAirportsMenu(std::vector<AirportRef> airports) const;
+    static std::vector<AirportRef> sortAirportsMenu(std::vector<AirportRef> airports) ;
     std::vector<AirlineRef> sortAirlinesMenu(std::vector<AirlineRef> airlines) const;
-    std::vector<AirportRef> sortAirportsCityMenu(std::vector<AirportRef> airports) const;
+    static std::vector<AirportRef> sortAirportsCityMenu(std::vector<AirportRef> airports) ;
     std::vector<AirlineRef> sortAirlinesCountryMenu(std::vector<AirlineRef> airlines) const;
     std::vector<CountryRef> sortCountries(std::vector<CountryRef> countries) const;
     std::vector<CityRef> sortCities(std::vector<CityRef> cities) const;
@@ -66,29 +66,17 @@ class Program {
     void displayFlights(const std::vector<Flight> &flights) const;
 
     void displayNumberOfAirports() const;
-
     void displayNumberOfAvailableFlights() const;
-
     void displayNumberOfFlightsPerCity() const;
-
     void displayNumberOfFlightsPerAirline() const;
-
     void displayNumberOfDifferentCountriesThatFlyToAirport() const;
-
     void displayNumberOfDifferentCountriesThatFlyToCity() const;
-
     void displayNumberOfDifferentDestinationsFromAirport() const;
-
     void displayNumberOfReachableDestinationsInNStopsFromAirport() const;
-
     void displayMaximumTrip() const;
-
     void displayNumberOfAirportsEssentialToNetworkCirculation() const;
-
     void displayNumberOfCountries() const;
-
     void displayNumberOfCities() const;
-
     void displayNumberOfAirlines() const;
 };
 

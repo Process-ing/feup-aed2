@@ -52,10 +52,10 @@ void Program::displayMainMenu() const {
             case EXIT:
                 leave();
                 return;
-            case Option::SEARCH:
+            case SEARCH:
                 searchMenu();
                 break;
-            case Option::STATISTICS:
+            case STATISTICS:
                 statisticsMenu();
                 break;
         }
@@ -102,46 +102,46 @@ void Program::searchMenu() const {
             " └─────────────────────────────────────────────────────────────────────────────┘\n"
             "\n";
         switch(receiveOption(NUM_OPTIONS)){
-            case Option::SEARCH_ALL_COUNTRIES:
+            case SEARCH_ALL_COUNTRIES:
                 displayAllCountries();
                 break;
-            case Option::SEARCH_ALL_AIRPORTS:
+            case SEARCH_ALL_AIRPORTS:
                 displayAllAirports();
                 break;
-            case Option::SEARCH_ALL_AIRLINES:
+            case SEARCH_ALL_AIRLINES:
                 displayAllAirlines();
                 break;
-            case Option::SEARCH_AIRLINES_BY_COUNTRY:
+            case SEARCH_AIRLINES_BY_COUNTRY:
                 displayAirlinesByCountry();
                 break;
-            case Option::SEARCH_CITIES_IN_COUNTRY:
+            case SEARCH_CITIES_IN_COUNTRY:
                 displayCitiesByCountry();
                 break;
-            case Option::SEARCH_AIRPORTS_IN_CITY:
+            case SEARCH_AIRPORTS_IN_CITY:
                 displayAirportsByCity();
                 break;
-            case Option::SEARCH_FLIGHTS_FROM_AIRPORT:
+            case SEARCH_FLIGHTS_FROM_AIRPORT:
                 displayFlightsFromAirport();
                 break;
-            case Option::SEARCH_COUNTRIES_FLYING_TO_AIRPORT:
+            case SEARCH_COUNTRIES_FLYING_TO_AIRPORT:
                 displayCountriesFlyingToAirport();
                 break;
-            case Option::SEARCH_COUNTRIES_FLYING_TO_CITY:
+            case SEARCH_COUNTRIES_FLYING_TO_CITY:
                 displayCountriesFlyingToCity();
                 break;
-            case Option::SEARCH_DESTINATIONS_FROM_AIRPORT:
+            case SEARCH_DESTINATIONS_FROM_AIRPORT:
                 destinationsFromAirportMenu();
                 break;
-            case Option::SEARCH_REACHABLE_DESTINATIONS_FROM_AIRPORT_IN_N_STOPS:
+            case SEARCH_REACHABLE_DESTINATIONS_FROM_AIRPORT_IN_N_STOPS:
                 reachableDestinationsFromAirportMenu();
                 break;
-            case Option::SEARCH_TOP_N_AIRPORTS_WITH_GREATEST_TRAFFIC:
+            case SEARCH_TOP_N_AIRPORTS_WITH_GREATEST_TRAFFIC:
                 displayTopNAirportsWithGreatestTraffic();
                 break;
-            case Option::SEARCH_AIRPORTS_ESSENTIAL_TO_NETWORK_CIRCULATION:
+            case SEARCH_AIRPORTS_ESSENTIAL_TO_NETWORK_CIRCULATION:
                 displayAirportsEssentialToNetworkCirculation();
                 break;
-            case Option::GO_BACK:
+            case GO_BACK:
                 return;
         }
 }
@@ -186,46 +186,46 @@ void Program::statisticsMenu() const {
             " └─────────────────────────────────────────────────────────────────────────────┘\n"
             "\n";
     switch(receiveOption(NUM_OPTIONS)){
-        case Option::NUMBER_OF_AIRPORTS:
+        case NUMBER_OF_AIRPORTS:
             displayNumberOfAirports();
             break;
-        case Option::NUMBER_OF_COUNTRIES:
+        case NUMBER_OF_COUNTRIES:
             displayNumberOfCountries();
             break;
-        case Option::NUMBER_OF_CITIES:
+        case NUMBER_OF_CITIES:
             displayNumberOfCities();
             break;
-        case Option::NUMBER_OF_AIRLINES:
+        case NUMBER_OF_AIRLINES:
             displayNumberOfAirlines();
             break;
-        case Option::NUMBER_OF_AVAILABLE_FLIGHTS:
+        case NUMBER_OF_AVAILABLE_FLIGHTS:
             displayNumberOfAvailableFlights();
             break;
-        case Option::NUMBER_OF_FLIGHTS_PER_CITY:
+        case NUMBER_OF_FLIGHTS_PER_CITY:
             displayNumberOfFlightsPerCity();
             break;
-        case Option::NUMBER_OF_FLIGHTS_PER_AIRLINE:
+        case NUMBER_OF_FLIGHTS_PER_AIRLINE:
             displayNumberOfFlightsPerAirline();
             break;
-        case Option::NUMBER_OF_DIFFERENT_COUNTRIES_THAT_FLY_TO_AIRPORT:
+        case NUMBER_OF_DIFFERENT_COUNTRIES_THAT_FLY_TO_AIRPORT:
             displayNumberOfDifferentCountriesThatFlyToAirport();
             break;
-        case Option::NUMBER_OF_DIFFERENT_COUNTRIES_THAT_FLY_TO_CITY:
+        case NUMBER_OF_DIFFERENT_COUNTRIES_THAT_FLY_TO_CITY:
             displayNumberOfDifferentCountriesThatFlyToCity();
             break;
-        case Option::NUMBER_OF_DIFFERENT_DESTINATIONS_FROM_AIRPORT:
+        case NUMBER_OF_DIFFERENT_DESTINATIONS_FROM_AIRPORT:
             displayNumberOfDifferentDestinationsFromAirport();
             break;
-        case Option::NUMBER_OF_REACHABLE_DESTINATIONS_IN_N_STOPS_FROM_AIRPORT:
+        case NUMBER_OF_REACHABLE_DESTINATIONS_IN_N_STOPS_FROM_AIRPORT:
             displayNumberOfReachableDestinationsInNStopsFromAirport();
             break;
-        case Option::MAXIMUM_TRIP:
+        case MAXIMUM_TRIP:
             displayMaximumTrip();
             break;
-        case Option::NUMBER_OF_AIRPORTS_ESSENTIAL_TO_NETWORK_CIRCULATION:
+        case NUMBER_OF_AIRPORTS_ESSENTIAL_TO_NETWORK_CIRCULATION:
             displayNumberOfAirportsEssentialToNetworkCirculation();
             break;
-        case Option::GO_BACK:
+        case GO_BACK:
             return;
     }
 }
@@ -248,13 +248,13 @@ void Program::destinationsFromAirportMenu() const {
             " └─────────────────────────────────────────────────────────────────────────────┘\n"
             "\n";
     switch(receiveOption(NUM_OPTIONS)) {
-        case Option::AIRPORT:
+        case AIRPORT:
             displayDestinationsFromAirport();
             break;
-        case Option::COUNTRY:
+        case COUNTRY:
             displayCountriesFromAirport();
             break;
-        case Option::CITY:
+        case CITY:
             displayCitiesFromAirport();
             break;
     }
@@ -278,19 +278,19 @@ void Program::reachableDestinationsFromAirportMenu() const {
             " └─────────────────────────────────────────────────────────────────────────────┘\n"
             "\n";
     switch(receiveOption(NUM_OPTIONS)) {
-        case Option::AIRPORT:
+        case AIRPORT:
             displayReachableAirportsFromAirportInNStops();
             break;
-        case Option::COUNTRY:
+        case COUNTRY:
             displayReachableCountriesFromAirportInNStops();
             break;
-        case Option::CITY:
+        case CITY:
             displayReachableCitiesFromAirportInNStops();
             break;
     }
 }
 
-vector<AirportRef> Program::sortAirportsMenu(vector<AirportRef> airports) const {
+vector<AirportRef> Program::sortAirportsMenu(vector<AirportRef> airports) {
     static const int NUM_OPTIONS = 3;
     enum Option {
         SORT_BY_AIRPORT_NAME = 1,
@@ -310,18 +310,18 @@ vector<AirportRef> Program::sortAirportsMenu(vector<AirportRef> airports) const 
             " └─────────────────────────────────────────────────────────────────────────────┘\n"
             "\n";
     switch(receiveOption(NUM_OPTIONS)) {
-        case Option::SORT_BY_AIRPORT_NAME:
+        case SORT_BY_AIRPORT_NAME:
              return sortAirportsByName(airports);
-        case Option::SORT_BY_AIRPORT_CODE:
+        case SORT_BY_AIRPORT_CODE:
              return sortAirportsByCode(airports);
-        case Option::SORT_BY_AIRPORT_CITY:
+        case SORT_BY_AIRPORT_CITY:
              return sortAirportsByCity(airports);
-        case Option::SORT_BY_AIRPORT_COUNTRY:
+        case SORT_BY_AIRPORT_COUNTRY:
              return sortAirportsByCountry(airports);
     }
 }
 
-vector<AirportRef> Program::sortAirportsCityMenu(vector<AirportRef> airports) const {
+vector<AirportRef> Program::sortAirportsCityMenu(vector<AirportRef> airports) {
     static const int NUM_OPTIONS = 3;
     enum Option {
         SORT_BY_AIRPORT_NAME = 1,
@@ -337,9 +337,9 @@ vector<AirportRef> Program::sortAirportsCityMenu(vector<AirportRef> airports) co
             " └─────────────────────────────────────────────────────────────────────────────┘\n"
             "\n";
     switch(receiveOption(NUM_OPTIONS)) {
-        case Option::SORT_BY_AIRPORT_NAME:
+        case SORT_BY_AIRPORT_NAME:
             return sortAirportsByName(airports);
-        case Option::SORT_BY_AIRPORT_CODE:
+        case SORT_BY_AIRPORT_CODE:
             return sortAirportsByCode(airports);
     }
 }
@@ -378,13 +378,13 @@ vector<AirlineRef> Program::sortAirlinesMenu(vector<AirlineRef> airlines) const 
             " └─────────────────────────────────────────────────────────────────────────────┘\n"
             "\n";
     switch(receiveOption(NUM_OPTIONS)){
-        case Option::SORT_BY_AIRLINE_NAME:
+        case SORT_BY_AIRLINE_NAME:
             return sortAirlinesByName(airlines);
-        case Option::SORT_BY_AIRLINE_CODE:
+        case SORT_BY_AIRLINE_CODE:
             return sortAirlinesByCode(airlines);
-        case Option::SORT_BY_AIRLINE_COUNTRY:
+        case SORT_BY_AIRLINE_COUNTRY:
             return sortAirlinesByCountry(airlines);
-        case Option::SORT_BY_AIRLINE_CALLSIGN:
+        case SORT_BY_AIRLINE_CALLSIGN:
             return sortAirlinesByCallsign(airlines);
     }
 }
@@ -407,11 +407,11 @@ vector<AirlineRef> Program::sortAirlinesCountryMenu(vector<AirlineRef> airlines)
             " └─────────────────────────────────────────────────────────────────────────────┘\n"
             "\n";
     switch(receiveOption(NUM_OPTIONS)){
-        case Option::SORT_BY_AIRLINE_NAME:
+        case SORT_BY_AIRLINE_NAME:
             return sortAirlinesByName(airlines);
-        case Option::SORT_BY_AIRLINE_CODE:
+        case SORT_BY_AIRLINE_CODE:
             return sortAirlinesByCode(airlines);
-        case Option::SORT_BY_AIRLINE_CALLSIGN:
+        case SORT_BY_AIRLINE_CALLSIGN:
             return sortAirlinesByCallsign(airlines);
     }
 }
@@ -865,7 +865,7 @@ void Program::displayCountries(const vector<CountryRef> &countries) const {
             }
 
             switch (option) {
-                case Option::NEXT_PAGE:
+                case NEXT_PAGE:
                     if (page < total_pages) {
                         page++;
                         valid_option = true;
@@ -873,7 +873,7 @@ void Program::displayCountries(const vector<CountryRef> &countries) const {
                         valid_option = false;
                     }
                     break;
-                case Option::PREVIOUS_PAGE:
+                case PREVIOUS_PAGE:
                     if (page > 1) {
                         page--;
                         valid_option = true;
@@ -881,7 +881,7 @@ void Program::displayCountries(const vector<CountryRef> &countries) const {
                         valid_option = false;
                     }
                     break;
-                case Option::GO_BACK:
+                case GO_BACK:
                     return;
             }
             if (valid_option)
@@ -935,7 +935,7 @@ void Program::displayCities(const vector<CityRef> &cities) const {
             }
 
             switch (option) {
-                case Option::NEXT_PAGE:
+                case NEXT_PAGE:
                     if (page < total_pages) {
                         page++;
                         valid_option = true;
@@ -943,7 +943,7 @@ void Program::displayCities(const vector<CityRef> &cities) const {
                         valid_option = false;
                     }
                     break;
-                case Option::PREVIOUS_PAGE:
+                case PREVIOUS_PAGE:
                     if (page > 1) {
                         page--;
                         valid_option = true;
@@ -951,7 +951,7 @@ void Program::displayCities(const vector<CityRef> &cities) const {
                         valid_option = false;
                     }
                     break;
-                case Option::GO_BACK:
+                case GO_BACK:
                     return;
             }
             if (valid_option)
@@ -1009,7 +1009,7 @@ void Program::displayAirlines(const vector<AirlineRef> &airlines) const {
             }
 
             switch (option) {
-                case Option::NEXT_PAGE:
+                case NEXT_PAGE:
                     if (page < total_pages) {
                         page++;
                         valid_option = true;
@@ -1017,7 +1017,7 @@ void Program::displayAirlines(const vector<AirlineRef> &airlines) const {
                         valid_option = false;
                     }
                     break;
-                case Option::PREVIOUS_PAGE:
+                case PREVIOUS_PAGE:
                     if (page > 1) {
                         page--;
                         valid_option = true;
@@ -1025,7 +1025,7 @@ void Program::displayAirlines(const vector<AirlineRef> &airlines) const {
                         valid_option = false;
                     }
                     break;
-                case Option::GO_BACK:
+                case GO_BACK:
                     return;
             }
             if (valid_option)
@@ -1081,7 +1081,7 @@ void Program::displayAirports(const vector<AirportRef> &airports) const {
             }
 
             switch (option) {
-                case Option::NEXT_PAGE:
+                case NEXT_PAGE:
                     if (page < total_pages) {
                         page++;
                         valid_option = true;
@@ -1089,7 +1089,7 @@ void Program::displayAirports(const vector<AirportRef> &airports) const {
                         valid_option = false;
                     }
                     break;
-                case Option::PREVIOUS_PAGE:
+                case PREVIOUS_PAGE:
                     if (page > 1) {
                         page--;
                         valid_option = true;
@@ -1097,7 +1097,7 @@ void Program::displayAirports(const vector<AirportRef> &airports) const {
                         valid_option = false;
                     }
                     break;
-                case Option::GO_BACK:
+                case GO_BACK:
                     return;
             }
             if (valid_option)
@@ -1152,7 +1152,7 @@ void Program::displayFlights(const std::vector<Flight> &flights) const {
             }
 
             switch (option) {
-                case Option::NEXT_PAGE:
+                case NEXT_PAGE:
                     if (page < total_pages) {
                         page++;
                         valid_option = true;
@@ -1160,7 +1160,7 @@ void Program::displayFlights(const std::vector<Flight> &flights) const {
                         valid_option = false;
                     }
                     break;
-                case Option::PREVIOUS_PAGE:
+                case PREVIOUS_PAGE:
                     if (page > 1) {
                         page--;
                         valid_option = true;
@@ -1168,7 +1168,7 @@ void Program::displayFlights(const std::vector<Flight> &flights) const {
                         valid_option = false;
                     }
                     break;
-                case Option::GO_BACK:
+                case GO_BACK:
                     return;
             }
             if (valid_option)
