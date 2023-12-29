@@ -90,7 +90,7 @@ TEST(Issue16Test, GetAirlinesFromCountry) {
 
     CountryRef portugal = dataset.getCountry("Portugal");
     auto airlines = dataset.getAirlinesFromCountry(*portugal.lock());
-    ASSERT_EQ(5, airlines.size());
+    EXPECT_EQ(5, airlines.size());
 }
 
 TEST(Issue16Test, GetCitiesFromCountry) {
@@ -100,7 +100,7 @@ TEST(Issue16Test, GetCitiesFromCountry) {
 
     CountryRef portugal = dataset.getCountry("Portugal");
     auto cities = dataset.getCitiesFromCountry(*portugal.lock());
-    ASSERT_EQ(14, cities.size());
+    EXPECT_EQ(14, cities.size());
 }
 
 TEST(Issue16Test, GetAirportsFromCity) {
@@ -110,7 +110,7 @@ TEST(Issue16Test, GetAirportsFromCity) {
 
     CityRef faro = dataset.getCity("Faro", "Portugal");
     auto airports = dataset.getAirportsFromCity(*faro.lock());
-    ASSERT_EQ(1, airports.size());
+    EXPECT_EQ(1, airports.size());
 }
 
 TEST(Issue17Test, GetCountriesCityFliesTo) {
@@ -120,7 +120,7 @@ TEST(Issue17Test, GetCountriesCityFliesTo) {
 
     CityRef faro = dataset.getCity("Faro", "Portugal");
     auto countries = dataset.getCountriesCityFliesTo(*faro.lock());
-    ASSERT_EQ(14, countries.size());
+    EXPECT_EQ(14, countries.size());
 }
 
 TEST(Issue25Test, GetReachableAirportsFromAirport) {
@@ -151,4 +151,15 @@ TEST(Issue25Test, GetReachableCountriesFromAirport) {
     auto fao = dataset.getAirport("FAO");
     auto countries = dataset.getReachableCountriesfromAirport(fao, 0);
     EXPECT_EQ(14, countries.size());
+}
+
+TEST(Issue31Test, GetMaxTrips) {
+    Dataset dataset;
+
+    dataset.readFiles();
+
+    int diameter = 0;
+    auto pairs = dataset.getMaxTrips(diameter);
+    EXPECT_EQ(12, diameter);
+    EXPECT_EQ(8, pairs.size());
 }
