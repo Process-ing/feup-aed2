@@ -240,8 +240,8 @@ vector<Flight> Dataset::searchFlightsFromAirport(const AirportRef &airport) cons
 }
 
 float Dataset::numberOfFlightsByCity() const {
-    int cities = getCities().size();
-    int flights = 0;
+    float cities = getCities().size();
+    float flights = 0;
     for(const auto& airport : getAirports()){
         flights += airport->getAdj().size();
     }
@@ -249,8 +249,8 @@ float Dataset::numberOfFlightsByCity() const {
 }
 
 float Dataset::numberOfFlightsByAirline() const {
-    int airlines = getAirlines().size();
-    int flights = 0;
+    float airlines = getAirlines().size();
+    float flights = 0;
     for(const auto& airport : getAirports()){
         flights += airport->getAdj().size();
     }
@@ -333,7 +333,7 @@ void essentialAirportDfs(vector<AirportRef> &airports, const AirportRef &src, in
     src.lock()->setProcessing(false);
 }
 
-vector<AirportRef> Dataset::getEssencialAirports() {
+vector<AirportRef> Dataset::getEssencialAirports() const{
     vector<AirportRef> airports;
     int i = 1;
     for (AirportRef airport: network_.getVertexSet()) {
