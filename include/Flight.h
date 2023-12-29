@@ -17,7 +17,6 @@ class AirportInfo;
 class FlightInfo {
 public:
     explicit FlightInfo(AirlineRef airline, double distance);
-
     const AirlineRef &getAirline() const;
     double getDistance() const;
 
