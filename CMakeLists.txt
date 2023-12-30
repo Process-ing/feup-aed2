@@ -30,7 +30,6 @@ add_executable(feup_aed2 main.cpp
         include/utils.h
 )
 
-add_subdirectory(docs)
 add_subdirectory(test)
 
 enable_testing()
@@ -63,3 +62,5 @@ target_link_libraries(
 
 include(GoogleTest)
 gtest_discover_tests(tests)
+
+add_subdirectory(docs)

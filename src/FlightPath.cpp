@@ -2,9 +2,6 @@
 
 FlightPath::FlightPath(): airports_(), distance_(0.0) {}
 
-FlightPath::FlightPath(const std::vector<AirportRef> &airports, double distance)
-    : airports_(airports), distance_(distance) {}
-
 const std::vector<AirportRef> &FlightPath::getAirports() const {
     return airports_;
 }

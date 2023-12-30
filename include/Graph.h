@@ -1,6 +1,6 @@
 /**
  * @file
- * Header file for class Graph.
+ * @brief Header file for class Graph.
  */
 
 #ifndef FEUP_AED2_GRAPH_H
@@ -18,8 +18,19 @@ template <class VertexInfo, class EdgeInfo, class VertexInfoHash> class Graph;
 template <class VertexInfo, class EdgeInfo> class Vertex;
 template <class VertexInfo, class EdgeInfo, class VertexInfoHash> struct VertexHash;
 
+/**
+ * @brief Reference to a vertex.
+ * @tparam VertexInfo Type of the vertex's info.
+ * @tparam EdgeInfo Type of the edge's info.
+ */
 template <class VertexInfo, class EdgeInfo>
 using VertexRef = std::weak_ptr<Vertex<VertexInfo, EdgeInfo>>;
+/**
+ * @brief Hash table for for storing vertexes, used by the Graph class.
+ * @tparam VertexInfo Type of the vertex's info.
+ * @tparam EdgeInfo Type of the edge's info.
+ * @tparam VertexInfoHash Hash class for VertexInfo.
+ */
 template <class VertexInfo, class EdgeInfo, class VertexInfoHash>
 using VertexSet = std::unordered_set<
     std::shared_ptr<Vertex<VertexInfo, EdgeInfo>>,
@@ -27,29 +38,122 @@ using VertexSet = std::unordered_set<
     VertexHash<VertexInfo, EdgeInfo, VertexInfoHash>
 >;
 
+/**
+ * @brief Vertex of a graph, containing some info.
+ * @tparam VertexInfo Type of the vertex's info.
+ * @tparam EdgeInfo Type of the edge's info.
+ */
 template <class VertexInfo, class EdgeInfo>
 class Vertex {
   public:
+    /**
+     * @brief Constructs a Vertex object
+     * @param info Vertex's info
+     */
     explicit Vertex(const VertexInfo &info);
 
+    /**
+     * @brief Returns the vertex's info.
+     * @return Vertex's info
+     */
     const VertexInfo &getInfo() const;
-    void setInfo(const VertexInfo &info);
+
+    /**
+     * @brief Returns if the vertex was visited or not (auxiliary flag in algorithms).
+     * @return Whether the vertex was visited or not
+     */
     bool isVisited() const;
+
+    /**
+     * @brief Sets if the vertex was visited or not.
+     * @param visited Whether the vertex was visited or not
+     */
     void setVisited(bool visited);
+
+    /**
+     * @brief Returns if the vertex is being processed or not (auxiliary flag in algorithms).
+     * @return Whether the vertex is being processed or not
+     */
     bool isProcessing() const;
+
+    /**
+     * @brief Sets if the vertex is being processed or not.
+     * @param processing Whether the vertex is being processed or not
+     */
     void setProcessing(bool processing);
+
+    /**
+     * @brief Returns the in degree of the vertex (number of incoming edges).
+     * @return In degree
+     */
     int getIndegree() const;
+
+    /**
+     * @brief Sets the in degree.
+     * @param indegree Vertex's in degree
+     */
     void setIndegree(int indegree);
-    int getDistance() const;
-    void setDistance(int distance);
+
+    /**
+     * @brief Returns the vertex's depth (distance to the root, auxiliary value in algorithms).
+     * @return Vertex's depth
+     */
+    int getDepth() const;
+
+    /**
+     * @brief Sets the vertex's depth.
+     * @param distance Vertex's depth
+     */
+    void setDepth(int distance);
+
+    /**
+     * @brief Returns the vertex's num value (auxiliary value in Tarjan's algorithms).
+     * @return Num value
+     */
     int getNum() const;
+
+    /**
+     * @brief Set the vertex's num value.
+     * @param num New num value
+     */
     void setNum(int num);
+
+    /**
+     * @brief Returns the vertex's low value (auxiliary value in Tarjan's algorithms).
+     * @return Low value
+     */
     int getLow() const;
+
+    /**
+     * @brief Sets the vertex's low value.
+     * @param low New low value
+     */
     void setLow(int low);
+
+    /**
+     * @brief Returns the parent node (auxiliary in best flight's algorithm).
+     * @return Reference to parent
+     */
     VertexRef<VertexInfo, EdgeInfo> getParent();
+
+    /**
+     * @brief Sets the parent node.
+     * @param parent Reference to the parent.
+     */
     void setParent(VertexRef<VertexInfo, EdgeInfo> parent);
+
+    /**
+     * @brief Returns all the outgoing edges of the vertex.
+     * @return Vector of outgoing edges.
+     */
     const std::vector<Edge<VertexInfo, EdgeInfo>> &getAdj() const;
-    std::vector<Edge<VertexInfo, EdgeInfo>> &getAdj();
+
+    /**
+     * @brief Add an outgoing edge to the vertex.
+     * Complexity: O(1)
+     * @param dest Edge's destination
+     * @param info Edge's info
+     */
     void addEdge(VertexRef<VertexInfo, EdgeInfo> dest, const EdgeInfo &info);
 
   private:
@@ -58,49 +162,123 @@ class Vertex {
     bool visited_;
     bool processing_;
     int indegree_;
-    int distance_;
+    int depth_;
     int num_;
     int low_;
     VertexRef<VertexInfo, EdgeInfo> parent_;
 };
 
-
+/**
+ * @brief Hash class for a graph's vertex, based on VertexInfoHash.
+ * @tparam VertexInfo Type of the vertex's info.
+ * @tparam EdgeInfo Type of the edge's info.
+ * @tparam VertexInfoHash Hash class for VertexInfo.
+ */
 template<class VertexInfo, class EdgeInfo, class VertexInfoHash>
 struct VertexHash {
-  int operator()(const std::shared_ptr<Vertex<VertexInfo, EdgeInfo>> &v) const;
-  bool operator()(
+    /**
+     * @brief Returns the hashcode of a vertex, based on its info.
+     * @param v Vertex
+     * @return Vertex's hashcode
+     */
+    int operator()(const std::shared_ptr<Vertex<VertexInfo, EdgeInfo>> &v) const;
+
+    /**
+     * @brief Returns if two vertex's are the same, based on their infos.
+     * @param v1 One vertex
+     * @param v2 Other vertex
+     * @return True if they are the same, false otherwise
+     */
+    bool operator()(
       const std::shared_ptr<Vertex<VertexInfo, EdgeInfo>> &v1,
       const std::shared_ptr<Vertex<VertexInfo, EdgeInfo>> &v2
-  ) const;
+    ) const;
 };
 
-
+/**
+ * @brief Edge of a graph, containing some info.
+ * @tparam VertexInfo Type of the vertex's info.
+ * @tparam EdgeInfo Type of the edge's info.
+ */
 template <class VertexInfo, class EdgeInfo>
 class Edge {
   public:
+    /**
+     * @brief Constructs an edge object.
+     * @param dest Reference to the edge's destination vertex
+     * @param info Edge's info
+     */
     Edge(VertexRef<VertexInfo, EdgeInfo> dest, const EdgeInfo &info);
+
+    /**
+     * @brief Returns the edge's destination.
+     * @return Reference to the edge's destination.
+     */
     VertexRef<VertexInfo, EdgeInfo> getDest() const;
-    void setDest(VertexRef<VertexInfo, EdgeInfo> dest);
+
+    /**
+     * @brief Returns the edge's info.
+     * @return Edge's info
+     */
     const EdgeInfo& getInfo() const;
-    void setInfo(const EdgeInfo &info);
 
   private:
     VertexRef<VertexInfo, EdgeInfo> dest_;
     EdgeInfo info_;
 };
 
-
+/**
+ * @brief Graph class, with the structure of a CRUD graph.
+ * The class stores the vertexes in a hash table to allow constant time access to its vertices (see VertexSet).
+ *
+ * @tparam VertexInfo Type of the vertex's info.
+ * @tparam EdgeInfo Type of the edge's info.
+ * @tparam VertexInfoHash Hash class for VertexInfo.
+ */
 template <class VertexInfo, class EdgeInfo, class VertexInfoHash>
 class Graph {
   public:
+    /**
+     * @brief Constructs an empty Graph object.
+     */
     Graph();
 
+    /**
+     * @brief Returns the vertexes of the graph.
+     * @return Set of the graph's vertexes
+     */
     const VertexSet<VertexInfo, EdgeInfo, VertexInfoHash> &getVertexSet() const;
+
+    /**
+     * @brief Returns the vertex with the given info.
+     * Complexity: O(1)
+     * @param info Vertex's info
+     * @return Reference to the respective vertex
+     */
     VertexRef<VertexInfo, EdgeInfo> findVertex(const VertexInfo &info) const;
+
+    /**
+     * @brief Adds a vertex to the graph, with the given info.
+     * Complexity: O(1)
+     *
+     * @param info Vertex's info
+     * @return True if the graph was successfully added, false otherwise (if another vertex with the same info already
+     *         exists).
+     */
     bool addVertex(const VertexInfo &info);
+
+    /**
+     * @brief Adds an edge from one vertex to the other, with the respective info.
+     * This function also updates the vertexes in degree appropriately.
+     * Complexity: O(1)
+     *
+     * @param src Source vertex's info
+     * @param dest Destination vertex's info
+     * @param info Edge's info
+     * @return True if the edge was successfully added, false otherwise (if at least one of the vertexes does not
+ *             exist).
+     */
     bool addEdge(const VertexInfo &src, const VertexInfo &dest, const EdgeInfo &info);
-    void removeVertex(const VertexInfo &info);
-    void removeEdge(const VertexInfo &src, const VertexInfo &dest);
 
   private:
     VertexSet<VertexInfo, EdgeInfo, VertexInfoHash> vertexSet_;
@@ -109,16 +287,11 @@ class Graph {
 
 template<class VertexInfo, class EdgeInfo>
 Vertex<VertexInfo, EdgeInfo>::Vertex(const VertexInfo &info): info_(info), adj_(),
-    visited_(false), processing_(false), indegree_(0), num_(0), low_(0), distance_(0) {}
+      visited_(false), processing_(false), indegree_(0), num_(0), low_(0), depth_(0) {}
 
 template<class VertexInfo, class EdgeInfo>
 const VertexInfo &Vertex<VertexInfo, EdgeInfo>::getInfo() const {
     return info_;
-}
-
-template<class VertexInfo, class EdgeInfo>
-void Vertex<VertexInfo, EdgeInfo>::setInfo(const VertexInfo &info) {
-    info_ = info;
 }
 
 template<class VertexInfo, class EdgeInfo>
@@ -158,13 +331,13 @@ void Vertex<VertexInfo, EdgeInfo>::setIndegree(int indegree) {
 }
 
 template<class VertexInfo, class EdgeInfo>
-int Vertex<VertexInfo, EdgeInfo>::getDistance() const {
-    return distance_;
+int Vertex<VertexInfo, EdgeInfo>::getDepth() const {
+    return depth_;
 }
 
 template<class VertexInfo, class EdgeInfo>
-void Vertex<VertexInfo, EdgeInfo>::setDistance(int distance) {
-    distance_ = distance;
+void Vertex<VertexInfo, EdgeInfo>::setDepth(int distance) {
+    depth_ = distance;
 }
 
 template<class VertexInfo, class EdgeInfo>
@@ -202,11 +375,6 @@ const std::vector<Edge<VertexInfo, EdgeInfo>> &Vertex<VertexInfo, EdgeInfo>::get
     return adj_;
 }
 
-template<class VertexInfo, class EdgeInfo>
-std::vector<Edge<VertexInfo, EdgeInfo>> &Vertex<VertexInfo, EdgeInfo>::getAdj() {
-    return adj_;
-}
-
 
 template<class VertexInfo, class EdgeInfo>
 Edge<VertexInfo, EdgeInfo>::Edge(VertexRef<VertexInfo, EdgeInfo> dest, const EdgeInfo &info)
@@ -216,20 +384,9 @@ template<class VertexInfo, class EdgeInfo>
 VertexRef<VertexInfo, EdgeInfo> Edge<VertexInfo, EdgeInfo>::getDest() const {
     return dest_;
 }
-
-template<class VertexInfo, class EdgeInfo>
-void Edge<VertexInfo, EdgeInfo>::setDest(VertexRef<VertexInfo, EdgeInfo> dest) {
-    dest_ = dest;
-}
-
 template<class VertexInfo, class EdgeInfo>
 const EdgeInfo &Edge<VertexInfo, EdgeInfo>::getInfo() const {
     return info_;
-}
-
-template<class VertexInfo, class EdgeInfo>
-void Edge<VertexInfo, EdgeInfo>::setInfo(const EdgeInfo &info) {
-    info_ = info;
 }
 
 
@@ -249,8 +406,7 @@ VertexRef<VertexInfo, EdgeInfo> Graph<VertexInfo, EdgeInfo, VertexInfoHash>::fin
 
 template<class VertexInfo, class EdgeInfo, class VertexInfoHash>
 bool Graph<VertexInfo, EdgeInfo, VertexInfoHash>::addVertex(const VertexInfo &info) {
-    return vertexSet_.insert(std::make_shared<Vertex<VertexInfo, EdgeInfo>>(Vertex<VertexInfo, EdgeInfo>(info)))
-        .second;
+    return vertexSet_.insert(std::make_shared<Vertex<VertexInfo, EdgeInfo>>(Vertex<VertexInfo, EdgeInfo>(info))).second;
 }
 
 template<class VertexInfo, class EdgeInfo, class VertexInfoHash>
@@ -264,30 +420,6 @@ bool Graph<VertexInfo, EdgeInfo, VertexInfoHash>::addEdge(
     v1.lock()->addEdge(v2.lock(), info);
     v2.lock()->setIndegree(v2.lock()->getIndegree() + 1);
     return true;
-}
-
-template<class VertexInfo, class EdgeInfo, class VertexInfoHash>
-void Graph<VertexInfo, EdgeInfo, VertexInfoHash>::removeVertex(const VertexInfo &info) {
-    VertexRef<VertexInfo, EdgeInfo> vertex = findVertex(info);
-    for (std::shared_ptr<Vertex<VertexInfo, EdgeInfo>> other: getVertexSet())
-        removeEdge(other->getInfo(), vertex.lock()->getInfo());
-    vertexSet_.erase(vertex.lock());
-}
-
-template<class VertexInfo, class EdgeInfo, class VertexInfoHash>
-void Graph<VertexInfo, EdgeInfo, VertexInfoHash>::removeEdge(const VertexInfo &src, const VertexInfo &dest) {
-    VertexRef<VertexInfo, EdgeInfo> u = findVertex(src);
-    VertexRef<VertexInfo, EdgeInfo> v = findVertex(dest);
-    if (u.expired() || v.expired())
-        return;
-    if (u.lock()->getInfo().getCode() == "CTU")
-        std::stoi("1");
-    for (auto it = u.lock()->getAdj().begin(); it != u.lock()->getAdj().end(); ) {
-        if (it->getDest().lock()->getInfo().getCode() == v.lock()->getInfo().getCode())
-            it = u.lock()->getAdj().erase(it);
-        else
-            it++;
-    }
 }
 
 
