@@ -1,6 +1,6 @@
 /**
  * @file
- * Header file for class City.
+ * @brief Header file for class City.
  */
 
 #ifndef FEUP_AED2_CITY_H

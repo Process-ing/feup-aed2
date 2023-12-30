@@ -1,6 +1,6 @@
 /**
  * @file
- * Main file of project.
+ * @brief Main file of project.
  */
 
 #include <iostream>

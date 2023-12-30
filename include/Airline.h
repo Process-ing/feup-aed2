@@ -1,6 +1,6 @@
 /**
  * @file
- * Header file for class Airline.
+ * @brief Header file for class Airline.
  */
 
 #ifndef FEUP_AED2_AIRLINE_H

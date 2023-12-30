@@ -1,3 +1,8 @@
+/**
+ * @file FlightPath.h
+ * @brief Header file for class FlightPath.
+ */
+
 #ifndef FEUP_AED2_FLIGHTPATH_H
 #define FEUP_AED2_FLIGHTPATH_H
 

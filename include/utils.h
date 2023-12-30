@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief Useful functions for the program.
+ */
+
 #ifndef FEUP_AED2_UTILS_H
 #define FEUP_AED2_UTILS_H
 

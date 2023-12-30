@@ -1,6 +1,6 @@
 /**
  * @file
- * Header file for class Program.
+ * @brief Header file for class Program.
  */
 
 #ifndef FEUP_AED2_PROGRAM_H
@@ -54,11 +54,6 @@ class Program {
     void statisticsMenu() const;
 
     /**
-     * @brief Displays the statistics of a country.
-     */
-    void countryStatisticsMenu() const;
-
-    /**
      * @brief Displays a menu to choose the sorting method for a vector of airports.
      * @param airports Vector of airports
      * @return Sorted vector
@@ -99,9 +94,9 @@ class Program {
 
     /**
      * @brief Displays the details about the flight path.
-     * @param path Flight path
+     * @param paths Flight path
      */
-    static void displayBestFlight(const FlightPath &path);
+    static void displayBestFlight(const std::vector<FlightPath> &paths);
 
     /**
      * @brief Receives a filter for the airports to use in obtaining best flight.
@@ -133,6 +128,12 @@ class Program {
      * @return Reference to the chosen city, or an empty reference if there is none
      */
     CityRef receiveCity() const;
+
+    /**
+     * @brief Opens a menu to choose an airport with a code or a name
+     * @return Reference to the chosen airport, or an empty reference if there is none
+     */
+    AirportRef receiveAirport() const;
 
     /**
      * @brief Receives an airport chosen by the user by its code.
@@ -278,17 +279,6 @@ class Program {
     void displayFlights(const std::vector<Flight> &flights) const;
 
     /**
-     * @brief Displays the number of countries an airport flies to.
-     * @param cities Set of cities
-     */
-    void displayNumberOfDifferentCountriesAirportFliesTo() const;
-
-    /**
-     * @brief Displays the number of countries a city flies to.
-     */
-    void displayNumberOfDifferentCountriesCityFliesTo() const;
-
-    /**
      * @brief Displays the number of airports an airport flies to.
      */
     void displayNumberOfDifferentAirportsAirportFliesTo() const;
@@ -299,9 +289,9 @@ class Program {
     void displayNumberOfReachableDestinationsInNStopsFromAirport() const;
 
     /**
-     * @brief Displays the number of essential airports.
+     * @brief Displays the details about the longest trips (in number of stops).
      */
-    void displayNumberOfAirportsEssentialToNetworkCirculation() const;
+    void displayMaxTrips() const;
 
     /**
      * @brief Displays all the global statistics of the networks.
@@ -309,9 +299,19 @@ class Program {
     void displayGlobalStatistics() const;
 
     /**
+     * @brief Displays the statistics of a given city.
+     */
+    void displayCityStatistics() const;
+
+    /**
      * @brief Displays the menu to select the wanted airport's statistics.
      */
     void airportStatisticsMenu() const;
+
+    /**
+     * @brief Displays the statistics about the flights out of an airport.
+     */
+    void displayFlightsOutOfAnAirport() const;
 };
 
 

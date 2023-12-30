@@ -1,6 +1,6 @@
 /**
  * @file
- * Header file for class Country.
+ * @brief Header file for class Country.
  */
 
 #ifndef FEUP_AED2_COUNTRY_H

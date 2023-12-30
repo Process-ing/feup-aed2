@@ -1,6 +1,6 @@
 /**
  * @file
- * Header file for class Airport.
+ * @brief Header file for class Airport.
  */
 
 #ifndef FEUP_AED2_AIRPORT_H

@@ -77,7 +77,9 @@ TEST(BestFlightTestSuite, GetBestFlightPathTest) {
     AirportRef CDG = dataset.getAirport("CDG");
     ASSERT_FALSE(JFK.expired());
     ASSERT_FALSE(CDG.expired());
-    FlightPath path = dataset.getBestFlightPath({JFK}, {CDG}, {"JFK", "CDG"}, {"AFR"});
+    vector<FlightPath> paths = dataset.getBestFlightPaths({JFK}, {CDG}, {"JFK", "CDG"}, {"AFR"});
+    ASSERT_EQ(1, paths.size());
+    FlightPath path = paths[0];
 
     ASSERT_EQ(2, path.getAirports().size());
     EXPECT_EQ(JFK.lock(), path.getAirports()[0].lock());
@@ -159,7 +161,7 @@ TEST(Issue29Test, GetessentialAirports) {
 
     dataset.readFiles();
 
-    auto airports = dataset.getessentialAirports();
+    auto airports = dataset.getEssentialAirports();
     unordered_set<string> aset;
     for (const AirportRef& airport: airports)
         aset.insert(airport.lock()->getInfo().getCode());

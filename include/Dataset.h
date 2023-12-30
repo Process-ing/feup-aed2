@@ -1,6 +1,6 @@
 /**
  * @file
- * Header file for class Dataset,
+ * @brief Header file for class Dataset,
  */
 
 #ifndef FEUP_AED2_DATASET_H
@@ -185,25 +185,33 @@ class Dataset {
     static std::vector<Flight> searchFlightsFromAirport(const AirportRef &airport) ;
 
     /**
-     * @brief Returns the mean number of flights per city.
-     * Complexity: O(N), where N is the total number of airports.
+     * @brief Returns the mean number of flights per city (in and out).
+     * Complexity: O(V+E), where V is the total number of airports and E is the total number of flights.
      * @return Mean of flights per city
      */
     float numberOfFlightsByCity() const;
 
     /**
      * @brief Returns the mean number of airlines per airline.
-     * Complexity: O(N), where N is the total number of airports.
+     * Complexity: O(V), where V is the total number of airports.
      * @return Mean of flights per city
      */
     float numberOfFlightsByAirline() const;
 
     /**
      * @brief Returns the total number of flights.
-     * Complexity: O(N), where N is the total number of airports.
+     * Complexity: O(V), where V is the total number of airports.
      * @return The total number of airports
      */
     int numberOfFlights() const;
+
+    /**
+     * @brief Returns the number of distinct airlines that operate the given flights.
+     * Complexity: O(N), where N is flights.size().
+     * @param flights Vector of flights
+     * @return Number of airlines
+     */
+    int numberOfDistinctAirlines(const std::vector<Flight>& flights) const;
 
     /**
      * @brief Returns the airports directly reachable from a given airport.
@@ -215,14 +223,16 @@ class Dataset {
 
     /**
      * @brief Returns the cities directly reachable from a given airport.
-     * Complexity: O(V+N), where V is the total number of airports and N is the number of flights out the given airport.     * @param airport Reference to the source airport
+     * Complexity: O(V+N), where V is the total number of airports and N is the number of flights out the given airport.
+     * @param airport Reference to the source airport
      * @return Vector with the destination cities
      */
     std::vector<CityRef> searchReachableCitiesFromAirport(const AirportRef& airport) const;
 
     /**
      * @brief Returns the countries directly reachable from a given airport.
-     * Complexity: O(V+N), where V is the total number of airports and N is the number of flights out the given airport.     * @param airport Reference to the source airport
+     * Complexity: O(V+N), where V is the total number of airports and N is the number of flights out the given airport.
+     * @param airport Reference to the source airport
      * @return Vector with the destination countries
      */
     std::vector<CountryRef> searchReachableCountriesFromAirport(const AirportRef& airport) const;
@@ -276,22 +286,21 @@ class Dataset {
      * Complexity: O(V+E), where V is the number of airports and E is the total number of flights.
      * @return Vector with the essential airports
      */
-    std::vector<AirportRef> getessentialAirports() const;
+    std::vector<AirportRef> getEssentialAirports() const;
 
     /**
-     * @brief Returns one of the best flight paths (in terms of number of stops) from one set of airports to the other,
+     * @brief Returns the best flight paths (in terms of number of stops) from one set of airports to the other,
      *        through the given available airports and flights of given available airlines.
-     * To choose between equally valid flight path, this function chooses the one with the least travel distance.
-     * However, it should not be considered the best flight path in terms of travel distance.
+     * This function outputs, at most, one flight path for each source-destination pair
      * Complexity: O(M*(V+E+N*P)), where V is the total number of airports, E is the total number of flights, M is the
      * number of sources, N is the number of destinations and P is the number of airports in the final flight path.
      * @param srcs Set of source airports
      * @param dests Set of destination airports
      * @param availableAirports Set of available airports
      * @param availableAirlines Set of available airlines
-     * @return The best flight path found
+     * @return Vector of best flight paths
      */
-    FlightPath getBestFlightPath(
+    std::vector<FlightPath> getBestFlightPaths(
         const std::vector<AirportRef> &srcs,
         const std::vector<AirportRef> &dests,
         const std::unordered_set<std::string> &availableAirports,

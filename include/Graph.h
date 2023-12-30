@@ -1,6 +1,6 @@
 /**
  * @file
- * Header file for class Graph.
+ * @brief Header file for class Graph.
  */
 
 #ifndef FEUP_AED2_GRAPH_H

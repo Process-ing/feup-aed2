@@ -225,8 +225,12 @@ vector<Flight> Dataset::searchFlightsFromAirport(const AirportRef &airport) {
 float Dataset::numberOfFlightsByCity() const {
     auto cities = (float)getCities().size();
     float flights = 0;
-    for (const auto& airport : getAirports()){
-        flights += (float)airport->getAdj().size();
+    for (AirportRef airport : getAirports()) {
+        for (const Flight& flight: airport.lock()->getAdj()) {
+            AirportRef dest = flight.getDest();
+            if (airport.lock()->getInfo().getCity().lock() != dest.lock()->getInfo().getCity().lock())
+                flights += 2;  // Because that's one flight out of a city and to another one
+        }
     }
     return flights / cities;
 }
@@ -234,7 +238,7 @@ float Dataset::numberOfFlightsByCity() const {
 float Dataset::numberOfFlightsByAirline() const {
     auto airlines = (float)getAirlines().size();
     float flights = 0;
-    for (const auto& airport : getAirports()){
+    for (const auto& airport : getAirports()) {
         flights += (float)airport->getAdj().size();
     }
     return flights / airlines;
@@ -286,7 +290,7 @@ vector<CountryRef> Dataset::searchReachableCountriesFromAirport(const AirportRef
 }
 
 /**
- * @brief Auxiliary function to getessentialAirports, performing a depth-first search according to the Tarjan's
+ * @brief Auxiliary function to getEssentialAirports, performing a depth-first search according to the Tarjan's
  *        algorithm for articulation points.
  * Complexity: O(E), where V is the total number of flights.
  * @param airports Result vector, to contain the essential airports
@@ -324,7 +328,7 @@ void essentialAirportDfs(vector<AirportRef> &airports, const AirportRef &src, in
     src.lock()->setProcessing(false);
 }
 
-vector<AirportRef> Dataset::getessentialAirports() const{
+vector<AirportRef> Dataset::getEssentialAirports() const{
     vector<AirportRef> airports;
     int i = 1;
     for (AirportRef airport: network_.getVertexSet()) {
@@ -432,11 +436,10 @@ void dfs(const AirportRef& airport) {
     }
 }
 
-FlightPath Dataset::getBestFlightPath(const std::vector<AirportRef> &srcs, const std::vector<AirportRef> &dests,
-                                      const std::unordered_set<std::string> &availableAirports, const std::unordered_set<std::string> &availableAirlines) const {
+vector<FlightPath> Dataset::getBestFlightPaths(const vector<AirportRef> &srcs, const vector<AirportRef> &dests,
+                                               const unordered_set<string> &availableAirports, const unordered_set<string> &availableAirlines) const {
     int minFlights = numeric_limits<int>::max();
-    double minDist = numeric_limits<double>::infinity();
-    FlightPath res;
+    vector<FlightPath> paths;
 
     for (const AirportRef &src: srcs) {
         if (availableAirports.find(src.lock()->getInfo().getCode()) == availableAirports.end())
@@ -490,15 +493,17 @@ FlightPath Dataset::getBestFlightPath(const std::vector<AirportRef> &srcs, const
             path.setDistance(distance);
 
             int flights = path.getFlights();
-            if (flights < minFlights || (flights == minFlights && distance < minDist)) {
-                res = path;
+            if (flights < minFlights) {
+                paths.clear();
+                paths.push_back(path);
                 minFlights = flights;
-                minDist = distance;
+            } else if (flights == minFlights) {
+                paths.push_back(path);
             }
         }
     }
 
-    return res;
+    return paths;
 }
 
 double hav(double x) {
@@ -535,4 +540,12 @@ vector<AirportRef> Dataset::getClosestAirports(double latitude, double longitude
     }
 
     return airports;
+}
+
+int Dataset::numberOfDistinctAirlines(const vector<Flight> &flights) const {
+    AirlineSet airlines;
+    for (const Flight& flight: flights) {
+        airlines.insert(flight.getInfo().getAirline());
+    }
+    return (int)airlines.size();
 }
