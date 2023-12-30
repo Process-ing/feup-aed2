@@ -424,18 +424,6 @@ const AirportSet &Dataset::getAirports() const {
     return network_.getVertexSet();
 }
 
-void dfs(const AirportRef& airport);
-void dfs(const AirportRef& airport) {
-    airport.lock()->setVisited(true);
-
-    for (auto flight : airport.lock()->getAdj()) {
-        auto neighbour = flight.getDest();
-        if (!neighbour.lock()->isVisited()) {
-            dfs(neighbour);
-        }
-    }
-}
-
 vector<FlightPath> Dataset::getBestFlightPaths(const vector<AirportRef> &srcs, const vector<AirportRef> &dests,
                                                const unordered_set<string> &availableAirports, const unordered_set<string> &availableAirlines) const {
     int minFlights = numeric_limits<int>::max();
@@ -445,10 +433,9 @@ vector<FlightPath> Dataset::getBestFlightPaths(const vector<AirportRef> &srcs, c
         if (availableAirports.find(src.lock()->getInfo().getCode()) == availableAirports.end())
             continue;
 
-        for (AirportRef airport: network_.getVertexSet()) {
+        for (AirportRef airport: network_.getVertexSet())
             airport.lock()->setVisited(false);
-            airport.lock()->setParent(AirportRef());
-        }
+
         queue<AirportRef> airportQueue;
         airportQueue.push(src);
         src.lock()->setVisited(true);
@@ -463,7 +450,7 @@ vector<FlightPath> Dataset::getBestFlightPaths(const vector<AirportRef> &srcs, c
                 if (!child.lock()->isVisited() && availableAirports.find(child.lock()->getInfo().getCode()) != availableAirports.end()) {
                     airportQueue.push(child);
                     child.lock()->setVisited(true);
-                    child.lock()->setParent(parent);
+                    child.lock()->setParentEdge(parent, flight.getInfo());
                 }
             }
         }
@@ -472,32 +459,22 @@ vector<FlightPath> Dataset::getBestFlightPaths(const vector<AirportRef> &srcs, c
             if (!dest.lock()->isVisited())
                 return {};
 
-            FlightPath path;
-            double distance = 0.0;
-            path.getAirports().push_back(dest);
+            std::vector<Flight> flights;
             AirportRef curr = dest;
             while (curr.lock()->getInfo().getCode() != src.lock()->getInfo().getCode()) {
-                AirportRef next = curr.lock()->getParent();
-                distance += calculateDistance(
-                        curr.lock()->getInfo().getLatitude(),
-                        curr.lock()->getInfo().getLongitude(),
-                        next.lock()->getInfo().getLatitude(),
-                        next.lock()->getInfo().getLongitude()
-                );
-                curr = next;
-                path.getAirports().push_back(curr);
+                Flight parentFlight = *curr.lock()->getParentEdge().lock();
+                AirportRef parent = parentFlight.getDest();
+                flights.emplace_back(curr, parentFlight.getInfo());
+                curr = parent;
             }
-            if (path.getAirports().empty())
-                continue;
-            reverse(path.getAirports().begin(), path.getAirports().end());
-            path.setDistance(distance);
+            reverse(flights.begin(), flights.end());
 
-            int flights = path.getFlights();
-            if (flights < minFlights) {
+            FlightPath path(src, flights);
+            if ((int)flights.size() < minFlights) {
                 paths.clear();
                 paths.push_back(path);
-                minFlights = flights;
-            } else if (flights == minFlights) {
+                minFlights = (int)flights.size();
+            } else if (flights.size() == minFlights) {
                 paths.push_back(path);
             }
         }

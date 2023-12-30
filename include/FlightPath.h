@@ -16,21 +16,23 @@
 class FlightPath {
   public:
     /**
-     * @brief Constructs an empty FlightPath object.
+     * @brief Constructs a FlightPath object.
+     * @param initialAirport Initial airport
+     * @param flights Flights in the path
      */
-    FlightPath();
+    FlightPath(AirportRef initialAirport, std::vector<Flight> flights);
 
     /**
-     * @brief Returns the airport sequence of the flight path.
-     * @return Airport sequence
+     * @brief Returns the initial airport of the path.
+     * @return Initial airport
      */
-    const std::vector<AirportRef> &getAirports() const;
+    const AirportRef &getInitialAirport() const;
 
     /**
-     * @brief Returns the airport sequence of the flight path.
-     * @return Airport sequence
+     * @brief Returns the flights in the flight path.
+     * @return Vector of flights, in the respective sequence
      */
-    std::vector<AirportRef> &getAirports();
+    const std::vector<Flight> &getFlights() const;
 
     /**
      * @brief Return the flight path's total travel distance.
@@ -38,21 +40,9 @@ class FlightPath {
      */
     double getDistance() const;
 
-    /**
-     * @brief Sets the flight path's total travel distance.
-     * @param distance Travel distance
-     */
-    void setDistance(double distance);
-
-    /**
-     * Calculates the number of flights in the flight path.
-     * @return Number of flights
-     */
-    int getFlights() const;
-
   private:
-    std::vector<AirportRef> airports_;
-    double distance_;
+    AirportRef initialAirport_;
+    std::vector<Flight> flights_;
 };
 
 
