@@ -375,11 +375,6 @@ const std::vector<Edge<VertexInfo, EdgeInfo>> &Vertex<VertexInfo, EdgeInfo>::get
     return adj_;
 }
 
-template<class VertexInfo, class EdgeInfo>
-std::vector<Edge<VertexInfo, EdgeInfo>> &Vertex<VertexInfo, EdgeInfo>::getAdj() {
-    return adj_;
-}
-
 
 template<class VertexInfo, class EdgeInfo>
 Edge<VertexInfo, EdgeInfo>::Edge(VertexRef<VertexInfo, EdgeInfo> dest, const EdgeInfo &info)

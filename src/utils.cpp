@@ -57,3 +57,17 @@ vector<AirportRef> sortAirportsByCity(vector<AirportRef> airports) {
     });
     return airports;
 }
+
+vector<CountryRef> sortCountries(vector<CountryRef> countries) {
+    sort(countries.begin(), countries.end(), [](const CountryRef& a, const CountryRef& b) {
+        return a.lock()->getName() < b.lock()->getName();
+    });
+    return countries;
+}
+
+vector<CityRef> sortCities(vector<CityRef> cities) {
+    sort(cities.begin(), cities.end(), [](const CityRef& a, const CityRef& b) {
+        return a.lock()->getName() < b.lock()->getName();
+    });
+    return cities;
+}

@@ -131,7 +131,7 @@ TEST(Issue25Test, GetReachableAirportsFromAirport) {
 
     auto fao = dataset.getAirport("FAO");
     auto airports = dataset.getReachableAirportsFromAirport(fao, 0);
-    EXPECT_EQ(63, airports.size());
+    EXPECT_EQ(62, airports.size());
 }
 
 TEST(Issue25Test, GetReachableCitiesFromAirport) {
@@ -141,7 +141,7 @@ TEST(Issue25Test, GetReachableCitiesFromAirport) {
 
     auto fao = dataset.getAirport("FAO");
     auto cities = dataset.getReachableCitiesFromAirport(fao, 0);
-    EXPECT_EQ(58, cities.size());
+    EXPECT_EQ(57, cities.size());
 }
 
 TEST(Issue25Test, GetReachableCountriesFromAirport) {
@@ -154,12 +154,12 @@ TEST(Issue25Test, GetReachableCountriesFromAirport) {
     EXPECT_EQ(14, countries.size());
 }
 
-TEST(Issue29Test, GetEssencialAirports) {
+TEST(Issue29Test, GetessentialAirports) {
     Dataset dataset;
 
     dataset.readFiles();
 
-    auto airports = dataset.getEssencialAirports();
+    auto airports = dataset.getessentialAirports();
     unordered_set<string> aset;
     for (const AirportRef& airport: airports)
         aset.insert(airport.lock()->getInfo().getCode());

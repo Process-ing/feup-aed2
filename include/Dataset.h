@@ -168,20 +168,13 @@ class Dataset {
     static std::vector<AirportRef> getAirportsFromCity(const CityRef &city);
 
     /**
-     * @brief Returns the countries an airport flies to.
-     * Complexity: O(N), where N is the number of flights out of the city.
-     * @param airport Reference to the airport
-     * @return Vector with the countries
-     */
-    static std::vector<CountryRef> getCountriesAirportFliesTo(const AirportRef &airport);
-
-    /**
      * @brief Returns the countries a city flies to.
-     * Complexity: O(M*N), where M is the number of airports in the city and N the number of flights out of each airport.
+     * Complexity: O(N*(V+E)), where N is the number of airports in the city, V is the total number of airports and E is
+     * the total number of flights.
      * @param city Reference to the city
      * @return Vector with the countries
      */
-    static std::vector<CountryRef> getCountriesCityFliesTo(const CityRef &city) ;
+    std::vector<CountryRef> getCountriesCityFliesTo(const CityRef &city) const;
 
     /**
      * @brief Returns the flights out of a given airport.
@@ -214,27 +207,25 @@ class Dataset {
 
     /**
      * @brief Returns the airports directly reachable from a given airport.
-     * Complexity: O(N), where N is the number of flights out the given airport
+     * Complexity: O(V+N), where V is the total number of airports and N is the number of flights out the given airport.
      * @param airport Reference to the source airport
      * @return Vector with the destination airports
      */
-    static std::vector<AirportRef> searchReachableAirportsFromAirport(const AirportRef& airport);
+    std::vector<AirportRef> searchReachableAirportsFromAirport(const AirportRef& airport) const;
 
     /**
      * @brief Returns the cities directly reachable from a given airport.
-     * Complexity: O(N), where N is the number of flights out the given airport
-     * @param airport Reference to the source airport
+     * Complexity: O(V+N), where V is the total number of airports and N is the number of flights out the given airport.     * @param airport Reference to the source airport
      * @return Vector with the destination cities
      */
-    static std::vector<CityRef> searchReachableCitiesFromAirport(const AirportRef& airport);
+    std::vector<CityRef> searchReachableCitiesFromAirport(const AirportRef& airport) const;
 
     /**
      * @brief Returns the countries directly reachable from a given airport.
-     * Complexity: O(N), where N is the number of flights out the given airport
-     * @param airport Reference to the source airport
+     * Complexity: O(V+N), where V is the total number of airports and N is the number of flights out the given airport.     * @param airport Reference to the source airport
      * @return Vector with the destination countries
      */
-    static std::vector<CountryRef> searchReachableCountriesFromAirport(const AirportRef& airport);
+    std::vector<CountryRef> searchReachableCountriesFromAirport(const AirportRef& airport) const;
 
     /**
      * @brief Returns the top n airports with the greatest air traffic capacity (greatest number of flights in and out).
@@ -279,7 +270,13 @@ class Dataset {
      * @return Vector of pairs of source-destination airports with the longest trip
      */
     std::vector<std::pair<AirportRef, AirportRef>> getMaxTrips(int& diameter) const;
-    std::vector<AirportRef> getEssencialAirports() const;
+
+    /**
+     * @brief Determines the essential airports, i.e. the airports that, when removed, restrict areas of the network.
+     * Complexity: O(V+E), where V is the number of airports and E is the total number of flights.
+     * @return Vector with the essential airports
+     */
+    std::vector<AirportRef> getessentialAirports() const;
 
     /**
      * @brief Returns one of the best flight paths (in terms of number of stops) from one set of airports to the other,
@@ -300,6 +297,14 @@ class Dataset {
         const std::unordered_set<std::string> &availableAirports,
         const std::unordered_set<std::string> &availableAirlines
     ) const;
+
+    /**
+     * @brief Returns the closest airports to the given coordinates (they will be multiple if at the same distance).
+     * Complexity: O(V), where V is the total number of airports.
+     * @param latitude The latitude, in degrees.
+     * @param longitude The longitude, in degrees.
+     * @return Vector with the closest airports
+     */
     std::vector<AirportRef> getClosestAirports(double latitude, double longitude) const;
 
   private:
@@ -328,6 +333,7 @@ class Dataset {
 
     /**
      * @brief Calculates the distance between two geographical positions, using the Haversine distance formula.
+     * Complexity: O(1) (assuming that the functions std::sin, std::cos and std::asin have complexity O(1)).
      * @param lat1 Latitude of the first position, in degrees
      * @param lon1 Longitude of the first position, in degrees
      * @param lat2 Latitude of the second position, in degrees

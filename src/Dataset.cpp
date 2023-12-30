@@ -161,19 +161,10 @@ vector<AirportRef> Dataset::getAirportsFromCity(const CityRef &city) {
     return airports;
 }
 
-vector<CountryRef> Dataset::getCountriesAirportFliesTo(const AirportRef &airport) {
-    CountryRefSet countries;
-    for (const auto& flight : airport.lock()->getAdj()) {
-        auto destination = flight.getDest();
-        countries.insert(destination.lock()->getInfo().getCity().lock()->getCountry());
-    }
-    return { countries.begin(), countries.end() };
-}
-
-vector<CountryRef> Dataset::getCountriesCityFliesTo(const CityRef &city) {
+vector<CountryRef> Dataset::getCountriesCityFliesTo(const CityRef &city) const {
     CountryRefSet countries;
     for (const auto& airport : city.lock()->getAirports()) {
-        vector<CountryRef> moreCountries = getCountriesAirportFliesTo(airport);
+        vector<CountryRef> moreCountries = searchReachableCountriesFromAirport(airport);
         countries.insert(moreCountries.begin(), moreCountries.end());
     }
     return { countries.begin(), countries.end() };
@@ -197,7 +188,7 @@ vector<AirportRef> Dataset::getReachableAirportsFromAirport(const AirportRef& ai
                 if (!dest.lock()->isVisited()) {
                     newQueue.push(dest);
                     dest.lock()->setVisited(true);
-                    airports.push_back(airport);
+                    airports.push_back(dest);
                 }
             }
         }
@@ -257,19 +248,24 @@ int Dataset::numberOfFlights() const{
     return flights;
 }
 
-vector<AirportRef> Dataset::searchReachableAirportsFromAirport(const AirportRef& airport) {
+vector<AirportRef> Dataset::searchReachableAirportsFromAirport(const AirportRef& airport) const {
     vector<AirportRef> airports;
+
+    for (AirportRef other: getAirports())
+        other.lock()->setVisited(false);
+
 
     for (const auto& flight : airport.lock()->getAdj()) {
         AirportRef dest = flight.getDest();
         if (!dest.lock()->isVisited()) {
+            dest.lock()->setVisited(true);
             airports.push_back(dest);
         }
     }
     return airports;
 }
 
-vector<CityRef> Dataset::searchReachableCitiesFromAirport(const AirportRef& airport) {
+vector<CityRef> Dataset::searchReachableCitiesFromAirport(const AirportRef& airport) const {
     CitySet cities;
     auto airports = searchReachableAirportsFromAirport(airport);
     for (const auto& air : airports) {
@@ -279,7 +275,7 @@ vector<CityRef> Dataset::searchReachableCitiesFromAirport(const AirportRef& airp
     return cities1;
 }
 
-vector<CountryRef> Dataset::searchReachableCountriesFromAirport(const AirportRef& airport) {
+vector<CountryRef> Dataset::searchReachableCountriesFromAirport(const AirportRef& airport) const {
     CountryRefSet countries;
     auto cities = searchReachableCitiesFromAirport(airport);
     for (const auto& city : cities) {
@@ -289,6 +285,15 @@ vector<CountryRef> Dataset::searchReachableCountriesFromAirport(const AirportRef
     return countries1;
 }
 
+/**
+ * @brief Auxiliary function to getessentialAirports, performing a depth-first search according to the Tarjan's
+ *        algorithm for articulation points.
+ * Complexity: O(E), where V is the total number of flights.
+ * @param airports Result vector, to contain the essential airports
+ * @param src The airport from which to execute the search
+ * @param i Index
+ * @param isRoot Whether src is the root or not
+ */
 void essentialAirportDfs(vector<AirportRef> &airports, const AirportRef &src, int &i, bool isRoot) {
     src.lock()->setNum(i);
     src.lock()->setLow(i);
@@ -319,7 +324,7 @@ void essentialAirportDfs(vector<AirportRef> &airports, const AirportRef &src, in
     src.lock()->setProcessing(false);
 }
 
-vector<AirportRef> Dataset::getEssencialAirports() const{
+vector<AirportRef> Dataset::getessentialAirports() const{
     vector<AirportRef> airports;
     int i = 1;
     for (AirportRef airport: network_.getVertexSet()) {

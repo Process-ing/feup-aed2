@@ -69,5 +69,20 @@ std::vector<AirportRef> sortAirportsByCountry(std::vector<AirportRef> airports);
  */
 std::vector<AirportRef> sortAirportsByCity(std::vector<AirportRef> airports);
 
+/**
+ * @brief Sorts a vector of cities by name.
+ * Complexity: O(N*log(N)), where N is cities.size().
+ * @param airports City vector
+ * @return Sorted vector
+ */
+std::vector<CityRef> sortCities(std::vector<CityRef> cities);
+
+/**
+ * @brief Sorts a vector of countries by name.
+ * Complexity: O(N*log(N)), where N is country.size().
+ * @param airports Country vector
+ * @return Sorted vector
+ */
+std::vector<CountryRef> sortCountries(std::vector<CountryRef> countries);
 
 #endif //FEUP_AED2_UTILS_H

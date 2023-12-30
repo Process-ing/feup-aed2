@@ -124,10 +124,10 @@ void Program::searchMenu() const {
                 displayFlightsFromAirport();
                 break;
             case SEARCH_COUNTRIES_FLYING_TO_AIRPORT:
-                displayCountriesFlyingToAirport();
+                displayCountriesAirportFliesTo();
                 break;
             case SEARCH_COUNTRIES_FLYING_TO_CITY:
-                displayCountriesFlyingToCity();
+                displayCountriesCityFliesTo();
                 break;
             case SEARCH_DESTINATIONS_FROM_AIRPORT:
                 destinationsFromAirportMenu();
@@ -201,7 +201,7 @@ void Program::airportStatisticsMenu() const {
             "\n";
     switch(receiveOption(NUM_OPTIONS)){
         case NUMBER_OF_DIFFERENT_DESTINATIONS_FROM_AIRPORT:
-            displayNumberOfDifferentDestinationsFromAirport();
+            displayNumberOfDifferentAirportsAirportFliesTo();
             break;
         case NUMBER_OF_REACHABLE_DESTINATIONS_IN_N_STOPS_FROM_AIRPORT:
             displayNumberOfReachableDestinationsInNStopsFromAirport();
@@ -211,7 +211,6 @@ void Program::airportStatisticsMenu() const {
             break;
         case GO_BACK:
             return;
-
     }
 }
 
@@ -234,10 +233,10 @@ void Program::countryStatisticsMenu() const{
             "\n";
     switch(receiveOption(NUM_OPTIONS)){
         case NUMBER_OF_DIFFERENT_COUNTRIES_THAT_FLY_TO_AIRPORT:
-            displayNumberOfDifferentCountriesThatFlyToAirport();
+            displayNumberOfDifferentCountriesAirportFliesTo();
             break;
         case NUMBER_OF_DIFFERENT_COUNTRIES_THAT_FLY_TO_CITY:
-            displayNumberOfDifferentCountriesThatFlyToCity();
+            displayNumberOfDifferentCountriesCityFliesTo();
             break;
         case GO_BACK:
             return;
@@ -263,13 +262,13 @@ void Program::destinationsFromAirportMenu() const {
             "\n";
     switch(receiveOption(NUM_OPTIONS)) {
         case AIRPORT:
-            displayDestinationsFromAirport();
+            displayAirportsAirportFliesTo();
             break;
         case COUNTRY:
-            displayCountriesFromAirport();
+            displayCountriesAirportFliesTo();
             break;
         case CITY:
-            displayCitiesFromAirport();
+            displayCitiesAirportFliesTo();
             break;
     }
 }
@@ -304,7 +303,7 @@ void Program::reachableDestinationsFromAirportMenu() const {
     }
 }
 
-vector<AirportRef> Program::sortAirportsMenu(vector<AirportRef> airports) {
+vector<AirportRef> Program::sortAirportsMenu(const vector<AirportRef>& airports) {
     static const int NUM_OPTIONS = 3;
     enum Option {
         SORT_BY_AIRPORT_NAME = 1,
@@ -333,9 +332,10 @@ vector<AirportRef> Program::sortAirportsMenu(vector<AirportRef> airports) {
         case SORT_BY_AIRPORT_COUNTRY:
              return sortAirportsByCountry(airports);
     }
+    return {};  // Should not happen
 }
 
-vector<AirportRef> Program::sortAirportsCityMenu(vector<AirportRef> airports) {
+vector<AirportRef> Program::sortAirportsCityMenu(const vector<AirportRef>& airports) {
     static const int NUM_OPTIONS = 3;
     enum Option {
         SORT_BY_AIRPORT_NAME = 1,
@@ -356,23 +356,10 @@ vector<AirportRef> Program::sortAirportsCityMenu(vector<AirportRef> airports) {
         case SORT_BY_AIRPORT_CODE:
             return sortAirportsByCode(airports);
     }
+    return {};  // Should not happen
 }
 
-vector<CountryRef> Program::sortCountries(vector<CountryRef> countries) const {
-    sort(countries.begin(), countries.end(), [](const CountryRef& a, const CountryRef& b) {
-        return a.lock()->getName() < b.lock()->getName();
-    });
-    return countries;
-}
-
-vector<CityRef> Program::sortCities(vector<CityRef> cities) const {
-    sort(cities.begin(), cities.end(), [](const CityRef& a, const CityRef& b) {
-        return a.lock()->getName() < b.lock()->getName();
-    });
-    return cities;
-}
-
-vector<AirlineRef> Program::sortAirlinesMenu(vector<AirlineRef> airlines) const {
+vector<AirlineRef> Program::sortAirlinesMenu(const vector<AirlineRef>& airlines) {
     static const int NUM_OPTIONS = 4;
     enum Option {
         SORT_BY_AIRLINE_NAME = 1,
@@ -401,9 +388,10 @@ vector<AirlineRef> Program::sortAirlinesMenu(vector<AirlineRef> airlines) const 
         case SORT_BY_AIRLINE_CALLSIGN:
             return sortAirlinesByCallsign(airlines);
     }
+    return {};  // Should not happen
 }
 
-vector<AirlineRef> Program::sortAirlinesCountryMenu(vector<AirlineRef> airlines) const {
+vector<AirlineRef> Program::sortAirlinesCountryMenu(const vector<AirlineRef>& airlines) {
     static const int NUM_OPTIONS = 4;
     enum Option {
         SORT_BY_AIRLINE_NAME = 1,
@@ -428,6 +416,7 @@ vector<AirlineRef> Program::sortAirlinesCountryMenu(vector<AirlineRef> airlines)
         case SORT_BY_AIRLINE_CALLSIGN:
             return sortAirlinesByCallsign(airlines);
     }
+    return {};  // Should not happen
 }
 
 
@@ -791,32 +780,7 @@ void Program::displayFlightsFromAirport() const {
     displayFlights(flights);
 }
 
-void Program::displayCountriesFlyingToAirport() const {
-    AirportRef airport = receiveAirportByCode();
-    if (airport.expired())
-        return;
-    vector<CountryRef> countries = dataset_.getCountriesAirportFliesTo(airport);
-    displayCountries(countries);
-}
-
-void Program::displayCountriesFlyingToCity() const {
-    CityRef city = receiveCity();
-    if (city.expired())
-        return;
-    vector<CountryRef> countries = dataset_.getCountriesCityFliesTo(city);
-    displayCountries(countries);
-}
-
-void Program::displayDestinationsFromAirport() const {
-    AirportRef airport = receiveAirportByCode();
-    if (airport.expired())
-        return;
-    vector<AirportRef> airports = dataset_.searchReachableAirportsFromAirport(airport);
-    airports = sortAirportsMenu(airports);
-    displayAirports(airports);
-}
-
-void Program::displayCountriesFromAirport() const {
+void Program::displayCountriesAirportFliesTo() const {
     AirportRef airport = receiveAirportByCode();
     if (airport.expired())
         return;
@@ -825,7 +789,25 @@ void Program::displayCountriesFromAirport() const {
     displayCountries(countries);
 }
 
-void Program::displayCitiesFromAirport() const {
+void Program::displayCountriesCityFliesTo() const {
+    CityRef city = receiveCity();
+    if (city.expired())
+        return;
+    vector<CountryRef> countries = dataset_.getCountriesCityFliesTo(city);
+    countries = sortCountries(countries);
+    displayCountries(countries);
+}
+
+void Program::displayAirportsAirportFliesTo() const {
+    AirportRef airport = receiveAirportByCode();
+    if (airport.expired())
+        return;
+    vector<AirportRef> airports = dataset_.searchReachableAirportsFromAirport(airport);
+    airports = sortAirportsMenu(airports);
+    displayAirports(airports);
+}
+
+void Program::displayCitiesAirportFliesTo() const {
     AirportRef airport = receiveAirportByCode();
     if (airport.expired())
         return;
@@ -895,7 +877,7 @@ void Program::displayTopNAirportsWithGreatestTraffic() const {
 }
 
 void Program::displayAirportsEssentialToNetworkCirculation() const {
-    vector<AirportRef> airports = dataset_.getEssencialAirports();
+    vector<AirportRef> airports = dataset_.getessentialAirports();
     displayAirports(airports);
 }
 
@@ -1317,11 +1299,11 @@ void Program::displayFlights(const std::vector<Flight> &flights) const {
 
 
 
-void Program::displayNumberOfDifferentCountriesThatFlyToAirport() const {
+void Program::displayNumberOfDifferentCountriesAirportFliesTo() const {
     AirportRef airport = receiveAirportByCode();
     if (airport.expired())
         return;
-    vector<CountryRef> countries = dataset_.getCountriesAirportFliesTo(airport);
+    vector<CountryRef> countries = dataset_.searchReachableCountriesFromAirport(airport);
     cout << "\n"
             " ┌─ Statistics results ──────────────────────────────────────────────────────────────────┐\n"
             " │                                                                                       │\n";
@@ -1331,7 +1313,7 @@ void Program::displayNumberOfDifferentCountriesThatFlyToAirport() const {
     waitForEnter();
 }
 
-void Program::displayNumberOfDifferentCountriesThatFlyToCity() const {
+void Program::displayNumberOfDifferentCountriesCityFliesTo() const {
     CityRef city = receiveCity();
     if (city.expired())
         return;
@@ -1345,7 +1327,7 @@ void Program::displayNumberOfDifferentCountriesThatFlyToCity() const {
     waitForEnter();
 }
 
-void Program::displayNumberOfDifferentDestinationsFromAirport() const {
+void Program::displayNumberOfDifferentAirportsAirportFliesTo() const {
     AirportRef airport = receiveAirportByCode();
     if (airport.expired())
         return;
@@ -1390,11 +1372,11 @@ void Program::displayNumberOfReachableDestinationsInNStopsFromAirport() const {
 
 void Program::displayNumberOfAirportsEssentialToNetworkCirculation() const {
     clearScreen();
-    vector<AirportRef> airports = dataset_.getEssencialAirports();
+    vector<AirportRef> airports = dataset_.getessentialAirports();
     cout << "\n"
             " ┌─ Statistics results ──────────────────────────────────────────────────────────────────┐\n"
             " │                                                                                       │\n";
-    cout << left << setw(91) <<" │  Number of essencial airports to network circulation : " + to_string(airports.size()) << "│\n";
+    cout << left << setw(91) <<" │  Number of essential airports to network circulation : " + to_string(airports.size()) << "│\n";
     cout << " │                                                                                       │\n"
             " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
     waitForEnter();
