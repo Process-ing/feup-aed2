@@ -1433,7 +1433,7 @@ void Program::displayGlobalStatistics() const {
          << setw(91) << " │  Number of cities: " + to_string(dataset_.getCities().size()) << "│\n"
          << setw(91) << " │  Maximum trip: "+ to_string(diameter) + " flights" << "│\n"
          << setw(91) << " │  Average number of flights per city: " + flightsByCity.str() << "│\n"
-         << setw(91) << " │  Average number of flights per airline: "+ flightsByAirline.str() + " flights" << "│\n"
+         << setw(91) << " │  Average number of flights per airline: "+ flightsByAirline.str() << "│\n"
          << " │                                                                                       │\n"
             " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
     waitForEnter();
