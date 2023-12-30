@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <algorithm>
 #include "Dataset.h"
-#include "Program.h"
 
 using namespace std;
 
@@ -81,9 +80,9 @@ TEST(BestFlightTestSuite, GetBestFlightPathTest) {
     ASSERT_EQ(1, paths.size());
     FlightPath path = paths[0];
 
-    ASSERT_EQ(2, path.getAirports().size());
-    EXPECT_EQ(JFK.lock(), path.getAirports()[0].lock());
-    EXPECT_EQ(CDG.lock(), path.getAirports()[1].lock());
+    ASSERT_EQ(1, path.getFlights().size());
+    EXPECT_EQ(JFK.lock(), path.getInitialAirport().lock());
+    EXPECT_EQ(CDG.lock(), path.getFlights()[0].getDest().lock());
 }
 
 TEST(Issue16Test, GetAirlinesFromCountry) {

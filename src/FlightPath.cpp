@@ -1,23 +1,21 @@
 #include "FlightPath.h"
 
-FlightPath::FlightPath(): airports_(), distance_(0.0) {}
+#include <utility>
 
-const std::vector<AirportRef> &FlightPath::getAirports() const {
-    return airports_;
+FlightPath::FlightPath(AirportRef initialAirport, std::vector<Flight> flights)
+    : initialAirport_(std::move(initialAirport)), flights_(std::move(flights)) {}
+
+const AirportRef &FlightPath::getInitialAirport() const {
+    return initialAirport_;
 }
 
-std::vector<AirportRef> &FlightPath::getAirports() {
-    return airports_;
+const std::vector<Flight> &FlightPath::getFlights() const {
+    return flights_;
 }
 
 double FlightPath::getDistance() const {
-    return distance_;
-}
-
-void FlightPath::setDistance(double distance) {
-    distance_ = distance;
-}
-
-int FlightPath::getFlights() const {
-    return (int)airports_.size() - 1;
+    double res = 0;
+    for (const Flight& flight: flights_)
+        res += flight.getInfo().getDistance();
+    return res;
 }

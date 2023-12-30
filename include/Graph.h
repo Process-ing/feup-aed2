@@ -131,16 +131,16 @@ class Vertex {
     void setLow(int low);
 
     /**
-     * @brief Returns the parent node (auxiliary in best flight's algorithm).
-     * @return Reference to parent
+     * @brief Returns the reversed edge of its parent to it (auxiliary in best flight's algorithm).
+     * @return Reference to the parent edge.
      */
-    VertexRef<VertexInfo, EdgeInfo> getParent();
+    std::weak_ptr<Edge<VertexInfo, EdgeInfo>> getParentEdge();
 
     /**
-     * @brief Sets the parent node.
-     * @param parent Reference to the parent.
+     * @brief Sets the parent edge.
+     * @param parent Reference to the parent edge.
      */
-    void setParent(VertexRef<VertexInfo, EdgeInfo> parent);
+    void setParentEdge(VertexRef<VertexInfo, EdgeInfo> parent, const EdgeInfo& info);
 
     /**
      * @brief Returns all the outgoing edges of the vertex.
@@ -165,7 +165,7 @@ class Vertex {
     int depth_;
     int num_;
     int low_;
-    VertexRef<VertexInfo, EdgeInfo> parent_;
+    std::shared_ptr<Edge<VertexInfo, EdgeInfo>> parentEdge_;
 };
 
 /**
@@ -361,13 +361,13 @@ void Vertex<VertexInfo, EdgeInfo>::setLow(int low) {
 }
 
 template<class VertexInfo, class EdgeInfo>
-VertexRef<VertexInfo, EdgeInfo> Vertex<VertexInfo, EdgeInfo>::getParent() {
-    return parent_;
+std::weak_ptr<Edge<VertexInfo, EdgeInfo>> Vertex<VertexInfo, EdgeInfo>::getParentEdge() {
+    return parentEdge_;
 }
 
 template<class VertexInfo, class EdgeInfo>
-void Vertex<VertexInfo, EdgeInfo>::setParent(VertexRef<VertexInfo, EdgeInfo> parent) {
-    parent_ = parent;
+void Vertex<VertexInfo, EdgeInfo>::setParentEdge(VertexRef<VertexInfo, EdgeInfo> parent, const EdgeInfo &info) {
+    parentEdge_ = std::make_shared<Edge<VertexInfo, EdgeInfo>>(parent, info);
 }
 
 template<class VertexInfo, class EdgeInfo>

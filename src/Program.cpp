@@ -651,8 +651,9 @@ vector<AirportRef> Program::chooseAirportsForBestFlight() const {
     return airports;
 }
 
-string getAirportInfoString(const Airport& airport) {
-    return "Code: " + airport.getInfo().getCode() + ", Name: " + airport.getInfo().getName();
+string getFlightInfoString(const AirportRef &src, const Flight &flight) {
+    return "Airports: " + src.lock()->getInfo().getCode() + " -> " + flight.getDest().lock()->getInfo().getCode()
+        + "        Airline: " + flight.getInfo().getAirline().lock()->getCode();
 }
 
 void Program::displayBestFlight(const vector<FlightPath> &paths) {
@@ -671,19 +672,22 @@ void Program::displayBestFlight(const vector<FlightPath> &paths) {
     int pathIndex = 0;
     while (true) {
         const FlightPath& path = paths[pathIndex];
+        ostringstream distanceStr;
+        distanceStr << fixed << setprecision(2) << path.getDistance();
         clearScreen();
         cout << "\n"
                 " ┌─ Best flight paths ─────────────────────────────────────────────────────────┐\n"
                 " │                                                                             │\n"
-                " │  Total flights: " << left << setw(60) << path.getFlights() << "│\n"
-                                                                                  " │  Total travel distance: " << setw(52) << to_string(path.getDistance()) + " Km" << "│\n"
-                                                                                                                                                                        " │                                                                             │\n"
-                                                                                                                                                                        " │  Travel airports:                                                           │\n";
+                " │  Total flights: " << left << setw(60) << path.getFlights().size() << "│\n"
+                " │  Total travel distance: " << setw(52) << distanceStr.str() + " Km" << "│\n"
+                " │                                                                             │\n"
+                " │  Flights:                                                                   │\n";
 
-        for (int i = 0; i < path.getAirports().size(); i++) {
-            const AirportRef &airport = path.getAirports()[i];
+        for (int i = 0; i < path.getFlights().size(); i++) {
+            AirportRef src = i > 0 ? path.getFlights()[i - 1].getDest() : path.getInitialAirport();
+            Flight flight = path.getFlights()[i];
             cout << " │      " << left << setw(71)
-                 << to_string(i + 1) + ". " + getAirportInfoString(*airport.lock()) << "│\n";
+                 << to_string(i + 1) + ". " + getFlightInfoString(src, flight) << "│\n";
         }
 
         cout << " │                                                                             │\n"
@@ -1413,8 +1417,10 @@ void Program::displayGlobalStatistics() const {
     cout << "Calculating the statistics, this might take a while...\n";
 
     int diameter;
-
     dataset_.getMaxTrips(diameter);
+    ostringstream flightsByCity, flightsByAirline;
+    flightsByCity << fixed << setprecision(2) << dataset_.numberOfFlightsByCity();
+    flightsByAirline << fixed << setprecision(2) << dataset_.numberOfFlightsByAirline();
 
     clearScreen();
     cout << "\n"
@@ -1426,8 +1432,8 @@ void Program::displayGlobalStatistics() const {
          << setw(91) << " │  Number of countries: " + to_string(dataset_.getCountries().size()) << "│\n"
          << setw(91) << " │  Number of cities: " + to_string(dataset_.getCities().size()) << "│\n"
          << setw(91) << " │  Maximum trip: "+ to_string(diameter) + " flights" << "│\n"
-         << setw(91) << " │  Mean number of flights per city: " + to_string(dataset_.numberOfFlightsByCity()) << "│\n"
-         << setw(91) << " │  Mean number of flights per airline: "+ to_string(dataset_.numberOfFlightsByAirline()) + " flights" << "│\n"
+         << setw(91) << " │  Average number of flights per city: " + flightsByCity.str() << "│\n"
+         << setw(91) << " │  Average number of flights per airline: "+ flightsByAirline.str() + " flights" << "│\n"
          << " │                                                                                       │\n"
             " └───────────────────────────────────────────────────────────────────────────────────────┘\n\n";
     waitForEnter();
