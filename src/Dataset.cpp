@@ -357,14 +357,12 @@ vector<AirportRef> Dataset::searchTopNAirportsWithGreatestTraffic(int n) const {
     return { airportsList.begin(), airportsList.begin() + n };
 }
 
-pair<AirportRef, AirportRef> Dataset::diameterBFS(const AirportRef& airport, int &diameter) const {
-    diameter = 0;
+void Dataset::diameterBFS(const AirportRef& airport, int &diameter, vector<pair<AirportRef, AirportRef>>& pairs) const {
     for (const auto& v : network_.getVertexSet()) {
         v->setVisited(false);
         v->setDepth(0);
     }
     queue<AirportRef> q;
-    AirportRef final;
     q.push(airport);
     airport.lock()->setDepth(0);
     airport.lock()->setVisited(true);
@@ -377,30 +375,23 @@ pair<AirportRef, AirportRef> Dataset::diameterBFS(const AirportRef& airport, int
                 dest.lock()->setDepth(curr.lock()->getDepth() + 1);
                 if (dest.lock()->getDepth() > diameter) {
                     diameter = dest.lock()->getDepth();
-                    final = dest;
+                    pairs.clear();
+                    pairs.emplace_back(airport, dest);
+                } else if (dest.lock()->getDepth() == diameter) {
+                    pairs.emplace_back(airport, dest);
                 }
                 q.push(dest);
                 dest.lock()->setVisited(true);
             }
         }
     }
-    return {airport, final};
 }
 
 vector<pair<AirportRef, AirportRef>> Dataset::getMaxTrips(int &diameter) const {
     vector<pair<AirportRef, AirportRef>> pairs;
-    int max = 0;
-
-    for(const auto& airport : network_.getVertexSet()) {
-        int current;
-        pair<AirportRef, AirportRef> new_pair = diameterBFS(airport, current);
-        if (current > max) {
-            pairs.clear();
-            pairs.push_back(new_pair);
-            max = current;
-        } else if (current == max) pairs.push_back(new_pair);
-    }
-    diameter = max;
+    diameter = 0;
+    for (const auto& airport : network_.getVertexSet())
+        diameterBFS(airport, diameter, pairs);
     return pairs;
 }
 

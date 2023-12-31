@@ -352,13 +352,13 @@ class Dataset {
     static double calculateDistance(double lat1, double lon1, double lat2, double lon2);
 
     /**
-     * @brief Performs a breath-first search from a given airport, to determine which airport is the most distant from it.
+     * @brief Performs a breath-first search from a given airport, to determine which airports are the most distant from it.
      * Complexity: O(V + E), where V is the number of airports and E is the number of flights.
      * @param airport The source airport
-     * @param diameter A variable to hold the distance (in flights) between the two airports
-     * @return A pair with the source airport and the destination airport
+     * @param diameter A variable to hold the max distance (in flights) between two airports
+     * @param pairs Result vector, to store the pairs source-destination of longest trips
      */
-    std::pair<AirportRef, AirportRef> diameterBFS(const AirportRef& airport, int &diameter) const;
+    void diameterBFS(const AirportRef& airport, int &diameter, std::vector<std::pair<AirportRef, AirportRef>>& pairs) const;
 };
 
 

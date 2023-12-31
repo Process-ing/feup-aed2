@@ -176,5 +176,5 @@ TEST(Issue31Test, GetMaxTrips) {
     int diameter = 0;
     auto pairs = dataset.getMaxTrips(diameter);
     EXPECT_EQ(12, diameter);
-    EXPECT_EQ(8, pairs.size());
+    EXPECT_EQ(18, pairs.size());
 }
