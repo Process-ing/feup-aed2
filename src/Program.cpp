@@ -651,9 +651,14 @@ vector<AirportRef> Program::chooseAirportsForBestFlight() const {
     return airports;
 }
 
-string getFlightInfoString(const AirportRef &src, const Flight &flight) {
-    return "Airports: " + src.lock()->getInfo().getCode() + " -> " + flight.getDest().lock()->getInfo().getCode()
-        + "        Airline: " + flight.getInfo().getAirline().lock()->getCode();
+string getFlightInfoString(const AirportRef &src, const Flight &flight, const vector<AirlineRef> &airlines) {
+    ostringstream res;
+    res << "Airports: " << src.lock()->getInfo().getCode() << " -> " << flight.getDest().lock()->getInfo().getCode()
+        << "        Airlines:";
+    for (const AirlineRef &airline: airlines) {
+        res << " " << airline.lock()->getCode();
+    }
+    return res.str();
 }
 
 void Program::displayBestFlight(const vector<FlightPath> &paths) {
@@ -676,30 +681,30 @@ void Program::displayBestFlight(const vector<FlightPath> &paths) {
         distanceStr << fixed << setprecision(2) << path.getDistance();
         clearScreen();
         cout << "\n"
-                " ┌─ Best flight paths ─────────────────────────────────────────────────────────┐\n"
-                " │                                                                             │\n"
-                " │  Total flights: " << left << setw(60) << path.getFlights().size() << "│\n"
-                " │  Total travel distance: " << setw(52) << distanceStr.str() + " Km" << "│\n"
-                " │                                                                             │\n"
-                " │  Flights:                                                                   │\n";
+                " ┌─ Best flight paths ───────────────────────────────────────────────────────────────────────────────────────────────────────────┐\n"
+                " │                                                                                                                               │\n"
+                " │  Total flights: " << left << setw(110) << path.getFlights().size() << "│\n"
+                " │  Total travel distance: " << setw(102) << distanceStr.str() + " Km" << "│\n"
+                " │                                                                                                                               │\n"
+                " │  Flights:                                                                                                                     │\n";
 
         for (int i = 0; i < path.getFlights().size(); i++) {
-            AirportRef src = i > 0 ? path.getFlights()[i - 1].getDest() : path.getInitialAirport();
-            Flight flight = path.getFlights()[i];
-            cout << " │      " << left << setw(71)
-                 << to_string(i + 1) + ". " + getFlightInfoString(src, flight) << "│\n";
+            AirportRef src = i > 0 ? path.getFlights()[i - 1].first.getDest() : path.getInitialAirport();
+            Flight flight = path.getFlights()[i].first;
+            cout << " │      " << left << setw(121)
+                 << to_string(i + 1) + ". " + getFlightInfoString(src, flight, path.getFlights()[i].second) << "│\n";
         }
 
-        cout << " │                                                                             │\n"
-                " │  Flight path " << left << setw(63) << to_string(pathIndex + 1) + " of " + to_string(paths.size()) <<  "│\n";
+        cout << " │                                                                                                                               │\n"
+                " │  Flight path " << left << setw(113) << to_string(pathIndex + 1) + " of " + to_string(paths.size()) <<  "│\n";
         if (pathIndex < paths.size() - 1)
-            cout << " │     [1] Next page                                                           │\n";
+            cout << " │     [1] Next page                                                                                                             │\n";
         if (pathIndex > 0)
-            cout << " │     [2] Previous page                                                       │\n";
+            cout << " │     [2] Previous page                                                                                                         │\n";
 
-        cout << " │     [3] Go back                                                             │\n"
-                " │                                                                             │\n"
-                " └─────────────────────────────────────────────────────────────────────────────┘\n"
+        cout << " │     [3] Go back                                                                                                               │\n"
+                " │                                                                                                                               │\n"
+                " └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘\n"
                 "\n";
 
         int option;

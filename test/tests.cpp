@@ -82,7 +82,7 @@ TEST(BestFlightTestSuite, GetBestFlightPathTest) {
 
     ASSERT_EQ(1, path.getFlights().size());
     EXPECT_EQ(JFK.lock(), path.getInitialAirport().lock());
-    EXPECT_EQ(CDG.lock(), path.getFlights()[0].getDest().lock());
+    EXPECT_EQ(CDG.lock(), path.getFlights()[0].first.getDest().lock());
 }
 
 TEST(Issue16Test, GetAirlinesFromCountry) {

@@ -457,14 +457,19 @@ vector<FlightPath> Dataset::getBestFlightPaths(const vector<AirportRef> &srcs, c
 
         for (const AirportRef &dest: dests) {
             if (!dest.lock()->isVisited())
-                return {};
+                continue;
 
-            std::vector<Flight> flights;
+            vector<pair<Flight, vector<AirlineRef>>> flights;
             AirportRef curr = dest;
             while (curr.lock()->getInfo().getCode() != src.lock()->getInfo().getCode()) {
                 Flight parentFlight = *curr.lock()->getParentEdge().lock();
                 AirportRef parent = parentFlight.getDest();
-                flights.emplace_back(curr, parentFlight.getInfo());
+                vector<AirlineRef> flightAirlines;
+                for (const Flight& flight: parent.lock()->getAdj()) {
+                    if (flight.getDest().lock() == curr.lock() && availableAirlines.find(flight.getInfo().getAirline().lock()->getCode()) != availableAirlines.end())
+                        flightAirlines.push_back(flight.getInfo().getAirline());
+                }
+                flights.emplace_back(Flight(curr, parentFlight.getInfo()), flightAirlines);
                 curr = parent;
             }
             reverse(flights.begin(), flights.end());

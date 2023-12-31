@@ -292,8 +292,9 @@ class Dataset {
      * @brief Returns the best flight paths (in terms of number of stops) from one set of airports to the other,
      *        through the given available airports and flights of given available airlines.
      * This function outputs, at most, one flight path for each source-destination pair
-     * Complexity: O(M*(V+E+N*P)), where V is the total number of airports, E is the total number of flights, M is the
-     * number of sources, N is the number of destinations and P is the number of airports in the final flight path.
+     * Complexity: O(M*(V+E+N*P*Q)), where V is the total number of airports, E is the total number of flights, M is the
+     * number of sources, N is the number of destinations, P is the number of airports in the final flight path and Q is
+     * the maximum number of flights out of each airport of the path.
      * @param srcs Set of source airports
      * @param dests Set of destination airports
      * @param availableAirports Set of available airports
