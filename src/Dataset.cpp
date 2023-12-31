@@ -289,16 +289,7 @@ vector<CountryRef> Dataset::searchReachableCountriesFromAirport(const AirportRef
     return countries1;
 }
 
-/**
- * @brief Auxiliary function to getEssentialAirports, performing a depth-first search according to the Tarjan's
- *        algorithm for articulation points.
- * Complexity: O(E), where V is the total number of flights.
- * @param airports Result vector, to contain the essential airports
- * @param src The airport from which to execute the search
- * @param i Index
- * @param isRoot Whether src is the root or not
- */
-void essentialAirportDfs(vector<AirportRef> &airports, const AirportRef &src, int &i, bool isRoot) {
+void Dataset::essentialAirportDfs(vector<AirportInfo> &airports, const AirportRef &src, int &i, bool isRoot) const {
     src.lock()->setNum(i);
     src.lock()->setLow(i);
     src.lock()->setVisited(true);
@@ -323,22 +314,40 @@ void essentialAirportDfs(vector<AirportRef> &airports, const AirportRef &src, in
     if (isRoot && childCount > 1)
         isEssential = true;
     if (isEssential)
-        airports.push_back(src);
+        airports.push_back(src.lock()->getInfo());
 
     src.lock()->setProcessing(false);
+}
+
+Network Dataset::convertToUndirected(const Network &network) const {
+    Network newNetwork;
+    for (AirportRef airport: network.getVertexSet())
+        newNetwork.addVertex(airport.lock()->getInfo());
+    for (AirportRef airport: network.getVertexSet()) {
+        for (const Flight& flight: airport.lock()->getAdj()) {
+            AirportRef dest = flight.getDest();
+            newNetwork.addEdge(airport.lock()->getInfo(), dest.lock()->getInfo(), flight.getInfo());
+            newNetwork.addEdge(dest.lock()->getInfo(), airport.lock()->getInfo(), flight.getInfo());
+        }
+    }
+    return newNetwork;
 }
 
 vector<AirportRef> Dataset::getEssentialAirports() const{
     vector<AirportRef> airports;
     int i = 1;
-    for (AirportRef airport: network_.getVertexSet()) {
+    Network undirectedNetwork = convertToUndirected(network_);
+    for (AirportRef airport: undirectedNetwork.getVertexSet()) {
         airport.lock()->setVisited(false);
         airport.lock()->setProcessing(false);
     }
 
-    for (AirportRef airport: network_.getVertexSet()) {
+    for (AirportRef airport: undirectedNetwork.getVertexSet()) {
+        vector<AirportInfo> airportInfos;
         if (!airport.lock()->isVisited())
-            essentialAirportDfs(airports, airport, i, true);
+            essentialAirportDfs(airportInfos, airport, i, true);
+        for (const AirportInfo& info: airportInfos)
+            airports.push_back(network_.findVertex(info));
     }
 
     return airports;

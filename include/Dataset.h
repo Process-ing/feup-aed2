@@ -353,12 +353,31 @@ class Dataset {
 
     /**
      * @brief Performs a breath-first search from a given airport, to determine which airports are the most distant from it.
-     * Complexity: O(V + E), where V is the number of airports and E is the number of flights.
+     * Complexity: O(V+E), where V is the number of airports and E is the number of flights.
      * @param airport The source airport
      * @param diameter A variable to hold the max distance (in flights) between two airports
      * @param pairs Result vector, to store the pairs source-destination of longest trips
      */
     void diameterBFS(const AirportRef& airport, int &diameter, std::vector<std::pair<AirportRef, AirportRef>>& pairs) const;
+
+    /**
+     * @brief Auxiliary function to getEssentialAirports, performing a depth-first search according to the Tarjan's
+     *        algorithm for articulation points.
+     * Complexity: O(E), where E is the total number of flights.
+     * @param airports Result vector, to contain the essential airports
+     * @param src The airport from which to execute the search
+     * @param i Index
+     * @param isRoot Whether src is the root or not
+     */
+    void essentialAirportDfs(std::vector<AirportInfo> &airports, const AirportRef &src, int &i, bool isRoot) const;
+
+    /**
+     * @brief Converts the given network graph to an undirected graph.
+     * Complexity: O(V+E), where V is the total number of airports and E is the total number of flights in the network.
+     * @param network The network to convert
+     * @return Undirected version of network
+     */
+    Network convertToUndirected(const Network &network) const;
 };
 
 

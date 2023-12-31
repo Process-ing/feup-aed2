@@ -907,12 +907,12 @@ void Program::displayTopNAirportsWithGreatestTraffic() const {
         cout << "Invalid number of airports. Please enter another number: ";
     }
     vector<AirportRef> airports = dataset_.searchTopNAirportsWithGreatestTraffic(n);
-    displayAirports(airports);
+    displayAirports(sortAirportsMenu(airports));
 }
 
 void Program::displayAirportsEssentialToNetworkCirculation() const {
     vector<AirportRef> airports = dataset_.getEssentialAirports();
-    displayAirports(airports);
+    displayAirports(sortAirportsMenu(airports));
 }
 
 CountryRef Program::receiveCountry() const {
