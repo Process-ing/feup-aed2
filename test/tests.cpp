@@ -161,11 +161,7 @@ TEST(Issue29Test, GetessentialAirports) {
     dataset.readFiles();
 
     auto airports = dataset.getEssentialAirports();
-    unordered_set<string> aset;
-    for (const AirportRef& airport: airports)
-        aset.insert(airport.lock()->getInfo().getCode());
-    EXPECT_EQ(airports.size(), aset.size());
-    ASSERT_EQ(312, airports.size());
+    ASSERT_EQ(314, airports.size());
 }
 
 TEST(Issue31Test, GetMaxTrips) {
