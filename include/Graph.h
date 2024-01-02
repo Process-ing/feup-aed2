@@ -159,7 +159,7 @@ class Vertex {
     int depth_;
     int num_;
     int low_;
-    std::vector<VertexRef<VertexInfo, EdgeInfo>> parentEdges_;
+    std::vector<VertexRef<VertexInfo, EdgeInfo>> parents_;
 };
 
 /**
@@ -281,7 +281,7 @@ class Graph {
 
 template<class VertexInfo, class EdgeInfo>
 Vertex<VertexInfo, EdgeInfo>::Vertex(const VertexInfo &info): info_(info), adj_(),
-      visited_(false), processing_(false), indegree_(0), num_(0), low_(0), depth_(0), parentEdges_() {}
+                                                              visited_(false), processing_(false), indegree_(0), num_(0), low_(0), depth_(0), parents_() {}
 
 template<class VertexInfo, class EdgeInfo>
 const VertexInfo &Vertex<VertexInfo, EdgeInfo>::getInfo() const {
@@ -356,7 +356,7 @@ void Vertex<VertexInfo, EdgeInfo>::setLow(int low) {
 
 template<class VertexInfo, class EdgeInfo>
 std::vector<VertexRef<VertexInfo, EdgeInfo>> &Vertex<VertexInfo, EdgeInfo>::getParents() {
-    return parentEdges_;
+    return parents_;
 }
 
 template<class VertexInfo, class EdgeInfo>
