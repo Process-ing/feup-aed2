@@ -292,9 +292,9 @@ class Dataset {
      * @brief Returns the best flight paths (in terms of number of stops) from one set of airports to the other,
      *        through the given available airports and flights of given available airlines.
      * This function outputs, at most, one flight path for each source-destination pair
-     * Complexity: O(M*(V+E+N*P*Q)), where V is the total number of airports, E is the total number of flights, M is the
-     * number of sources, N is the number of destinations, P is the number of airports in the final flight path and Q is
-     * the maximum number of flights out of each airport of the path.
+     * Complexity: O(M*(V*N+E)+P*Q*R+P*log(P))), where V is the total number of airports, E is the total number of
+     * flights, M is the number of sources, N is maximum number of flights into each airport, P is the number of
+     * paths found, Q is the length of each path and R is the maximum number of flights out of each airport.
      * @param srcs Set of source airports
      * @param dests Set of destination airports
      * @param availableAirports Set of available airports
@@ -379,6 +379,28 @@ class Dataset {
      * @return Undirected version of network
      */
     Network convertToUndirected(const Network &network) const;
+
+    /**
+     * @brief Auxiliary function to getBestFlightPaths, which gets the shortest paths from src to curr.
+     * Complexity: O(M*N*P), where M is the number of resulting paths, N the length of the paths and P the maximum
+     * number of flights out of each airport in the path.
+     * @param src Beginning of the path
+     * @param dest Destination of the path
+     * @param availableAirlines Set of available airlines
+     * @return Vector of vectors of available flights, in each step of the path, for each path found
+     */
+    std::vector<std::vector<std::vector<Flight>>> backtrackPaths(const AirportRef &src, const AirportRef& dest,
+                                                                 const std::unordered_set<std::string> &availableAirlines) const;
+
+    /**
+     * @brief Auxiliary function to getBestFlightPaths, returns whether parent is part of child's parents (see
+     * Vertex.getParents).
+     * Complexity: O(N), where N is the number of parents the child currently has.
+     * @param child Child airport
+     * @param parent Parent airport
+     * @return True if parent is marked a child's parent, false otherwise
+     */
+    bool hasParent(const AirportRef &child, const AirportRef &parent) const;
 };
 
 

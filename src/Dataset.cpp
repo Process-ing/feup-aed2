@@ -424,6 +424,34 @@ const AirportSet &Dataset::getAirports() const {
     return network_.getVertexSet();
 }
 
+vector<vector<vector<Flight>>> Dataset::backtrackPaths(const AirportRef &src, const AirportRef& dest,
+                                                       const unordered_set<string> &availableAirlines) const {
+    if (src.lock() == dest.lock())
+        return { {} };
+    vector<vector<vector<Flight>>> res;
+    for (const AirportRef& parent: dest.lock()->getParents()) {
+        for (vector<vector<Flight>> &flightSequence: backtrackPaths(src, parent, availableAirlines)) {
+            vector<Flight> stageFlights;
+            for (const Flight& flight: parent.lock()->getAdj()) {
+                bool isValidAirline = availableAirlines.find(flight.getInfo().getAirline().lock()->getCode()) != availableAirlines.end();
+                if (isValidAirline && flight.getDest().lock() == dest.lock())
+                    stageFlights.emplace_back(dest, flight.getInfo());
+            }
+            flightSequence.push_back(stageFlights);
+            res.push_back(flightSequence);
+        }
+    }
+    return res;
+}
+
+bool Dataset::hasParent(const AirportRef &child, const AirportRef &parent) const {
+    for (const AirportRef& other: child.lock()->getParents()) {
+        if (other.lock() == parent.lock())
+            return true;
+    }
+    return false;
+}
+
 vector<FlightPath> Dataset::getBestFlightPaths(const vector<AirportRef> &srcs, const vector<AirportRef> &dests,
                                                const unordered_set<string> &availableAirports, const unordered_set<string> &availableAirlines) const {
     int minFlights = numeric_limits<int>::max();
@@ -433,25 +461,42 @@ vector<FlightPath> Dataset::getBestFlightPaths(const vector<AirportRef> &srcs, c
         if (availableAirports.find(src.lock()->getInfo().getCode()) == availableAirports.end())
             continue;
 
-        for (AirportRef airport: network_.getVertexSet())
+        for (AirportRef airport: network_.getVertexSet()) {
             airport.lock()->setVisited(false);
+            airport.lock()->setProcessing(false);
+            airport.lock()->getParents().clear();
+        }
 
-        queue<AirportRef> airportQueue;
+        queue<AirportRef> airportQueue, newQueue;
         airportQueue.push(src);
         src.lock()->setVisited(true);
         while (!airportQueue.empty()) {
-            AirportRef parent = airportQueue.front();
-            airportQueue.pop();
+            while (!airportQueue.empty()) {
+                AirportRef parent = airportQueue.front();
+                airportQueue.pop();
 
-            for (const Flight& flight: parent.lock()->getAdj()) {
-                if (availableAirlines.find(flight.getInfo().getAirline().lock()->getCode()) == availableAirlines.end())
-                    continue;
-                AirportRef child = flight.getDest();
-                if (!child.lock()->isVisited() && availableAirports.find(child.lock()->getInfo().getCode()) != availableAirports.end()) {
-                    airportQueue.push(child);
-                    child.lock()->setVisited(true);
-                    child.lock()->setParentEdge(parent, flight.getInfo());
+                for (const Flight &flight: parent.lock()->getAdj()) {
+                    if (availableAirlines.find(flight.getInfo().getAirline().lock()->getCode()) ==
+                        availableAirlines.end())
+                        continue;
+                    AirportRef child = flight.getDest();
+                    if (availableAirports.find(child.lock()->getInfo().getCode()) == availableAirports.end())
+                        continue;
+                    if (!child.lock()->isVisited()) {
+                        newQueue.push(child);
+                        child.lock()->setVisited(true);
+                        child.lock()->setProcessing(true);
+                    }
+                    if (child.lock()->isProcessing() && !hasParent(child, parent))
+                        child.lock()->getParents().push_back(parent);
                 }
+            }
+
+            while (!newQueue.empty()) {
+                AirportRef airport = newQueue.front();
+                newQueue.pop();
+                airport.lock()->setProcessing(false);
+                airportQueue.push(airport);
             }
         }
 
@@ -459,31 +504,22 @@ vector<FlightPath> Dataset::getBestFlightPaths(const vector<AirportRef> &srcs, c
             if (!dest.lock()->isVisited())
                 continue;
 
-            vector<pair<Flight, vector<AirlineRef>>> flights;
-            AirportRef curr = dest;
-            while (curr.lock()->getInfo().getCode() != src.lock()->getInfo().getCode()) {
-                Flight parentFlight = *curr.lock()->getParentEdge().lock();
-                AirportRef parent = parentFlight.getDest();
-                vector<AirlineRef> flightAirlines;
-                for (const Flight& flight: parent.lock()->getAdj()) {
-                    if (flight.getDest().lock() == curr.lock() && availableAirlines.find(flight.getInfo().getAirline().lock()->getCode()) != availableAirlines.end())
-                        flightAirlines.push_back(flight.getInfo().getAirline());
+            for (const vector<vector<Flight>> &flightsSequence: backtrackPaths(src, dest, availableAirlines)) {
+                FlightPath path(src, flightsSequence);
+                if ((int) flightsSequence.size() < minFlights) {
+                    paths.clear();
+                    paths.push_back(path);
+                    minFlights = (int) flightsSequence.size();
+                } else if (flightsSequence.size() == minFlights) {
+                    paths.push_back(path);
                 }
-                flights.emplace_back(Flight(curr, parentFlight.getInfo()), flightAirlines);
-                curr = parent;
-            }
-            reverse(flights.begin(), flights.end());
-
-            FlightPath path(src, flights);
-            if ((int)flights.size() < minFlights) {
-                paths.clear();
-                paths.push_back(path);
-                minFlights = (int)flights.size();
-            } else if (flights.size() == minFlights) {
-                paths.push_back(path);
             }
         }
     }
+
+    sort(paths.begin(), paths.end(), [](const FlightPath &path1, const FlightPath &path2) {
+        return path1.getDistance() < path2.getDistance();
+    });
 
     return paths;
 }

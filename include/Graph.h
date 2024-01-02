@@ -131,16 +131,10 @@ class Vertex {
     void setLow(int low);
 
     /**
-     * @brief Returns the reversed edge of its parent to it (auxiliary in best flight's algorithm).
+     * @brief Returns the parents of the vertex (auxiliary in best flight's algorithm).
      * @return Reference to the parent edge.
      */
-    std::weak_ptr<Edge<VertexInfo, EdgeInfo>> getParentEdge();
-
-    /**
-     * @brief Sets the parent edge.
-     * @param parent Reference to the parent edge.
-     */
-    void setParentEdge(VertexRef<VertexInfo, EdgeInfo> parent, const EdgeInfo& info);
+    std::vector<VertexRef<VertexInfo, EdgeInfo>> &getParents();
 
     /**
      * @brief Returns all the outgoing edges of the vertex.
@@ -165,7 +159,7 @@ class Vertex {
     int depth_;
     int num_;
     int low_;
-    std::shared_ptr<Edge<VertexInfo, EdgeInfo>> parentEdge_;
+    std::vector<VertexRef<VertexInfo, EdgeInfo>> parentEdges_;
 };
 
 /**
@@ -287,7 +281,7 @@ class Graph {
 
 template<class VertexInfo, class EdgeInfo>
 Vertex<VertexInfo, EdgeInfo>::Vertex(const VertexInfo &info): info_(info), adj_(),
-      visited_(false), processing_(false), indegree_(0), num_(0), low_(0), depth_(0) {}
+      visited_(false), processing_(false), indegree_(0), num_(0), low_(0), depth_(0), parentEdges_() {}
 
 template<class VertexInfo, class EdgeInfo>
 const VertexInfo &Vertex<VertexInfo, EdgeInfo>::getInfo() const {
@@ -361,13 +355,8 @@ void Vertex<VertexInfo, EdgeInfo>::setLow(int low) {
 }
 
 template<class VertexInfo, class EdgeInfo>
-std::weak_ptr<Edge<VertexInfo, EdgeInfo>> Vertex<VertexInfo, EdgeInfo>::getParentEdge() {
-    return parentEdge_;
-}
-
-template<class VertexInfo, class EdgeInfo>
-void Vertex<VertexInfo, EdgeInfo>::setParentEdge(VertexRef<VertexInfo, EdgeInfo> parent, const EdgeInfo &info) {
-    parentEdge_ = std::make_shared<Edge<VertexInfo, EdgeInfo>>(parent, info);
+std::vector<VertexRef<VertexInfo, EdgeInfo>> &Vertex<VertexInfo, EdgeInfo>::getParents() {
+    return parentEdges_;
 }
 
 template<class VertexInfo, class EdgeInfo>

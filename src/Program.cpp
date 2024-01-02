@@ -651,12 +651,12 @@ vector<AirportRef> Program::chooseAirportsForBestFlight() const {
     return airports;
 }
 
-string getFlightInfoString(const AirportRef &src, const Flight &flight, const vector<AirlineRef> &airlines) {
+string getFlightInfoString(const AirportRef &src, const vector<Flight> &flights) {
     ostringstream res;
-    res << "Airports: " << src.lock()->getInfo().getCode() << " -> " << flight.getDest().lock()->getInfo().getCode()
-        << "        Airlines:";
-    for (const AirlineRef &airline: airlines) {
-        res << " " << airline.lock()->getCode();
+    res << "Airports: " << src.lock()->getInfo().getCode() << " -> " << flights[0].getDest().lock()->getInfo().getCode()
+        << "        Airlines:" ;
+    for (const Flight& flight: flights) {
+        res << " " << flight.getInfo().getAirline().lock()->getCode();
     }
     return res.str();
 }
@@ -689,10 +689,10 @@ void Program::displayBestFlight(const vector<FlightPath> &paths) {
                 " │  Flights:                                                                                                                     │\n";
 
         for (int i = 0; i < path.getFlights().size(); i++) {
-            AirportRef src = i > 0 ? path.getFlights()[i - 1].first.getDest() : path.getInitialAirport();
-            Flight flight = path.getFlights()[i].first;
+            AirportRef src = i > 0 ? path.getFlights()[i - 1][0].getDest() : path.getInitialAirport();
+            vector<Flight> flights = path.getFlights()[i];
             cout << " │      " << left << setw(121)
-                 << to_string(i + 1) + ". " + getFlightInfoString(src, flight, path.getFlights()[i].second) << "│\n";
+                 << to_string(i + 1) + ". " + getFlightInfoString(src, flights) << "│\n";
         }
 
         cout << " │                                                                                                                               │\n"

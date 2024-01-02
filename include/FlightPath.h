@@ -17,10 +17,11 @@ class FlightPath {
   public:
     /**
      * @brief Constructs a FlightPath object.
+     * Complexity: O(N), where N is the number of stages of the path (flights.size()).
      * @param initialAirport Initial airport
-     * @param flights Flights in the path, with the respective available alternative airlines
+     * @param flights Sequence of available flights in each stage
      */
-    FlightPath(AirportRef initialAirport, std::vector<std::pair<Flight, std::vector<AirlineRef>>> flights);
+    FlightPath(AirportRef initialAirport, std::vector<std::vector<Flight>> flights);
 
     /**
      * @brief Returns the initial airport of the path.
@@ -29,10 +30,10 @@ class FlightPath {
     const AirportRef &getInitialAirport() const;
 
     /**
-     * @brief Returns the flights in the flight path, with their respective available alternative airlines.
-     * @return Vector of flights, in the respective sequence, paired with the available airlines
+     * @brief Returns the sequence of available flights in each stage of the path.
+     * @return Vector of vector of flights
      */
-    const std::vector<std::pair<Flight, std::vector<AirlineRef>>> &getFlights() const;
+    const std::vector<std::vector<Flight>> &getFlights() const;
 
     /**
      * @brief Return the flight path's total travel distance.
@@ -42,7 +43,8 @@ class FlightPath {
 
   private:
     AirportRef initialAirport_;
-    std::vector<std::pair<Flight, std::vector<AirlineRef>>> flights_;
+    std::vector<std::vector<Flight>> flights_;
+    double distance_;
 };
 
 

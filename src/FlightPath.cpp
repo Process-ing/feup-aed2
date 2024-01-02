@@ -4,20 +4,21 @@
 
 using namespace std;
 
-FlightPath::FlightPath(AirportRef initialAirport, vector<pair<Flight, vector<AirlineRef>>> flights)
-    : initialAirport_(std::move(initialAirport)), flights_(std::move(flights)) {}
+FlightPath::FlightPath(AirportRef initialAirport, std::vector<std::vector<Flight>> flights)
+    : initialAirport_(std::move(initialAirport)), flights_(std::move(flights)) {
+    distance_ = 0;
+    for (const vector<Flight>& flight: flights_)
+        distance_ += flight[0].getInfo().getDistance();
+}
 
 const AirportRef &FlightPath::getInitialAirport() const {
     return initialAirport_;
 }
 
-const vector<pair<Flight, vector<AirlineRef>>> &FlightPath::getFlights() const {
+const std::vector<std::vector<Flight>> &FlightPath::getFlights() const {
     return flights_;
 }
 
 double FlightPath::getDistance() const {
-    double res = 0;
-    for (const pair<Flight, vector<AirlineRef>>& flight: flights_)
-        res += flight.first.getInfo().getDistance();
-    return res;
+    return distance_;
 }
