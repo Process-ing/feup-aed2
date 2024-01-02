@@ -289,10 +289,10 @@ class Dataset {
     std::vector<AirportRef> getEssentialAirports() const;
 
     /**
-     * @brief Returns the best flight paths (in terms of number of stops) from one set of airports to the other,
+     * @brief Returns all the best flight paths (in terms of number of stops) from one set of airports to the other,
      *        through the given available airports and flights of given available airlines.
-     * This function outputs, at most, one flight path for each source-destination pair
-     * Complexity: O(M*(V*N+E)+P*Q*R+P*log(P))), where V is the total number of airports, E is the total number of
+     * The paths are sorted by total travel distance.
+     * Complexity: O(M*(V*N+E)+P*(Q*R+log(P)))), where V is the total number of airports, E is the total number of
      * flights, M is the number of sources, N is maximum number of flights into each airport, P is the number of
      * paths found, Q is the length of each path and R is the maximum number of flights out of each airport.
      * @param srcs Set of source airports
